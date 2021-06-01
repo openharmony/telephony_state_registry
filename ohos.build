@@ -1,0 +1,14 @@
+{
+    "subsystem": "telephony",
+    "parts": {
+        "state_registry": {
+            "module_list": [
+                "//base/telephony/state_registry:tel_state_registry",
+                "//base/telephony/state_registry/test/unittest:tel_state_registry_test",
+                "//base/telephony/state_registry/interfaces/kits:tel_state_registry_api",
+                "//base/telephony/state_registry/interfaces/kits/test:tel_state_registry_api_test",
+                "//base/telephony/state_registry/interfaces/kits/js/napi:telephony_observer"
+            ]
+        }
+    }
+}
