@@ -39,7 +39,7 @@
 -   开发语言：JavaScript。
 -   软件上，需要与以下服务配合使用：Telephony核心服务（core\_service）。
 -   硬件上，需要搭载的设备支持以下硬件：可以进行独立蜂窝通信的Modem以及SIM卡。
--   使用场景：注册获取SIM卡状态接口仅针对有SIM卡在位场景生效，若用户拔出SIM卡，则接收不到回调事件。应用可通过调用hasSimCard接口来确定当前卡槽是否有卡在位。
+-   使用场景：注册获取SIM卡状态接口仅针对有SIM卡在位场景生效，若用户拔出SIM卡，则接收不到回调事件。应用可通过调用getSimState接口来确定当前卡槽是否有卡在位。
 
 ## 说明<a name="section134mcpsimp"></a>
 
@@ -176,14 +176,12 @@
 
 ## 相关仓<a name="section206mcpsimp"></a>
 
-电话服务子系统
+[电话服务子系统](https://gitee.com/openharmony/docs/blob/master/zh-cn/readme/%E7%94%B5%E8%AF%9D%E6%9C%8D%E5%8A%A1%E5%AD%90%E7%B3%BB%E7%BB%9F.md)
 
-telephony_state_registry
+**telephony_state_registry**
 
-telephony_core_service
+[telephony_core_service](https://gitee.com/openharmony/telephony_core_service/blob/master/README_zh.md)
 
-telephony_cellular_data
+[telephony_cellular_call](https://gitee.com/openharmony/telephony_cellular_call/blob/master/README_zh.md)
 
-telephony_cellular_call
-
-telephony_call_manager
+[telephony_call_manager](https://gitee.com/openharmony/telephony_call_manager/blob/master/README_zh.md)

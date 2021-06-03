@@ -39,7 +39,7 @@ The state registry module provides APIs to register and deregister an observer t
 -   Programming language: JavaScript
 -   In terms of software, this service needs to work with the telephony core service \(core\_service\).
 -   In terms of hardware, the accommodating device must be equipped with a modem and a SIM card capable of independent cellular communication.
--   The API for registering an observer for the SIM card status takes effect only when SIM cards are in position. If SIM cards are removed, no callback events will be received. Your application can call the  **hasSimCard**  API to check whether SIM cards are in position.
+-   The API for registering an observer for the SIM card status takes effect only when SIM cards are in position. If SIM cards are removed, no callback events will be received. Your application can call the  **getSimState**  API to check whether SIM cards are in position.
 
 ## Usage<a name="section134mcpsimp"></a>
 
@@ -176,14 +176,12 @@ The function of registering an observer for call status change events is used as
 
 ## Repositories Involved<a name="section206mcpsimp"></a>
 
-Telephony
+[Telephony](https://gitee.com/openharmony/docs/blob/master/en/readme/telephony.md)
 
-telephony_state_registry
+**telephony_state_registry**
 
-telephony_core_service
+[telephony_core_service](https://gitee.com/openharmony/telephony_core_service/blob/master/README.md)
 
-telephony_cellular_data
+[telephony_cellular_call](https://gitee.com/openharmony/telephony_cellular_call/blob/master/README.md)
 
-telephony_cellular_call
-
-telephony_call_manager
+[telephony_call_manager](https://gitee.com/openharmony/telephony_call_manager/blob/master/README.md)
