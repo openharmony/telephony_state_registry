@@ -39,7 +39,7 @@ ohos_shared_library("tel_state_registry") {
   external_deps = [
     "aafwk_standard:want",
     "appexecfwk_standard:libeventhandler",
-    "ces_standard:cesfwk_kits",
+    "ces_standard:cesfwk_innerkits",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_L2:samgr_proxy",
