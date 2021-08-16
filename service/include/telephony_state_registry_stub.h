@@ -12,18 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef TELEPHONY_STATE_REGISTRY_STUB_H
 #define TELEPHONY_STATE_REGISTRY_STUB_H
 
 #include <map>
 
-#include "hilog_wrapper.h"
 #include "iremote_stub.h"
 
+#include "telephony_log_wrapper.h"
 #include "i_telephony_state_notify.h"
 
 namespace OHOS {
-namespace TelephonyState {
+namespace Telephony {
 class TelephonyStateRegistryStub : public IRemoteStub<ITelephonyStateNotify> {
 public:
     TelephonyStateRegistryStub();
@@ -37,11 +38,8 @@ public:
 
     virtual int32_t UnregisterStateChange(int32_t simId, uint32_t mask, pid_t pid) = 0;
 
-    static constexpr HiviewDFX::HiLogLabel LOG_LABEL = {LOG_CORE, 0, "TelephonyStateRegistryStub"};
-
 private:
     int32_t ReadData(MessageParcel &data, MessageParcel &reply, sptr<TelephonyObserverBroker> &callback);
-    int32_t ReadSignalInfoSize(MessageParcel &data);
     int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t simId,
         uint32_t mask, const std::u16string &package, bool isUpdate) override;
     int32_t UnregisterStateChange(int32_t simId, uint32_t mask) override;
@@ -50,15 +48,17 @@ private:
     using TelephonyStateFunc = int32_t (TelephonyStateRegistryStub::*)(MessageParcel &data, MessageParcel &reply);
 
     int32_t UpdateCallStateInner(MessageParcel &data, MessageParcel &reply);
-    int32_t UpdateCallStateForSlotIndexInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UpdateCallStateForSimIdInner(MessageParcel &data, MessageParcel &reply);
     int32_t UpdateSignalInfoInner(MessageParcel &data, MessageParcel &reply);
     int32_t UpdateNetworkStateInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UpdateSimStateInner(MessageParcel &data, MessageParcel &reply);
     int32_t RegisterStateChangeInner(MessageParcel &data, MessageParcel &reply);
     int32_t UnregisterStateChangeInner(MessageParcel &data, MessageParcel &reply);
+    int32_t UpdateCellularDataConnectStateInner(MessageParcel &data, MessageParcel &reply);
 
 private:
     std::map<uint32_t, TelephonyStateFunc> memberFuncMap_;
 };
-} // namespace TelephonyState
+} // namespace Telephony
 } // namespace OHOS
 #endif // TELEPHONY_STATE_REGISTRY_STUB_H

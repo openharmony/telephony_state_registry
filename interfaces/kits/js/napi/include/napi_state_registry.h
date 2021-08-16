@@ -12,39 +12,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef NAPI_STATE_REGISTRY_H
 #define NAPI_STATE_REGISTRY_H
+
 #include <cstring>
 #include <initializer_list>
 #include <string>
+
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+
 #include "telephony_observer_broker.h"
+
 namespace OHOS {
-namespace TelephonyNapi {
-const int NONE_PARAMTER = 0;
-const int ONE_PARAMTER = 1;
-const int TWO_PARAMTER = 2;
-const int THREE_PARAMTER = 3;
-
-const size_t ONE_ARGUMENT = 1;
-const size_t TWO_ARGUMENT = 2;
-
-const int32_t NONE_EVENT_TYPE = 0;
-const int32_t LISTEN_NET_WORK_STATE = TelephonyState::TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
-const int32_t LISTEN_CALL_STATE = TelephonyState::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE;
-const int32_t LISTEN_SIGNAL_STRENGTHS = TelephonyState::TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS;
+namespace Telephony {
+constexpr int32_t NONE_EVENT_TYPE = 0;
+constexpr int32_t LISTEN_NET_WORK_STATE = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
+constexpr int32_t LISTEN_CALL_STATE = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE;
+constexpr int32_t LISTEN_CELL_INFO = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
+constexpr int32_t LISTEN_SIGNAL_STRENGTHS = TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS;
+constexpr int32_t LISTEN_SIM_STATE = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
+constexpr int32_t LISTEN_DATA_CONNECTION_STATE = TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE;
 
 const std::string NET_WORK_STATE_CHANGE = "networkStateChange";
 const std::string CALL_STATE_CHANGE = "callStateChange";
 const std::string SIGNAL_STRENGTHS_CHANGE = "signalInfoChange";
+const std::string SIM_STATE_CHANGE = "simStateChange";
+const std::string DATA_CONNECTION_STATE = "dataConnectionStateChange";
 
-const int GSM = 1;
-const int CDMA = 2;
-const int LTE = 3;
-const int TDSCDMA = 4;
+constexpr int GSM = 1;
+constexpr int CDMA = 2;
+constexpr int LTE = 3;
+constexpr int TDSCDMA = 4;
 
-enum DataConnectState {
+enum class DataConnectState : int32_t {
     /**
      * Indicates that a cellular data link is unknown.
      */
@@ -71,7 +73,7 @@ enum DataConnectState {
     DATA_STATE_SUSPENDED = 3
 };
 
-enum RatType {
+enum class RatType : int32_t {
     /**
      * Indicates unknown radio access technology (RAT).
      */
@@ -147,35 +149,7 @@ enum RatType {
     RADIO_TECHNOLOGY_NR = 12
 };
 
-enum DataFlowType {
-    /**
-     * Indicates that there is no uplink or downlink data.
-     */
-    DATA_FLOW_TYPE_NONE = 0,
-
-    /**
-     * Indicates that there is only downlink data.
-     */
-    DATA_FLOW_TYPE_DOWN = 1,
-
-    /**
-     * Indicates that there is only uplink data.
-     */
-    DATA_FLOW_TYPE_UP = 2,
-
-    /**
-     * Indicates that there is uplink and downlink data.
-     */
-    DATA_FLOW_TYPE_UPDOWN = 3,
-
-    /**
-     * Indicates that there is no uplink or downlink data, and the bottom-layer
-     * link is in the dormant state.
-     */
-    DATA_FLOW_TYPE_DORMANT = 4
-};
-
-enum CallState {
+enum class CallState : int32_t {
     /**
      * Indicates an invalid state, which is used when the call state fails to be
      * obtained.
@@ -199,7 +173,7 @@ enum CallState {
     CALL_STATE_OFFHOOK = 2
 };
 
-enum NetworkType {
+enum class NetworkType : int32_t {
     /**
      * Indicates unknown network type.
      */
@@ -235,6 +209,6 @@ enum NetworkType {
      */
     NETWORK_TYPE_NR
 };
-} // namespace TelephonyNapi
+} // namespace Telephony
 } // namespace OHOS
 #endif // NAPI_STATE_REGISTRY_H
