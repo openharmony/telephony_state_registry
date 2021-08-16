@@ -115,7 +115,7 @@ static napi_value ObserverOn(napi_env env, napi_callback_info info)
     if (eventType != NONE_EVENT_TYPE) {
         EventListener listener = {env, eventType, false, thisVar, callbackRef, slotId};
         g_eventListenerList.push_back(listener);
-        HILOG_DEBUG("Exec ObserverOn after push_back size = %{public}d", g_eventListenerList.size());
+        HILOG_DEBUG("Exec ObserverOn after push_back size = %{public}zu", g_eventListenerList.size());
     }
     std::string package("telephony.state_registry.on");
     std::u16string packageForU16 = Str8ToStr16(package);
@@ -161,7 +161,7 @@ static napi_value ObserverOnce(napi_env env, napi_callback_info info)
     if (eventType != NONE_EVENT_TYPE) {
         EventListener listener = {env, eventType, true, thisVar, callbackRef, slotId};
         g_eventListenerList.push_back(listener);
-        HILOG_DEBUG("Exec ObserverOnce after push_back size = %{public}d", g_eventListenerList.size());
+        HILOG_DEBUG("Exec ObserverOnce after push_back size = %{public}zu", g_eventListenerList.size());
     }
     std::string package("telephony.test.once");
     std::u16string packageForU16 = Str8ToStr16(package);
@@ -195,7 +195,7 @@ static napi_value ObserverOff(napi_env env, napi_callback_info info)
     if (eventType != NONE_EVENT_TYPE) {
         HILOG_DEBUG("Exec ObserverOff before InitTelephonyStateManager");
         if (InitTelephonyStateManager()) {
-            HILOG_DEBUG("Exec ObserverOff before Traversal size = %{public}d", g_eventListenerList.size());
+            HILOG_DEBUG("Exec ObserverOff before Traversal size = %{public}zu", g_eventListenerList.size());
             for (std::list<EventListener>::iterator it = g_eventListenerList.begin();
                  it != g_eventListenerList.end(); it++) {
                 HILOG_DEBUG("Exec ObserverOff in the for Traversal");
@@ -211,7 +211,7 @@ static napi_value ObserverOff(napi_env env, napi_callback_info info)
         HILOG_DEBUG("Exec ObserverOff before remove_if eventList");
         g_eventListenerList.remove_if(
             [eventType](EventListener listener) -> bool { return listener.eventType == eventType; });
-        HILOG_DEBUG("Exec ObserverOff after remove_if size = %{public}d", g_eventListenerList.size());
+        HILOG_DEBUG("Exec ObserverOff after remove_if size = %{public}zu", g_eventListenerList.size());
     }
     HILOG_DEBUG("Exec ObserverOff end");
     return result;
