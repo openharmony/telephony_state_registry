@@ -23,8 +23,9 @@
 #include "iremote_stub.h"
 
 #include "telephony_observer_broker.h"
+
 namespace OHOS {
-namespace TelephonyState {
+namespace Telephony {
 class TelephonyObserver : public IRemoteStub<TelephonyObserverBroker> {
 public:
     TelephonyObserver() {};
@@ -32,12 +33,14 @@ public:
     virtual void OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber) override;
     virtual void OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &vec) override;
     virtual void OnNetworkStateUpdated(const sptr<NetworkState> &networkState) override;
+    virtual void OnSimStateUpdated(int32_t state, const std::u16string &reason) override;
+    virtual void OnCellularDataConnectStateUpdated(int32_t dataState, int32_t networkType) override;
     int32_t OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
 private:
-    void ConvertSignalInforList(MessageParcel &data, std::vector<sptr<SignalInformation>> &signalInformations);
+    void ConvertSignalInfoList(MessageParcel &data, std::vector<sptr<SignalInformation>> &signalInfos);
 };
-} // namespace TelephonyState
+} // namespace Telephony
 } // namespace OHOS
 #endif // TELEPHONY_OBSERVER_H

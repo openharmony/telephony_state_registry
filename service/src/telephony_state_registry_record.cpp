@@ -12,18 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "telephony_state_registry_record.h"
 
 namespace OHOS {
-namespace TelephonyState {
+namespace Telephony {
 bool TelephonyStateRegistryRecord::IsCanReadCallHistory()
 {
     return true;
 }
 
-bool TelephonyStateRegistryRecord::IsExistStateListener(uint32_t mask)
+bool TelephonyStateRegistryRecord::IsExistStateListener(uint32_t mask) const
 {
     return (telephonyObserver_ != nullptr) && ((mask_ & mask) != 0);
 }
-} // namespace TelephonyState
+} // namespace Telephony
 } // namespace OHOS

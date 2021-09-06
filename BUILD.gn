@@ -13,28 +13,31 @@
 
 import("//build/ohos.gni")
 SOURCE_DIR = "//base/telephony/state_registry"
+CORE_DIR = "//base/telephony/core_service"
 
 ohos_shared_library("tel_state_registry") {
+  part_name = "state_registry"
+  subsystem_name = "telephony"
+
   sources = [
-    "$SOURCE_DIR/interfaces/kits/src/telephony_observer.cpp",
+    "$CORE_DIR/network_search/src/network_state.cpp",
+    "$CORE_DIR/network_search/src/signal_information.cpp",
     "$SOURCE_DIR/interfaces/kits/src/telephony_observer_proxy.cpp",
     "$SOURCE_DIR/service/src/telephony_state_registry_record.cpp",
     "$SOURCE_DIR/service/src/telephony_state_registry_service.cpp",
     "$SOURCE_DIR/service/src/telephony_state_registry_stub.cpp",
-    "//base/telephony/core_service/network_search/src/network_state.cpp",
-    "//base/telephony/core_service/network_search/src/signal_information.cpp",
   ]
 
   include_dirs = [
     "$SOURCE_DIR/include",
-    "//base/telephony/state_registry/service/include",
-    "//base/telephony/core_service/interfaces/innerkits/state_registry/proxy",
-    "//base/telephony/core_service/interfaces/innerkits/common",
-
+    "$SOURCE_DIR/service/include",
+    "$CORE_DIR/interfaces/innerkits/state_registry/proxy",
+    "$CORE_DIR/interfaces/innerkits/state_registry/common",
+    "$CORE_DIR/interfaces/innerkits/common",
     "$SOURCE_DIR/interfaces/kits/include",
   ]
 
-  deps = [ "//utils/native/base:utils" ]
+  deps = [ "$CORE_DIR/common:libtelephony_common" ]
 
   external_deps = [
     "aafwk_standard:want",
@@ -45,12 +48,14 @@ ohos_shared_library("tel_state_registry") {
     "samgr_L2:samgr_proxy",
   ]
 
+  defines = [
+    "TELEPHONY_LOG_TAG = \"STATE_REGISTRY\"",
+    "LOG_DOMAIN = 0",
+  ]
+
   if (is_standard_system) {
     external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
   } else {
     external_deps += [ "hilog:libhilog" ]
   }
-
-  part_name = "state_registry"
-  subsystem_name = "telephony"
 }

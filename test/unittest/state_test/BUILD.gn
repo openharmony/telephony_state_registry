@@ -11,25 +11,31 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build/ohos.gni")
+import("//build/test.gni")
 SOURCE_DIR = "//base/telephony/state_registry"
+CORE_DIR = "//base/telephony/core_service"
 
-ohos_executable("tel_state_registry_test") {
+ohos_unittest("tel_state_registry_test") {
+  part_name = "state_registry"
+  subsystem_name = "telephony"
+  test_module = "tel_state_registry_test"
+  module_out_path = part_name + "/" + test_module
+
   sources = [
-    "$SOURCE_DIR/test/unittest/state_regist_test.cpp",
-    "//base/telephony/core_service/interfaces/innerkits/state_registry/proxy/telephony_state_registry_proxy.cpp",
-    "//base/telephony/core_service/network_search/src/network_state.cpp",
-    "//base/telephony/core_service/network_search/src/signal_information.cpp",
+    "$CORE_DIR/interfaces/innerkits/state_registry/proxy/telephony_state_registry_proxy.cpp",
+    "$CORE_DIR/network_search/src/network_state.cpp",
+    "$CORE_DIR/network_search/src/signal_information.cpp",
+    "$SOURCE_DIR/test/unittest/state_test/state_registry_test.cpp",
   ]
 
   include_dirs = [
     "$SOURCE_DIR/interfaces/innerkits/proxy",
     "$SOURCE_DIR/interfaces/kits/include",
     "$SOURCE_DIR/service/include",
-    "//base/telephony/include",
-
-    "//base/telephony/core_service/interfaces/innerkits/common",
-    "//base/telephony/core_service/interfaces/innerkits/state_registry/proxy",
+    "$CORE_DIR/common/log/include",
+    "$CORE_DIR/interfaces/innerkits/common",
+    "$CORE_DIR/interfaces/innerkits/state_registry/common",
+    "$CORE_DIR/interfaces/innerkits/state_registry/proxy",
   ]
 
   deps = [ "//utils/native/base:utils" ]
@@ -45,7 +51,9 @@ ohos_executable("tel_state_registry_test") {
   } else {
     external_deps += [ "hilog:libhilog" ]
   }
+}
 
-  part_name = "state_registry"
-  subsystem_name = "telephony"
+group("unittest") {
+  testonly = true
+  deps = [ ":tel_state_registry_test" ]
 }

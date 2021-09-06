@@ -12,37 +12,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "telephony_observer.h"
-#include "hilog_wrapper.h"
-#include "ipc_types.h"
+#include "telephony_log_wrapper.h"
+
 namespace OHOS {
-namespace TelephonyState {
+namespace Telephony {
 void TelephonyObserver::OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber) {}
 
 void TelephonyObserver::OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &vec) {}
 
 void TelephonyObserver::OnNetworkStateUpdated(const sptr<NetworkState> &networkState) {}
 
+void TelephonyObserver::OnSimStateUpdated(int32_t state, const std::u16string &reason) {}
+
+void TelephonyObserver::OnCellularDataConnectStateUpdated(int32_t dataState, int32_t networkType) {}
+
 int32_t TelephonyObserver::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    HILOG_INFO("TelephonyObserver::OnRemoteRequest code = %u......\n", code);
+    TELEPHONY_LOGD("TelephonyObserver::OnRemoteRequest code = %u......\n", code);
     switch (code) {
-        case TelephonyState::TelephonyObserverBroker::ON_CALL_STATE_UPDATED: {
+        case TelephonyObserverBroker::ON_CALL_STATE_UPDATED: {
             int32_t callState = data.ReadInt32();
             std::u16string phoneNumber = data.ReadString16();
             OnCallStateUpdated(callState, phoneNumber);
             break;
         }
-        case TelephonyState::TelephonyObserverBroker::ON_SIGNAL_INFO_UPDATED: {
-            std::vector<sptr<SignalInformation>> signalInformations;
-            ConvertSignalInforList(data, signalInformations);
-            OnSignalInfoUpdated(signalInformations);
+        case TelephonyObserverBroker::ON_SIGNAL_INFO_UPDATED: {
+            std::vector<sptr<SignalInformation>> signalInfos;
+            ConvertSignalInfoList(data, signalInfos);
+            OnSignalInfoUpdated(signalInfos);
             break;
         }
-        case TelephonyState::TelephonyObserverBroker::ON_NETWORK_STATE_UPDATED: {
-            sptr<NetworkState> networkState = NetworkState::UnMarshalling(data).release();
+        case TelephonyObserverBroker::ON_NETWORK_STATE_UPDATED: {
+            sptr<NetworkState> networkState = NetworkState::Unmarshalling(data);
             OnNetworkStateUpdated(networkState);
+            break;
+        }
+        case TelephonyObserverBroker::ON_SIM_STATE_UPDATED: {
+            int32_t callState = data.ReadInt32();
+            std::u16string reson = data.ReadString16();
+            OnSimStateUpdated(callState, reson);
             break;
         }
         default: {
@@ -52,7 +63,7 @@ int32_t TelephonyObserver::OnRemoteRequest(
     return OHOS::NO_ERROR;
 }
 
-void TelephonyObserver::ConvertSignalInforList(MessageParcel &data, std::vector<sptr<SignalInformation>> &result)
+void TelephonyObserver::ConvertSignalInfoList(MessageParcel &data, std::vector<sptr<SignalInformation>> &result)
 {
     int32_t size = data.ReadInt32();
     SignalInformation::NetworkType type;
@@ -65,18 +76,20 @@ void TelephonyObserver::ConvertSignalInforList(MessageParcel &data, std::vector<
                     signal->ReadFromParcel(data);
                     result.emplace_back(signal.release());
                 }
-            } break;
+                break;
+            }
             case SignalInformation::NetworkType::CDMA: {
                 std::unique_ptr<CdmaSignalInformation> signal = std::make_unique<CdmaSignalInformation>();
                 if (signal != nullptr) {
                     signal->ReadFromParcel(data);
                     result.emplace_back(signal.release());
                 }
-            } break;
+                break;
+            }
             default:
                 break;
         }
     }
 }
-} // namespace TelephonyState
+} // namespace Telephony
 } // namespace OHOS

@@ -12,163 +12,195 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "telephony_state_registry_service.h"
 #include "system_ability_definition.h"
 
 #include "string_ex.h"
-#include "telephony_errors.h"
+
+#include "state_registry_errors.h"
 
 namespace OHOS {
-namespace TelephonyState {
+namespace Telephony {
 bool g_registerResult =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<TelephonyStateRegistryService>::GetInstance().get());
 
 TelephonyStateRegistryService::TelephonyStateRegistryService()
     : SystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID, true)
 {
-    HILOG_DEBUG("TelephonyStateRegistryService SystemAbility create");
-    state_ = ServiceRunningState::STATE_STOPPED;
+    TELEPHONY_LOGD("TelephonyStateRegistryService SystemAbility create");
     slotSize_ = 0;
-    RegistSubscriber();
+    RegisterSubscriber();
 }
 
 TelephonyStateRegistryService::~TelephonyStateRegistryService()
 {
-    UnRegistSubscriber();
+    UnregisterSubscriber();
     stateRecords_.clear();
     callState_.clear();
     callIncomingNumber_.clear();
-    signalInformations_.clear();
+    signalInfos_.clear();
     searchNetworkState_.clear();
 }
 
 void TelephonyStateRegistryService::OnStart()
 {
-    HILOG_DEBUG("TelephonyStateRegistryService OnStart");
     std::lock_guard<std::mutex> guard(lock_);
     if (state_ == ServiceRunningState::STATE_RUNNING) {
-        HILOG_ERROR("Leave, FAILED, already running");
+        TELEPHONY_LOGE("Leave, FAILED, already running");
         return;
     }
     state_ = ServiceRunningState::STATE_RUNNING;
-    Init();
     bool ret = SystemAbility::Publish(DelayedSingleton<TelephonyStateRegistryService>::GetInstance().get());
     if (!ret) {
-        HILOG_ERROR("Leave, Failed to publish TelephonyStateRegistryService");
+        TELEPHONY_LOGE("Leave, Failed to publish TelephonyStateRegistryService");
     }
-    HILOG_DEBUG("TelephonyStateRegistryService start success.");
+    TELEPHONY_LOGD("TelephonyStateRegistryService start success.");
 }
 
 void TelephonyStateRegistryService::OnStop()
 {
-    HILOG_DEBUG("TelephonyStateRegistryService OnStop ");
+    TELEPHONY_LOGD("TelephonyStateRegistryService OnStop ");
     std::lock_guard<std::mutex> guard(lock_);
     state_ = ServiceRunningState::STATE_STOPPED;
 }
 
-bool TelephonyStateRegistryService::Init()
-{
-    HILOG_DEBUG("TelephonyStateRegistryService SystemAbility Init start------------");
-    int32_t numPhons = 1;
-    slotSize_ = numPhons;
-    for (int i = 0; i < slotSize_; i++) {
-        callState_.push_back(0);
-        callIncomingNumber_.push_back(Str8ToStr16(""));
-    }
-    return true;
-}
-
 void TelephonyStateRegistryService::Finalize()
 {
-    HILOG_DEBUG("TelephonyStateRegistryService Finalize");
+    TELEPHONY_LOGD("TelephonyStateRegistryService Finalize");
 }
 
 void TelephonyStateRegistryService::OnDump()
 {
-    HILOG_DEBUG("TelephonyStateRegistryService OnDump");
+    TELEPHONY_LOGD("TelephonyStateRegistryService OnDump");
+}
+
+int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
+    int32_t simId, int32_t dataState, int32_t networkType)
+{
+    std::lock_guard<std::mutex> guard(lock_);
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    if (VerifySimId(simId) &&
+        (cellularDataConnectionState_[simId] != dataState ||
+        cellularDataConnectionNetworkType_[simId] != networkType)) {
+        for (size_t i = 0; i < stateRecords_.size(); i++) {
+            TelephonyStateRegistryRecord record = stateRecords_[i];
+            if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE) &&
+                (record.simId_ == simId) && record.telephonyObserver_ != nullptr) {
+                record.telephonyObserver_->OnCellularDataConnectStateUpdated(dataState, networkType);
+                result = TELEPHONY_SUCCESS;
+            }
+        }
+        cellularDataConnectionState_[simId] = dataState;
+        cellularDataConnectionNetworkType_[simId] = networkType;
+    }
+    SendCellularDataConnectStateChanged(simId, dataState, networkType);
+    return result;
 }
 
 int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const std::u16string &number)
 {
     std::lock_guard<std::mutex> guard(lock_);
-    std::string utf8 = Str16ToStr8(number);
-    int32_t result = TELEPHONY_NO_ERROR;
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    int32_t simId = 1;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
-        if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE)) {
+        if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
+            record.telephonyObserver_ != nullptr) {
             std::u16string phoneNumberStr;
             if (record.IsCanReadCallHistory()) {
                 phoneNumberStr = number;
             } else {
                 phoneNumberStr = Str8ToStr16("");
             }
-            utf8 = Str16ToStr8(phoneNumberStr);
             record.telephonyObserver_->OnCallStateUpdated(callState, phoneNumberStr);
+            result = TELEPHONY_SUCCESS;
         }
     }
-    SendCallStateChanged(0, 0, callState, number);
+    SendCallStateChanged(simId, callState, number);
     return result;
 }
 
-int32_t TelephonyStateRegistryService::UpdateCallStateForSlotIndex(
-    int32_t simId, int32_t slotIndex, int32_t callState, const std::u16string &incomingNumber)
+int32_t TelephonyStateRegistryService::UpdateCallStateForSimId(
+    int32_t simId, int32_t callId, int32_t callState, const std::u16string &incomingNumber)
 {
     std::lock_guard<std::mutex> guard(lock_);
-    std::string utf8 = Str16ToStr8(incomingNumber);
-    int32_t result = TELEPHONY_NO_ERROR;
-    if (VerifySlotIndex(slotIndex)) {
-        callState_[slotIndex] = callState;
-        callIncomingNumber_[slotIndex] = incomingNumber;
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    std::u16string incomingNumberStr = incomingNumber;
+    if (VerifySimId(simId)) {
+        callState_[simId] = callState;
+        callIncomingNumber_[simId] = incomingNumber;
         for (size_t i = 0; i < stateRecords_.size(); i++) {
             TelephonyStateRegistryRecord record = stateRecords_[i];
             if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
-                (record.simId_ == simId)) {
-                std::u16string incomingNumberStr = getCallIncomingNumberForSlotIndex(record, slotIndex);
+                (record.simId_ == simId) && record.telephonyObserver_ != nullptr) {
+                incomingNumberStr = GetCallIncomingNumberForSimId(record, simId);
                 record.telephonyObserver_->OnCallStateUpdated(callState, incomingNumberStr);
+                result = TELEPHONY_SUCCESS;
             }
         }
     }
-    SendCallStateChanged(simId, slotIndex, callState, incomingNumber);
+    SendCallStateChanged(simId, callState, incomingNumberStr);
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::UpdateSimState(int32_t simId, int32_t state, const std::u16string &reason)
+{
+    std::lock_guard<std::mutex> guard(lock_);
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    if (VerifySimId(simId)) {
+        simState_[simId] = state;
+        simReason_[simId] = reason;
+        for (size_t i = 0; i < stateRecords_.size(); i++) {
+            TelephonyStateRegistryRecord record = stateRecords_[i];
+            if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE) &&
+                (record.simId_ == simId) && record.telephonyObserver_ != nullptr) {
+                record.telephonyObserver_->OnSimStateUpdated(state, reason);
+                result = TELEPHONY_SUCCESS;
+            }
+        }
+    }
+    SendSimStateChanged(simId, state, reason);
     return result;
 }
 
 int32_t TelephonyStateRegistryService::UpdateSignalInfo(
-    int32_t simId, int32_t slotIndex, const std::vector<sptr<SignalInformation>> &vec)
+    int32_t simId, const std::vector<sptr<SignalInformation>> &vec)
 {
     std::lock_guard<std::mutex> guard(lock_);
-    int32_t result = TELEPHONY_NO_ERROR;
-    if (VerifySlotIndex(slotIndex)) {
-        signalInformations_[slotIndex] = vec;
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    if (VerifySimId(simId)) {
+        signalInfos_[simId] = vec;
         for (size_t i = 0; i < stateRecords_.size(); i++) {
             TelephonyStateRegistryRecord record = stateRecords_[i];
             if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) &&
-                IsSameId(record.simId_, simId, slotIndex)) {
+                (record.simId_ == simId) && record.telephonyObserver_ != nullptr) {
                 record.telephonyObserver_->OnSignalInfoUpdated(vec);
+                result = TELEPHONY_SUCCESS;
             }
         }
     }
-    SendSignalInfoChanged(simId, slotIndex, vec);
+    SendSignalInfoChanged(simId, vec);
     return result;
 }
 
-int32_t TelephonyStateRegistryService::UpdateNetworkState(
-    int32_t simId, int32_t slotIndex, const sptr<NetworkState> &networkState)
+int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t simId, const sptr<NetworkState> &networkState)
 {
     std::lock_guard<std::mutex> guard(lock_);
-    int32_t result = TELEPHONY_NO_ERROR;
-    if (VerifySlotIndex(slotIndex)) {
-        searchNetworkState_[slotIndex] = networkState;
-
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    if (VerifySimId(simId)) {
+        searchNetworkState_[simId] = networkState;
         for (size_t i = 0; i < stateRecords_.size(); i++) {
-            TelephonyStateRegistryRecord r = stateRecords_[i];
-            if (r.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) &&
-                IsSameId(r.simId_, simId, slotIndex)) {
-                r.telephonyObserver_->OnNetworkStateUpdated(networkState);
+            TelephonyStateRegistryRecord record = stateRecords_[i];
+            if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) &&
+                (record.simId_ == simId) && record.telephonyObserver_ != nullptr) {
+                record.telephonyObserver_->OnNetworkStateUpdated(networkState);
+                result = TELEPHONY_SUCCESS;
             }
         }
     }
-    SendNetworkStateChanged(simId, slotIndex, networkState);
-    HILOG_DEBUG("TelephonyStateRegistryService::NotifyNetworkStateUpdated end");
+    SendNetworkStateChanged(simId, networkState);
+    TELEPHONY_LOGD("TelephonyStateRegistryService::NotifyNetworkStateUpdated end");
     return result;
 }
 
@@ -177,8 +209,8 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(const sptr<TelephonyO
 {
     std::lock_guard<std::mutex> guard(lock_);
     std::string utf8 = Str16ToStr8(package);
-    HILOG_DEBUG("TelephonyStateRegistryService::RegisterStateChange %{public}s", utf8.c_str());
-    int32_t result = TELEPHONY_NO_ERROR;
+    TELEPHONY_LOGD("TelephonyStateRegistryService::RegisterStateChange %{public}s", utf8.c_str());
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_EXIST;
     bool isExist = false;
     TelephonyStateRegistryRecord record;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
@@ -189,80 +221,74 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(const sptr<TelephonyO
         }
     }
 
-    int32_t slotIndex = 0;
     if (!isExist) {
         record.pid_ = pid;
         record.simId_ = simId;
-        record.slotIndex_ = slotIndex;
         record.mask_ = mask;
         record.package_ = package;
         record.telephonyObserver_ = telephonyObserver;
         stateRecords_.push_back(record);
+        result = TELEPHONY_SUCCESS;
     }
 
-    bool isNull = false;
-    if (stateRecords_.size() > 0) {
-        isNull = (stateRecords_[stateRecords_.size() - 1].telephonyObserver_ != nullptr);
+    if (isUpdate && VerifySimId(simId)) {
+        UpdateData(record, mask, simId);
     }
-    if (isUpdate && VerifySlotIndex(slotIndex)) {
-        UpdateData(record, mask, slotIndex);
-    }
-
     return result;
 }
 
 int32_t TelephonyStateRegistryService::UnregisterStateChange(int32_t simId, uint32_t mask, pid_t pid)
 {
     std::lock_guard<std::mutex> guard(lock_);
-    int32_t result = TELEPHONY_NO_ERROR;
+    int32_t result = TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST;
     std::vector<TelephonyStateRegistryRecord>::iterator it;
     for (it = stateRecords_.begin(); it != stateRecords_.end(); ++it) {
         if (it->simId_ == simId && it->mask_ == mask && it->pid_ == pid) {
             stateRecords_.erase(it);
+            result = TELEPHONY_SUCCESS;
             break;
         }
     }
     return result;
 }
 
-bool TelephonyStateRegistryService::VerifySlotIndex(int slotIndex)
+bool TelephonyStateRegistryService::VerifySimId(int simId)
 {
-    bool valid = (slotIndex >= 0) && (slotIndex < slotSize_);
-    return valid;
+    return simId >= 0;
 }
 
-std::u16string TelephonyStateRegistryService::getCallIncomingNumberForSlotIndex(
-    TelephonyStateRegistryRecord record, int32_t slotIndex)
+std::u16string TelephonyStateRegistryService::GetCallIncomingNumberForSimId(
+    TelephonyStateRegistryRecord record, int32_t simId)
 {
     if (record.IsCanReadCallHistory()) {
-        return callIncomingNumber_[slotIndex];
+        return callIncomingNumber_[simId];
     } else {
         return Str8ToStr16("");
     }
 }
 
-bool TelephonyStateRegistryService::IsSameId(int rSimId, int simId, int slotIndex)
-{
-    return (rSimId == simId);
-}
-
 void TelephonyStateRegistryService::UpdateData(
-    const TelephonyStateRegistryRecord &record, uint32_t mask, int32_t slotIndex)
+    const TelephonyStateRegistryRecord &record, uint32_t mask, int32_t simId)
 {
-    HILOG_DEBUG("TelephonyStateRegistryService::RegisterStateChange##Notify start");
+    TELEPHONY_LOGD("TelephonyStateRegistryService::RegisterStateChange##Notify start");
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) != 0) {
-        std::u16string phoneNumber = getCallIncomingNumberForSlotIndex(record, slotIndex);
-        HILOG_DEBUG("TelephonyStateRegistryService::RegisterStateChange##Notify-LISTEN_CALL_STATE");
-        record.telephonyObserver_->OnCallStateUpdated(callState_[slotIndex], phoneNumber);
+        std::u16string phoneNumber = GetCallIncomingNumberForSimId(record, simId);
+        TELEPHONY_LOGD("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE");
+        record.telephonyObserver_->OnCallStateUpdated(callState_[simId], phoneNumber);
     }
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) != 0) {
-        HILOG_DEBUG("TelephonyStateRegistryService::RegisterStateChange##Notify-LISTEN_SIGNAL_STRENGTHS");
-        record.telephonyObserver_->OnSignalInfoUpdated(signalInformations_[slotIndex]);
+        TELEPHONY_LOGD("RegisterStateChange##Notify-OBSERVER_MASK_SIGNAL_STRENGTHS");
+        record.telephonyObserver_->OnSignalInfoUpdated(signalInfos_[simId]);
     }
 
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) != 0) {
-        HILOG_DEBUG("TelephonyStateRegistryService::RegisterStateChange##Notify-LISTEN_NET_WORK_STATE");
-        record.telephonyObserver_->OnNetworkStateUpdated(searchNetworkState_[slotIndex]);
+        TELEPHONY_LOGD("RegisterStateChange##Notify-OBSERVER_MASK_NETWORK_STATE");
+        record.telephonyObserver_->OnNetworkStateUpdated(searchNetworkState_[simId]);
+    }
+
+    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE) != 0) {
+        TELEPHONY_LOGD("RegisterStateChange##Notify-OBSERVER_MASK_SIM_STATE");
+        record.telephonyObserver_->OnSimStateUpdated(simState_[simId], simReason_[simId]);
     }
 }
 
@@ -276,47 +302,45 @@ bool TelephonyStateRegistryService::PublishSimFileEvent(
     EventFwk::CommonEventPublishInfo publishInfo;
     publishInfo.SetOrdered(true);
     bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
-    HILOG_DEBUG("PublishSimFileEvent end###publishResult = %{public}d\n", publishResult);
+    TELEPHONY_LOGD("PublishSimFileEvent end###publishResult = %{public}d\n", publishResult);
     return publishResult;
 }
 
-void TelephonyStateRegistryService::UnRegistSubscriber()
+void TelephonyStateRegistryService::UnregisterSubscriber()
 {
-    HILOG_DEBUG("UnRegistSubscriber start.\n");
     if (stateSubscriber_ != nullptr) {
         bool subscribeResult = EventFwk::CommonEventManager::UnSubscribeCommonEvent(stateSubscriber_);
-        HILOG_DEBUG("UnRegistSubscriber end###subscribeResult = %{public}d\n", subscribeResult);
+        TELEPHONY_LOGD("UnregisterSubscriber end###subscribeResult = %{public}d\n", subscribeResult);
     }
-    HILOG_DEBUG("UnRegistSubscriber end..\n");
+    TELEPHONY_LOGD("UnregisterSubscriber end..\n");
 }
 
-void TelephonyStateRegistryService::RegistSubscriber()
+void TelephonyStateRegistryService::RegisterSubscriber()
 {
-    HILOG_DEBUG("RegistSubscriber start.\n");
     EventFwk::MatchingSkills matchingSkills;
     matchingSkills.AddEvent(SPN_INFO_UPDATED_ACTION);
     EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     stateSubscriber_ = std::make_shared<StateSubscriber>(subscriberInfo);
     bool subscribeResult = EventFwk::CommonEventManager::SubscribeCommonEvent(stateSubscriber_);
-    HILOG_DEBUG("RegistSubscriber end###subscribeResult = %{public}d\n", subscribeResult);
+    TELEPHONY_LOGD("RegisterSubscriber end###subscribeResult = %{public}d\n", subscribeResult);
 }
 
 void StateSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
     AAFwk::Want want = data.GetWant();
     std::string action = data.GetWant().GetAction();
-    HILOG_DEBUG("Subscriber::OnReceiveEvent action = %{public}s\n", action.c_str());
+    TELEPHONY_LOGD("Subscriber::OnReceiveEvent action = %{public}s\n", action.c_str());
 
-    int msgcode = GetCode();
-    std::string msgdata = GetData();
-    HILOG_DEBUG("Subscriber::OnReceiveEvent msgdata = %{public}s,msgcode = %{public}d\n", msgdata.c_str(), msgcode);
+    int msgCode = GetCode();
+    std::string msgData = GetData();
+    TELEPHONY_LOGD(
+        "Subscriber::OnReceiveEvent msgData = %{public}s,msgCode = %{public}d\n", msgData.c_str(), msgCode);
 }
-void TelephonyStateRegistryService::SendCallStateChanged(
-    int32_t simId, int32_t slotIndex, int32_t state, const std::u16string &number)
+
+void TelephonyStateRegistryService::SendCallStateChanged(int32_t simId, int32_t state, const std::u16string &number)
 {
     AAFwk::Want want;
     want.SetParam("simId", simId);
-    want.SetParam("slotIndex", slotIndex);
     want.SetParam("state", state);
     want.SetParam("number", Str16ToStr8(number));
     want.SetAction(CALL_STATE_CHANGE_ACTION);
@@ -325,28 +349,61 @@ void TelephonyStateRegistryService::SendCallStateChanged(
     PublishSimFileEvent(want, eventCode, eventData);
 }
 
-void TelephonyStateRegistryService::SendSignalInfoChanged(
-    int32_t simId, int32_t slotIndex, const std::vector<sptr<SignalInformation>> &vec)
+void TelephonyStateRegistryService::SendCellularDataConnectStateChanged(
+    int32_t simId, int32_t dataState, int32_t networkType)
 {
     AAFwk::Want want;
     want.SetParam("simId", simId);
-    want.SetParam("slotIndex", slotIndex);
+    want.SetParam("dataState", dataState);
+    want.SetParam("networkType", networkType);
+    want.SetAction(CELLULAR_DATA_STATE_CHANGE_ACTION);
+    int32_t eventCode = 1;
+    std::string eventData("connectStateChanged");
+    PublishSimFileEvent(want, eventCode, eventData);
+}
+
+void TelephonyStateRegistryService::SendSimStateChanged(int32_t simId, int32_t state, const std::u16string &reason)
+{
+    AAFwk::Want want;
+    want.SetParam("simId", simId);
+    want.SetParam("reason", Str16ToStr8(reason));
+    want.SetParam("state", state);
+    want.SetAction(SIM_STATE_CHANGE_ACTION);
+    int32_t eventCode = 1;
+    std::string eventData("simStateChanged");
+    PublishSimFileEvent(want, eventCode, eventData);
+}
+
+void TelephonyStateRegistryService::SendSignalInfoChanged(
+    int32_t simId, const std::vector<sptr<SignalInformation>> &vec)
+{
+    AAFwk::Want want;
+    want.SetParam("simId", simId);
     want.SetAction(SEARCH_SIGNAL_INFO_CHANGE_ACTION);
+    std::vector<std::string> contentStr;
+    for (size_t i = 0; i < vec.size(); i++) {
+        sptr<SignalInformation> signal = vec[i];
+        if (signal != nullptr) {
+            contentStr.push_back(signal->ToString());
+        }
+    }
+    want.SetParam("signalInfos", contentStr);
     int32_t eventCode = 1;
     std::string eventData("signalInfoChanged");
     PublishSimFileEvent(want, eventCode, eventData);
 }
 
-void TelephonyStateRegistryService::SendNetworkStateChanged(
-    int32_t simId, int32_t slotIndex, const sptr<NetworkState> &networkState)
+void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t simId, const sptr<NetworkState> &networkState)
 {
     AAFwk::Want want;
     want.SetParam("simId", simId);
-    want.SetParam("slotIndex", slotIndex);
     want.SetAction(SEARCH_NET_WORK_STATE_CHANGE_ACTION);
     int32_t eventCode = 1;
+    if (networkState != nullptr) {
+        want.SetParam("networkState", networkState->ToString());
+    }
     std::string eventData("networkStateChanged");
     PublishSimFileEvent(want, eventCode, eventData);
 }
-} // namespace TelephonyState
+} // namespace Telephony
 } // namespace OHOS
