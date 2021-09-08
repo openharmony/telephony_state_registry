@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef TELEPHONY_STATE_MANAGER_H
 #define TELEPHONY_STATE_MANAGER_H
 
@@ -19,7 +20,7 @@
 #include "telephony_observer.h"
 
 namespace OHOS {
-namespace TelephonyState {
+namespace Telephony {
 class TelephonyStateManager {
 public:
     TelephonyStateManager();
@@ -29,10 +30,10 @@ public:
     int32_t RemoveStateObserver(int32_t subId, uint32_t mask);
 
 private:
-    sptr<TelephonyState::ITelephonyStateNotify> telephonyStateNotify_;
+    sptr<ITelephonyStateNotify> telephonyStateNotify_;
 
     int ConnectService();
 };
-} // namespace TelephonyState
+} // namespace Telephony
 } // namespace OHOS
 #endif // TELEPHONY_STATE_MANAGER_H

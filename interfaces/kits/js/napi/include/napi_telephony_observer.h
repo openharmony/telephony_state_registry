@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef NAPI_TELEPHONY_OBSERVER_H
 #define NAPI_TELEPHONY_OBSERVER_H
 
@@ -22,7 +23,7 @@
 #include <memory>
 #include <string>
 
-#include "call_types.h"
+#include "call_manager_inner_type.h"
 #include "cellular_data_types.h"
 #include "event_listener.h"
 #include "napi_state_registry.h"
@@ -30,20 +31,21 @@
 #include "telephony_observer.h"
 
 namespace OHOS {
-namespace TelephonyNapi {
-class NapiTelephonyObserver : public TelephonyState::TelephonyObserver {
+namespace Telephony {
+class NapiTelephonyObserver : public TelephonyObserver {
 public:
     NapiTelephonyObserver(int32_t eventType, std::list<EventListener> &eventListener);
     ~NapiTelephonyObserver() = default;
     void OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber) override;
     void OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &vec) override;
     void OnNetworkStateUpdated(const sptr<NetworkState> &networkState) override;
+    void OnSimStateUpdated(int32_t state, const std::u16string &reason) override;
     bool HasEventMask(uint32_t eventType, uint32_t masks);
     static bool MatchEventType(const std::string &type, const std::string &goalTypeStr);
     static void SetPropertyInt32(napi_env env, napi_value object, std::string name, int32_t value);
     static void SetPropertyStringUtf8(napi_env env, napi_value object, std::string name, std::string value);
     static bool MatchValueType(napi_env env, napi_value value, napi_valuetype targetType);
-    static bool MatchParamters(
+    static bool MatchParameters(
         napi_env env, const napi_value parameters[], std::initializer_list<napi_valuetype> valueTypes);
     static int32_t GetEventType(const std::string &type);
 
@@ -54,7 +56,9 @@ private:
     int32_t WrapRadioTech(RadioTech radioTechType);
     int32_t WrapNetworkType(SignalInformation::NetworkType tech);
     int32_t WrapCallState(int32_t callState);
+    int32_t WrapSimState(int32_t simState);
+    void SetPropertyBoolean(napi_env env, napi_value object, std::string name, bool value);
 };
-} // namespace TelephonyNapi
+} // namespace Telephony
 } // namespace OHOS
 #endif // NAPI_TELEPHONY_OBSERVER_H
