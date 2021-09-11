@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #ifndef STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
 #define STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
 
@@ -20,7 +21,7 @@
 #include "telephony_observer_broker.h"
 
 namespace OHOS {
-namespace TelephonyState {
+namespace Telephony {
 class TelephonyStateRegistryRecord {
 public:
     bool IsCanReadCallHistory();
@@ -30,16 +31,15 @@ public:
      * @param mask Listening type bitmask
      * @return bool mask exist on true, others on false.
      */
-    bool IsExistStateListener(uint32_t mask);
+    bool IsExistStateListener(uint32_t mask) const;
 
 public:
     std::u16string package_;
     pid_t pid_ = 0;
     unsigned int mask_ = 0;
     int simId_ = 0;
-    int slotIndex_ = 0;
     sptr<TelephonyObserverBroker> telephonyObserver_ = nullptr;
 };
-} // namespace TelephonyState
+} // namespace Telephony
 } // namespace OHOS
 #endif // STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
