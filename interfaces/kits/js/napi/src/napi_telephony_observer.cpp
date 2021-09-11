@@ -12,15 +12,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "napi_telephony_observer.h"
-#include "kit_state_registry_hilog_wrapper.h"
+#include "i_sim_state_manager.h"
+#include "napi_sim_type.h"
+#include "telephony_log_wrapper.h"
 
 namespace OHOS {
-namespace TelephonyNapi {
-constexpr int ZERO = 0;
-constexpr int ONE = 1;
-constexpr int TWO = 2;
-
+namespace Telephony {
 napi_value CreateErrorMessage(napi_env env, std::string msg)
 {
     napi_value result = nullptr;
@@ -43,103 +42,147 @@ NapiTelephonyObserver::NapiTelephonyObserver(int32_t eventType, std::list<EventL
     listenerList_ = &listenerList;
 }
 
+void NapiTelephonyObserver::SetPropertyBoolean(napi_env env, napi_value object, std::string name, bool value)
+{
+    napi_value propertyValue = nullptr;
+    napi_get_boolean(env, value, &propertyValue);
+    char *nameChars = (char *)name.data();
+    napi_set_named_property(env, object, nameChars, propertyValue);
+}
+
+int32_t NapiTelephonyObserver::WrapSimState(int32_t simState)
+{
+    switch (simState) {
+        case ExternalState::EX_READY:
+            return static_cast<int32_t>(SimState::SIM_STATE_READY);
+        case ExternalState::EX_PIN_LOCKED:
+        case ExternalState::EX_PUK_LOCKED:
+        case ExternalState::EX_SIMLOCK:
+        case ExternalState::EX_BLOCKED_PERM:
+            return static_cast<int32_t>(SimState::SIM_STATE_LOCKED);
+        case ExternalState::EX_ABSENT:
+            return static_cast<int32_t>(SimState::SIM_STATE_NOT_PRESENT);
+        case ExternalState::EX_UNREADY:
+        case ExternalState::EX_ICC_ERROR:
+        case ExternalState::EX_ICC_RESTRICTED:
+            return static_cast<int32_t>(SimState::SIM_STATE_NOT_READY);
+        default:
+            return static_cast<int32_t>(SimState::SIM_STATE_UNKNOWN);
+    }
+}
+
+void NapiTelephonyObserver::OnSimStateUpdated(int32_t state, const std::u16string &reason)
+{
+    for (auto iter = listenerList_->begin(); iter != listenerList_->end(); iter++) {
+        if (iter->eventType == LISTEN_SIM_STATE) {
+            napi_env env = iter->env;
+            napi_handle_scope scope = nullptr;
+            napi_open_handle_scope(env, &scope);
+            napi_value thisVar = iter->thisVar;
+            napi_ref callbackRef = iter->callbackRef;
+            napi_value callbackFunc = nullptr;
+            napi_get_reference_value(env, callbackRef, &callbackFunc);
+            napi_value callbackResult = nullptr;
+            napi_value callbackValues[2] = {0};
+            int32_t wrappedSimState = WrapSimState(state);
+            TELEPHONY_LOGD("OnSimStateUpdated eventType %{public}d", wrappedSimState);
+            if (wrappedSimState >= static_cast<int32_t>(SimState::SIM_STATE_UNKNOWN)) {
+                callbackValues[0] = CreateUndefined(env);
+                napi_create_object(env, &callbackValues[1]);
+                SetPropertyInt32(env, callbackValues[1], "state", wrappedSimState);
+                SetPropertyStringUtf8(env, callbackValues[1], "reason", ToUtf8(reason));
+            } else {
+                callbackValues[0] = CreateErrorMessage(env, "get data error");
+                callbackValues[1] = CreateUndefined(env);
+            }
+            napi_call_function(env, thisVar, callbackFunc, 2, callbackValues, &callbackResult);
+            napi_close_handle_scope(env, scope);
+        }
+    }
+    listenerList_->remove_if(
+        [](EventListener listener) -> bool { return listener.isOnce && listener.eventType == LISTEN_SIM_STATE; });
+}
+
 void NapiTelephonyObserver::OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber)
 {
     for (std::list<EventListener>::iterator listenerIterator = listenerList_->begin();
          listenerIterator != listenerList_->end(); ++listenerIterator) {
-        HILOG_DEBUG("Exec OnCallStateUpdated in the for:");
-        if (listenerIterator->eventType == TelephonyNapi::LISTEN_CALL_STATE) {
-            HILOG_DEBUG("Exec OnCallStateUpdated in the if: isOnce = %{public}d", listenerIterator->isOnce);
+        if (listenerIterator->eventType == LISTEN_CALL_STATE) {
             napi_env env = listenerIterator->env;
             napi_handle_scope scope = nullptr;
             napi_open_handle_scope(env, &scope);
-            HILOG_DEBUG("Exec OnCallStateUpdated napi_open_handle_scope");
             napi_value thisVar = listenerIterator->thisVar;
             napi_ref callbackRef = listenerIterator->callbackRef;
             napi_value callbackFunc = nullptr;
             napi_get_reference_value(env, callbackRef, &callbackFunc);
-            HILOG_DEBUG("Exec OnCallStateUpdated after napi_get_reference_value");
             napi_value callbackResult = nullptr;
             std::string phoneNumberStr = ToUtf8(phoneNumber);
-            napi_value callbackValues[TWO] = {0};
+            napi_value callbackValues[2] = {0};
             int32_t wrappedCallState = WrapCallState(callState);
-            if (wrappedCallState >= TelephonyNapi::CALL_STATE_UNKNOWN) {
-                callbackValues[ZERO] = CreateUndefined(env);
-                napi_create_object(env, &callbackValues[ONE]);
-                SetPropertyInt32(env, callbackValues[ONE], "state", wrappedCallState);
-                SetPropertyStringUtf8(env, callbackValues[ONE], "number", phoneNumberStr);
+            if (wrappedCallState >= static_cast<int32_t>(CallState::CALL_STATE_UNKNOWN)) {
+                callbackValues[0] = CreateUndefined(env);
+                napi_create_object(env, &callbackValues[1]);
+                SetPropertyInt32(env, callbackValues[1], "state", wrappedCallState);
+                SetPropertyStringUtf8(env, callbackValues[1], "number", phoneNumberStr);
             } else {
-                callbackValues[ZERO] = CreateErrorMessage(env, "get data error");
-                callbackValues[ONE] = CreateUndefined(env);
+                callbackValues[0] = CreateErrorMessage(env, "get data error");
+                callbackValues[1] = CreateUndefined(env);
             }
-            HILOG_DEBUG("Exec OnCallStateUpdated before napi_call_function");
-            napi_call_function(
-                env, thisVar, callbackFunc, TelephonyNapi::TWO_ARGUMENT, callbackValues, &callbackResult);
-            HILOG_DEBUG("Exec OnCallStateUpdated after napi_call_function");
+            napi_call_function(env, thisVar, callbackFunc, 2, callbackValues, &callbackResult);
             napi_close_handle_scope(env, scope);
-            HILOG_DEBUG("Exec OnCallStateUpdated in the if end ");
         }
-        HILOG_DEBUG("Exec OnCallStateUpdated in the for end");
     }
-    listenerList_->remove_if([](EventListener listener) -> bool {
-        return listener.isOnce && listener.eventType == TelephonyNapi::LISTEN_CALL_STATE;
-    });
-    HILOG_DEBUG("Exec OnCallStateUpdated  End");
+    listenerList_->remove_if(
+        [](EventListener listener) -> bool { return listener.isOnce && listener.eventType == LISTEN_CALL_STATE; });
 }
 
 void NapiTelephonyObserver::OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &signalInfoList)
 {
-    HILOG_DEBUG("Exec OnSignalInfoUpdated  Start");
     for (std::list<EventListener>::iterator listenerIterator = listenerList_->begin();
          listenerIterator != listenerList_->end(); ++listenerIterator) {
-        HILOG_DEBUG("Exec OnSignalInfoUpdated  in the for");
-        if (listenerIterator->eventType == TelephonyNapi::LISTEN_SIGNAL_STRENGTHS) {
-            napi_env env = listenerIterator->env;
-            napi_handle_scope scope = nullptr;
-            napi_open_handle_scope(env, &scope);
-            napi_value thisVar = listenerIterator->thisVar;
-            napi_ref callbackRef = listenerIterator->callbackRef;
-            napi_value callbackFunc = nullptr;
-            napi_get_reference_value(env, callbackRef, &callbackFunc);
-            int listSize = signalInfoList.size();
-            HILOG_DEBUG(
-                "Exec OnSignalInfoUpdated  eventType == TelephonyNapi::LISTEN_SIGNAL_STRENGTHS listSize = "
-                "%{public}d",
-                listSize);
-            napi_value callbackValue[TWO] = {0};
-            if (listSize > ZERO) {
-                callbackValue[ZERO] = CreateUndefined(env);
-                napi_create_array(env, &callbackValue[ONE]);
-                for (int i = 0; i < listSize; ++i) {
-                    sptr<SignalInformation> inforItem = signalInfoList[i];
-                    napi_value info = nullptr;
-                    napi_create_object(env, &info);
-                    SetPropertyInt32(env, info, "signalType", WrapNetworkType(inforItem->GetNetworkType()));
-                    SetPropertyInt32(env, info, "signalLevel", inforItem->GetSignalLevel());
-                    napi_set_element(env, callbackValue[ONE], i, info);
-                }
-            } else {
-                callbackValue[ZERO] = CreateErrorMessage(env, "get signal info list failed");
-                callbackValue[ONE] = CreateUndefined(env);
-            }
-            napi_value callbackResult = nullptr;
-            napi_call_function(
-                env, thisVar, callbackFunc, TelephonyNapi::TWO_ARGUMENT, callbackValue, &callbackResult);
-            napi_close_handle_scope(env, scope);
+        if (listenerIterator->eventType != LISTEN_SIGNAL_STRENGTHS) {
+            continue;
         }
+
+        napi_env env = listenerIterator->env;
+        napi_handle_scope scope = nullptr;
+        napi_open_handle_scope(env, &scope);
+        napi_value thisVar = listenerIterator->thisVar;
+        napi_ref callbackRef = listenerIterator->callbackRef;
+        napi_value callbackFunc = nullptr;
+        napi_get_reference_value(env, callbackRef, &callbackFunc);
+        int listSize = signalInfoList.size();
+        TELEPHONY_LOGD("OnSignalInfoUpdated eventType == LISTEN_SIGNAL_STRENGTHS listSize = %d", listSize);
+        napi_value callbackValue[2] = {0};
+        if (listSize > 0) {
+            callbackValue[0] = CreateUndefined(env);
+            napi_create_array(env, &callbackValue[1]);
+            for (int i = 0; i < listSize; ++i) {
+                sptr<SignalInformation> infoItem = signalInfoList[i];
+                napi_value info = nullptr;
+                napi_create_object(env, &info);
+                SetPropertyInt32(env, info, "signalType", WrapNetworkType(infoItem->GetNetworkType()));
+                SetPropertyInt32(env, info, "signalLevel", infoItem->GetSignalLevel());
+                napi_set_element(env, callbackValue[1], i, info);
+            }
+        } else {
+            callbackValue[0] = CreateErrorMessage(env, "get signal info list failed");
+            callbackValue[1] = CreateUndefined(env);
+        }
+        napi_value callbackResult = nullptr;
+        napi_call_function(env, thisVar, callbackFunc, 2, callbackValue, &callbackResult);
+        napi_close_handle_scope(env, scope);
     }
     listenerList_->remove_if([](EventListener listener) -> bool {
-        return listener.isOnce && listener.eventType == TelephonyNapi::LISTEN_SIGNAL_STRENGTHS;
+        return listener.isOnce && listener.eventType == LISTEN_SIGNAL_STRENGTHS;
     });
-    HILOG_DEBUG("Exec OnSignalInfoUpdated  End");
 }
 
 void NapiTelephonyObserver::OnNetworkStateUpdated(const sptr<NetworkState> &networkState)
 {
-    HILOG_DEBUG("Exec OnNetworkStateUpdated  Start");
     for (std::list<EventListener>::iterator listenerIterator = listenerList_->begin();
          listenerIterator != listenerList_->end(); ++listenerIterator) {
-        if (listenerIterator->eventType == TelephonyNapi::LISTEN_NET_WORK_STATE) {
+        if (listenerIterator->eventType == LISTEN_NET_WORK_STATE) {
             napi_env env = listenerIterator->env;
             napi_handle_scope scope = nullptr;
             napi_open_handle_scope(env, &scope);
@@ -147,30 +190,29 @@ void NapiTelephonyObserver::OnNetworkStateUpdated(const sptr<NetworkState> &netw
             napi_ref callbackRef = listenerIterator->callbackRef;
             napi_value callbackFunc = nullptr;
             napi_get_reference_value(env, callbackRef, &callbackFunc);
-            napi_value callbackValues[TWO] = {0};
+            napi_value callbackValues[2] = {0};
             if (networkState != nullptr) {
-                callbackValues[ZERO] = CreateUndefined(env);
+                callbackValues[0] = CreateUndefined(env);
                 napi_value object = nullptr;
                 napi_create_object(env, &object);
                 SetPropertyStringUtf8(env, object, "longOperatorName", networkState->GetLongOperatorName());
                 SetPropertyStringUtf8(env, object, "shortOperatorName", networkState->GetShortOperatorName());
                 SetPropertyStringUtf8(env, object, "plmnNumeric", networkState->GetPlmnNumeric());
-                SetPropertyInt32(env, object, "isRoaming", networkState->IsRoaming() ? ONE : ZERO);
+                SetPropertyInt32(env, object, "isRoaming", networkState->IsRoaming() ? 1 : 0);
                 SetPropertyInt32(env, object, "regStatus", networkState->GetRegStatus());
                 SetPropertyInt32(env, object, "isEmergency", networkState->IsEmergency());
-                callbackValues[ONE] = object;
+                callbackValues[1] = object;
             } else {
-                callbackValues[ZERO] = CreateErrorMessage(env, "networkState data error");
-                callbackValues[ONE] = CreateUndefined(env);
+                callbackValues[0] = CreateErrorMessage(env, "networkState data error");
+                callbackValues[1] = CreateUndefined(env);
             }
             napi_value callbackResult = nullptr;
-            napi_call_function(
-                env, thisVar, callbackFunc, TelephonyNapi::TWO_ARGUMENT, callbackValues, &callbackResult);
+            napi_call_function(env, thisVar, callbackFunc, 2, callbackValues, &callbackResult);
             napi_close_handle_scope(env, scope);
         }
     }
     listenerList_->remove_if([](EventListener listener) -> bool {
-        return listener.isOnce && listener.eventType == TelephonyNapi::LISTEN_NET_WORK_STATE;
+        return listener.isOnce && listener.eventType == LISTEN_NET_WORK_STATE;
     });
 }
 
@@ -182,14 +224,14 @@ std::string NapiTelephonyObserver::ToUtf8(std::u16string str16)
 int32_t NapiTelephonyObserver::WrapRadioTech(RadioTech radioTechType)
 {
     switch (radioTechType) {
-        case OHOS::RADIO_TECHNOLOGY_GSM: {
-            return TelephonyNapi::RADIO_TECHNOLOGY_GSM;
+        case RADIO_TECHNOLOGY_GSM: {
+            return RADIO_TECHNOLOGY_GSM;
         }
-        case OHOS::RADIO_TECHNOLOGY_1XRTT: {
-            return TelephonyNapi::RADIO_TECHNOLOGY_1XRTT;
+        case RADIO_TECHNOLOGY_LTE: {
+            return RADIO_TECHNOLOGY_LTE;
         }
         default: {
-            return TelephonyNapi::RADIO_TECHNOLOGY_UNKNOWN;
+            return RADIO_TECHNOLOGY_UNKNOWN;
         }
     }
 }
@@ -197,36 +239,40 @@ int32_t NapiTelephonyObserver::WrapRadioTech(RadioTech radioTechType)
 int32_t NapiTelephonyObserver::WrapNetworkType(SignalInformation::NetworkType networkType)
 {
     int type = static_cast<int>(networkType);
+    NetworkType wrapNetworkType = NetworkType::NETWORK_TYPE_UNKNOWN;
     switch (type) {
         case GSM: {
-            return TelephonyNapi::NETWORK_TYPE_GSM;
+            wrapNetworkType = NetworkType::NETWORK_TYPE_GSM;
+            break;
         }
-        case CDMA: {
-            return TelephonyNapi::NETWORK_TYPE_CDMA;
+        case LTE: {
+            wrapNetworkType = NetworkType::NETWORK_TYPE_LTE;
+            break;
         }
         default: {
-            return TelephonyNapi::NETWORK_TYPE_UNKNOWN;
+            break;
         }
     }
+    return static_cast<int32_t>(wrapNetworkType);
 }
 
 int32_t NapiTelephonyObserver::WrapCallState(int32_t callState)
 {
     switch (callState) {
-        case CALL_STATUS_ACTIVE:
-        case CALL_STATUS_HOLDING:
-        case CALL_STATUS_DIALING:
-        case CALL_STATUS_ALERTING:
-        case CALL_STATUS_DISCONNECTING:
-            return TelephonyNapi::CALL_STATE_OFFHOOK;
-        case CALL_STATUS_WAITING:
-        case CALL_STATUS_INCOMING:
-            return TelephonyNapi::CALL_STATE_RINGING;
-        case CALL_STATUS_DISCONNECTED:
-        case CALL_STATUS_IDLE:
-            return TelephonyNapi::CALL_STATE_IDLE;
+        case Telephony::CALL_STATUS_ACTIVE:
+        case Telephony::CALL_STATUS_HOLDING:
+        case Telephony::CALL_STATUS_DIALING:
+        case Telephony::CALL_STATUS_ALERTING:
+        case Telephony::CALL_STATUS_DISCONNECTING:
+            return static_cast<int32_t>(CallState::CALL_STATE_OFFHOOK);
+        case Telephony::CALL_STATUS_WAITING:
+        case Telephony::CALL_STATUS_INCOMING:
+            return static_cast<int32_t>(CallState::CALL_STATE_RINGING);
+        case Telephony::CALL_STATUS_DISCONNECTED:
+        case Telephony::CALL_STATUS_IDLE:
+            return static_cast<int32_t>(CallState::CALL_STATE_IDLE);
         default:
-            return TelephonyNapi::CALL_STATE_UNKNOWN;
+            return static_cast<int32_t>(CallState::CALL_STATE_UNKNOWN);
     }
 }
 
@@ -237,7 +283,7 @@ bool NapiTelephonyObserver::MatchValueType(napi_env env, napi_value value, napi_
     return valueType == targetType;
 }
 
-bool NapiTelephonyObserver::MatchParamters(
+bool NapiTelephonyObserver::MatchParameters(
     napi_env env, const napi_value parameters[], std::initializer_list<napi_valuetype> valueTypes)
 {
     int i = 0;
@@ -266,6 +312,9 @@ int32_t NapiTelephonyObserver::GetEventType(const std::string &type)
     if (MatchEventType(type, SIGNAL_STRENGTHS_CHANGE)) {
         return LISTEN_SIGNAL_STRENGTHS;
     }
+    if (MatchEventType(type, SIM_STATE_CHANGE)) {
+        return LISTEN_SIM_STATE;
+    }
     return NONE_EVENT_TYPE;
 }
 
@@ -276,18 +325,18 @@ bool NapiTelephonyObserver::HasEventMask(uint32_t eventType, uint32_t masks)
 
 void NapiTelephonyObserver::SetPropertyInt32(napi_env env, napi_value object, std::string name, int32_t value)
 {
-    napi_value peopertyValue = nullptr;
-    napi_create_int32(env, value, &peopertyValue);
-    napi_set_named_property(env, object, name.c_str(), peopertyValue);
+    napi_value propertyValue = nullptr;
+    napi_create_int32(env, value, &propertyValue);
+    napi_set_named_property(env, object, name.c_str(), propertyValue);
 }
 
 void NapiTelephonyObserver::SetPropertyStringUtf8(
     napi_env env, napi_value object, std::string name, std::string value)
 {
-    napi_value peopertyValue = nullptr;
+    napi_value propertyValue = nullptr;
     char *valueChars = (char *)value.c_str();
-    napi_create_string_utf8(env, valueChars, std::strlen(valueChars), &peopertyValue);
-    napi_set_named_property(env, object, name.c_str(), peopertyValue);
+    napi_create_string_utf8(env, valueChars, std::strlen(valueChars), &propertyValue);
+    napi_set_named_property(env, object, name.c_str(), propertyValue);
 }
-} // namespace TelephonyNapi
+} // namespace Telephony
 } // namespace OHOS

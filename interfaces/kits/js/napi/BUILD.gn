@@ -18,9 +18,12 @@ ohos_shared_library("telephony_observer") {
     "include",
     "$SUBSYSTEM_DIR/state_registry/interfaces/kits/include",
     "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/state_registry/proxy",
+    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/api",
     "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/cellular_call/common",
     "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/common",
     "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/cellular_data/common",
+    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/call_manager/common",
+    "$SUBSYSTEM_DIR/core_service/interfaces/kits/js/napi/sim/include",
   ]
 
   sources = [
@@ -30,6 +33,8 @@ ohos_shared_library("telephony_observer") {
 
   deps = [
     "$SUBSYSTEM_DIR/core_service:tel_core_service",
+    "$SUBSYSTEM_DIR/core_service/common:libtelephony_common",
+    "$SUBSYSTEM_DIR/ril_adapter/hril:hril",
     "$SUBSYSTEM_DIR/state_registry/interfaces/kits:tel_state_registry_api",
     "//foundation/ace/napi:ace_napi",
     "//utils/native/base:utils",
@@ -37,10 +42,15 @@ ohos_shared_library("telephony_observer") {
 
   external_deps = [
     "appexecfwk_standard:libeventhandler",
-    "ipc:ipc_core",
     "hiviewdfx_hilog_native:libhilog",
+    "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_L2:samgr_proxy",
+  ]
+
+  defines = [
+    "TELEPHONY_LOG_TAG = \"STATE_REGISTRY_NAPI\"",
+    "LOG_DOMAIN = 0",
   ]
 
   relative_install_dir = "module"

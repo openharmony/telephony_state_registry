@@ -13,10 +13,11 @@
  * limitations under the License.
  */
 
-import {AsyncCallback} from "./basic";
+import { AsyncCallback } from "./basic";
 import radio from "./@ohos.telephony.radio";
 import data from "./@ohos.telephony.data";
 import call from "./@ohos.telephony.call";
+import sim from "./@ohos.telephony.sim";
 
 /**
  * Monitors telephony state updates of a device, including updates of the network state,
@@ -32,6 +33,7 @@ declare namespace observer {
   export import RatType = radio.RatType;
   export import DataFlowType = data.DataFlowType;
   export import CallState = call.CallState;
+  export import SimState = sim.SimState;
 
   /**
    * Called when the network state corresponding to a monitored {@code slotId} updates.
@@ -90,6 +92,46 @@ declare namespace observer {
     callback: AsyncCallback<{ state: CallState, number: String }>): void;
 
   function off(type: 'callStateChange', callback?: AsyncCallback<{ state: CallState, number: String }>): void;
+
+  /**
+   * Called back when the cell information corresponding to a monitored {@code slotId} updates.
+   *
+   * <p>Applications must have the {@code ohos.permission.LOCATION} permission
+   * to register this event.
+   *
+   * @param type cellInfoChange
+   * @param options including slotId Indicates the ID of the target card slot.
+   *   The value {@code 0} indicates card 1, and the value {@code 1} indicates card 2.
+   * @param callback including an array of instances of the classes derived from {@link CellInformation}.
+   * @hide Used for system app.
+   */
+  function on(type: 'cellInfoChange', callback: AsyncCallback<Array<CellInformation>>): void;
+  function on(type: 'cellInfoChange', options: { slotId: number },
+    callback: AsyncCallback<Array<CellInformation>>): void;
+
+  function once(type: 'cellInfoChange', callback: AsyncCallback<Array<CellInformation>>): void;
+  function once(type: 'cellInfoChange', options: { slotId: number },
+    callback: AsyncCallback<Array<CellInformation>>): void;
+
+  function off(type: 'cellInfoChange', callback?: AsyncCallback<Array<CellInformation>>): void;
+
+  /**
+   * Receives a sim state change. This callback is invoked when the sim state of a specified card updates
+   * and the observer is added to monitor the updates.
+   *
+   * @param type simStateChange
+   * @param options including slotId Indicates the ID of the target card slot.
+   *   The value {@code 0} indicates card 1, and the value {@code 1} indicates card 2.
+   * @param callback including state Indicates the sim state, and reason Indicates the cause of the change.
+   *   The value of reason is an empty string if the application does not have
+   */
+  function on(type: 'simStateChange', callback: AsyncCallback<{ state: SimState, reason: String }>): void;
+  function on(type: 'simStateChange', options: { slotId: number },
+    callback: AsyncCallback<{ state: SimState, reason: String }>): void;
+  function once(type: 'simStateChange', callback: AsyncCallback<{ state: SimState, reason: String }>): void;
+  function once(type: 'simStateChange', options: { slotId: number },
+    callback: AsyncCallback<{ state: SimState, reason: String }>): void;
+  function off(type: 'simStateChange', callback?: AsyncCallback<{ state: SimState, reason: String }>): void;
 }
 
 export default observer;

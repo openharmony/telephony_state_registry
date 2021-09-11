@@ -15,10 +15,13 @@
 
 #ifndef EVENT_LISTENER_H
 #define EVENT_LISTENER_H
+
 #include <cstdint>
+
 #include "napi/native_api.h"
+
 namespace OHOS {
-namespace TelephonyNapi {
+namespace Telephony {
 struct EventListener {
     napi_env env;
     int32_t eventType;
@@ -27,6 +30,6 @@ struct EventListener {
     napi_ref callbackRef;
     int32_t slotId;
 };
-} // namespace TelephonyNapi
+} // namespace Telephony
 } // namespace OHOS
 #endif // EVENT_LISTENER_H

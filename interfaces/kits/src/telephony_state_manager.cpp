@@ -12,17 +12,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 #include "telephony_state_manager.h"
 
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 
-#include "hilog_wrapper.h"
+#include "telephony_log_wrapper.h"
+
 #include "telephony_errors.h"
 
 namespace OHOS {
-namespace TelephonyState {
+namespace Telephony {
 TelephonyStateManager::TelephonyStateManager()
 {
     ConnectService();
@@ -33,21 +35,19 @@ TelephonyStateManager::~TelephonyStateManager() {}
 int32_t TelephonyStateManager::AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
     int32_t subId, uint32_t mask, const std::u16string &callingPackage, bool notifyNow)
 {
-    int32_t result = TELEPHONY_NO_ERROR;
+    int32_t result = TELEPHONY_SUCCESS;
     if (telephonyStateNotify_ != nullptr) {
         result =
             telephonyStateNotify_->RegisterStateChange(telephonyObserver, subId, mask, callingPackage, notifyNow);
-        return result;
     }
     return result;
 }
 
 int32_t TelephonyStateManager::RemoveStateObserver(int32_t subId, uint32_t mask)
 {
-    int32_t result = TELEPHONY_NO_ERROR;
+    int32_t result = TELEPHONY_SUCCESS;
     if (telephonyStateNotify_ != nullptr) {
         result = telephonyStateNotify_->UnregisterStateChange(subId, mask);
-        return result;
     }
     return result;
 }
@@ -56,23 +56,23 @@ int TelephonyStateManager::ConnectService()
 {
     auto systemManager = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (systemManager == nullptr) {
-        HILOG_ERROR("TelephonyStateManager::ConnectService() GetSystemAbilityManager() null\n");
+        TELEPHONY_LOGE("TelephonyStateManager::ConnectService() GetSystemAbilityManager() null\n");
         return TELEPHONY_FAIL;
     }
 
     sptr<IRemoteObject> object = systemManager->GetSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
 
     if (object != nullptr) {
-        HILOG_ERROR("TelephonyStateManager::ConnectService() IRemoteObject not null\n");
-        telephonyStateNotify_ = iface_cast<TelephonyState::ITelephonyStateNotify>(object);
+        TELEPHONY_LOGD("TelephonyStateManager::ConnectService() IRemoteObject not null\n");
+        telephonyStateNotify_ = iface_cast<ITelephonyStateNotify>(object);
     }
 
     if (telephonyStateNotify_ == nullptr) {
-        HILOG_ERROR("TelephonyStateManager::ConnectService() telephonyStateNotify_ null\n");
+        TELEPHONY_LOGE("TelephonyStateManager::ConnectService() telephonyStateNotify_ null\n");
         return TELEPHONY_FAIL;
     }
-    HILOG_DEBUG("TelephonyStateManager::ConnectService() success\n");
-    return TELEPHONY_NO_ERROR;
+    TELEPHONY_LOGD("TelephonyStateManager::ConnectService() success\n");
+    return TELEPHONY_SUCCESS;
 }
-} // namespace TelephonyState
+} // namespace Telephony
 } // namespace OHOS
