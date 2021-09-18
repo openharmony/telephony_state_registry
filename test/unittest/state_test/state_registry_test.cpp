@@ -35,7 +35,7 @@
 namespace OHOS {
 namespace Telephony {
 using namespace testing::ext;
-const int TELEPHONY_SUCCESS = 0; 
+const int TELEPHONY_SUCCESS = 0;
 class StateRegistryTest : public testing::Test {
 public:
     static void SetUpTestCase();
