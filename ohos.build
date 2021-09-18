@@ -5,7 +5,7 @@
             "module_list": [
                 "//base/telephony/state_registry:tel_state_registry",
                 "//base/telephony/state_registry/interfaces/kits:tel_state_registry_api",
-                "//base/telephony/state_registry/interfaces/kits/js/napi:telephony_observer",
+                "//base/telephony/state_registry/interfaces/kits/js/napi:observer",
 		        "//base/telephony/state_registry/sa_profile:state_registry_sa_profile"
             ],
             "test_list": [
