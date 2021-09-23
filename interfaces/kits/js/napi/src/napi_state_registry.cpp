@@ -182,7 +182,7 @@ static napi_value ObserverOff(napi_env env, napi_callback_info info)
 
     if (InitTelephonyStateManager()) {
         for (std::list<EventListener>::iterator it = g_eventListenerList.begin(); it != g_eventListenerList.end();
-            it++) {
+             it++) {
             if (it->eventType == eventType) {
                 g_telephonyStateManager->RemoveStateObserver(it->slotId, it->eventType);
                 TELEPHONY_LOGD("Exec ObserverOff after RemoveStateObserver eventType = %{public}d", it->eventType);
@@ -213,7 +213,7 @@ static napi_module _stateRegistryModule = {
     .nm_flags = 0,
     .nm_filename = nullptr,
     .nm_register_func = InitNapiStateRegistry,
-    .nm_modname = "libtelephony_observer.z.so",
+    .nm_modname = "telephony.observer",
     .nm_priv = ((void *)0),
     .reserved = {(void *)0},
 };
