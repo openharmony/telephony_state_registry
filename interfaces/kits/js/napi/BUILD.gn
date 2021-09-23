@@ -12,7 +12,7 @@
 # limitations under the License.
 import("//build/ohos.gni")
 SUBSYSTEM_DIR = "//base/telephony"
-ohos_shared_library("telephony_observer") {
+ohos_shared_library("observer") {
   include_dirs = [
     "//third_party/node/src",
     "include",
@@ -53,7 +53,7 @@ ohos_shared_library("telephony_observer") {
     "LOG_DOMAIN = 0",
   ]
 
-  relative_install_dir = "module"
+  relative_install_dir = "module/telephony"
   part_name = "state_registry"
   subsystem_name = "telephony"
 }
