@@ -13,48 +13,11 @@
  * limitations under the License.
  */
 
-#ifndef STATE_REGISTER_TEST_H
-#define STATE_REGISTER_TEST_H
-
-#include <iostream>
-#include <securec.h>
-
-#include "gtest/gtest.h"
-
-#include "if_system_ability_manager.h"
-
-#include "iservice_registry.h"
-
-#include "system_ability_definition.h"
-
-#include "string_ex.h"
-
-#include "i_telephony_state_notify.h"
-#include "telephony_observer.h"
+#include "state_registry_test.h"
 
 namespace OHOS {
 namespace Telephony {
 using namespace testing::ext;
-const int TELEPHONY_SUCCESS = 0;
-class StateRegistryTest : public testing::Test {
-public:
-    static void SetUpTestCase();
-    static void TearDownTestCase();
-    void SetUp();
-    void TearDown();
-
-    using RequestFuncType = int (StateRegistryTest::*)(const sptr<ITelephonyStateNotify> &telephonyService) const;
-    std::map<char, RequestFuncType> requestFuncMap_;
-
-    int UpdateCallState(const sptr<ITelephonyStateNotify> &telephonyService) const;
-    int UpdateCallStateForSimId(const sptr<ITelephonyStateNotify> &telephonyService) const;
-    int UpdateSignalInfo(const sptr<ITelephonyStateNotify> &telephonyService) const;
-    int UpdateCellularDataConnectState(const sptr<ITelephonyStateNotify> &telephonyService) const;
-    int UpdateSimState(const sptr<ITelephonyStateNotify> &telephonyService) const;
-    int UpdateNetworkState(const sptr<ITelephonyStateNotify> &telephonyService) const;
-    int InputNumForInterface(const sptr<ITelephonyStateNotify> &telephonyService) const;
-};
-
 void StateRegistryTest::SetUpTestCase(void)
 {
     // step 3: Set Up Test Case
@@ -84,7 +47,7 @@ void StateRegistryTest::TearDown(void)
 int StateRegistryTest::UpdateCallState(const sptr<ITelephonyStateNotify> &telephonyService) const
 {
     int32_t callState = 16;
-    std::string phoneNumber("13714532421");
+    std::string phoneNumber("137xxxxxxxx");
     std::u16string number = Str8ToStr16(phoneNumber);
     return telephonyService->UpdateCallState(callState, number);
 }
@@ -94,7 +57,7 @@ int StateRegistryTest::UpdateCallStateForSimId(const sptr<ITelephonyStateNotify>
     int32_t callState = 16;
     int32_t simId = 1;
     int32_t callId = 0;
-    std::string phoneNumber("13714532421");
+    std::string phoneNumber("137xxxxxxxx");
     std::u16string number = Str8ToStr16(phoneNumber);
     return telephonyService->UpdateCallStateForSimId(simId, callId, callState, number);
 }
@@ -185,4 +148,3 @@ HWTEST_F(StateRegistryTest, i_telephony_state_notify_001, TestSize.Level1)
 }
 } // namespace Telephony
 } // namespace OHOS
-#endif // STATE_REGISTER_TEST_H
