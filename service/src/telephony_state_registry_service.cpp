@@ -208,8 +208,6 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(const sptr<TelephonyO
     int32_t simId, uint32_t mask, const std::u16string &package, bool isUpdate, pid_t pid)
 {
     std::lock_guard<std::mutex> guard(lock_);
-    std::string utf8 = Str16ToStr8(package);
-    TELEPHONY_LOGD("TelephonyStateRegistryService::RegisterStateChange %{public}s", utf8.c_str());
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_EXIST;
     bool isExist = false;
     TelephonyStateRegistryRecord record;
