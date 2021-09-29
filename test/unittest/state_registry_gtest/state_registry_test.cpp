@@ -47,7 +47,7 @@ void StateRegistryTest::TearDown(void)
 int StateRegistryTest::UpdateCallState(const sptr<ITelephonyStateNotify> &telephonyService) const
 {
     int32_t callState = 16;
-    std::string phoneNumber("137XXXXXXXX");
+    std::string phoneNumber("137xxxxxxxx");
     std::u16string number = Str8ToStr16(phoneNumber);
     return telephonyService->UpdateCallState(callState, number);
 }
@@ -57,7 +57,7 @@ int StateRegistryTest::UpdateCallStateForSimId(const sptr<ITelephonyStateNotify>
     int32_t callState = 16;
     int32_t simId = 1;
     int32_t callId = 0;
-    std::string phoneNumber("137XXXXXXXX");
+    std::string phoneNumber("137xxxxxxxx");
     std::u16string number = Str8ToStr16(phoneNumber);
     return telephonyService->UpdateCallStateForSimId(simId, callId, callState, number);
 }

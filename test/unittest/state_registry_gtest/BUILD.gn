@@ -25,7 +25,7 @@ ohos_unittest("tel_state_registry_test") {
     "$CORE_DIR/interfaces/innerkits/state_registry/proxy/telephony_state_registry_proxy.cpp",
     "$CORE_DIR/network_search/src/network_state.cpp",
     "$CORE_DIR/network_search/src/signal_information.cpp",
-    "$SOURCE_DIR/test/unittest/state_test/state_registry_test.cpp",
+    "$SOURCE_DIR/test/unittest/state_registry_gtest/state_registry_test.cpp",
   ]
 
   include_dirs = [
