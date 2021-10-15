@@ -37,8 +37,8 @@ The state registry module provides APIs to register and deregister an observer t
 ## Constraints<a name="section128mcpsimp"></a>
 
 -   Programming language: JavaScript
--   In terms of software, this service needs to work with the telephony core service \(core\_service\).
--   In terms of hardware, the accommodating device must be equipped with a modem and a SIM card capable of independent cellular communication.
+-   Software constraints: this service needs to work with the telephony core service \(core\_service\).
+-   Hardware constraints: the accommodating device must be equipped with a modem and a SIM card capable of independent cellular communication.
 -   The API for registering an observer for the SIM card status takes effect only when SIM cards are in position. If SIM cards are removed, no callback events will be received. Your application can call the  **getSimState**  API to check whether SIM cards are in position.
 
 ## Usage<a name="section134mcpsimp"></a>
