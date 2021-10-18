@@ -45,7 +45,7 @@ ohos_shared_library("tel_state_registry") {
     "ces_standard:cesfwk_innerkits",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_L2:samgr_proxy",
+    "samgr_standard:samgr_proxy",
   ]
 
   defines = [
