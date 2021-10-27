@@ -15,10 +15,10 @@ import("//build/test.gni")
 SOURCE_DIR = "//base/telephony/state_registry"
 CORE_DIR = "//base/telephony/core_service"
 
-ohos_unittest("tel_state_registry_test") {
+ohos_unittest("tel_state_registry_gtest") {
   part_name = "state_registry"
   subsystem_name = "telephony"
-  test_module = "tel_state_registry_test"
+  test_module = "tel_state_registry_gtest"
   module_out_path = part_name + "/" + test_module
 
   sources = [
@@ -55,5 +55,5 @@ ohos_unittest("tel_state_registry_test") {
 
 group("unittest") {
   testonly = true
-  deps = [ ":tel_state_registry_test" ]
+  deps = [ ":tel_state_registry_gtest" ]
 }
