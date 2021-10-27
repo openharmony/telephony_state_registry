@@ -23,16 +23,9 @@ namespace OHOS {
 namespace Telephony {
 class TelephonyStateManager {
 public:
-    TelephonyStateManager();
-    virtual ~TelephonyStateManager();
-    int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t subId, uint32_t mask,
-        const std::u16string &callingPackage, bool notifyNow);
-    int32_t RemoveStateObserver(int32_t subId, uint32_t mask);
-
-private:
-    sptr<ITelephonyStateNotify> telephonyStateNotify_;
-
-    int ConnectService();
+    static int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
+        uint32_t mask, const std::u16string &callingPackage, bool notifyNow);
+    static int32_t RemoveStateObserver(int32_t slotId, uint32_t mask);
 };
 } // namespace Telephony
 } // namespace OHOS

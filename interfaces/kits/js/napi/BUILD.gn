@@ -16,6 +16,7 @@ ohos_shared_library("observer") {
   include_dirs = [
     "//third_party/node/src",
     "include",
+    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/api",
     "$SUBSYSTEM_DIR/state_registry/interfaces/kits/include",
     "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/state_registry/proxy",
     "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/api",
@@ -24,9 +25,14 @@ ohos_shared_library("observer") {
     "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/cellular_data/common",
     "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/call_manager/common",
     "$SUBSYSTEM_DIR/core_service/interfaces/kits/js/napi/sim/include",
+    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/network_search/include",
   ]
 
   sources = [
+    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/api/napi_util.cpp",
+    "src/event_listener_handler.cpp",
+    "src/event_listener_manager.cpp",
+    "src/function_callback_handler.cpp",
     "src/napi_state_registry.cpp",
     "src/napi_telephony_observer.cpp",
   ]
@@ -36,11 +42,16 @@ ohos_shared_library("observer") {
     "$SUBSYSTEM_DIR/core_service/common:libtelephony_common",
     "$SUBSYSTEM_DIR/ril_adapter/hril:hril",
     "$SUBSYSTEM_DIR/state_registry/interfaces/kits:tel_state_registry_api",
+    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/ace/napi:ace_napi",
     "//utils/native/base:utils",
   ]
 
   external_deps = [
+    "aafwk_standard:ability_manager",
+    "aafwk_standard:want",
+    "appexecfwk_standard:appexecfwk_base",
+    "appexecfwk_standard:appexecfwk_core",
     "appexecfwk_standard:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

@@ -13,24 +13,36 @@
  * limitations under the License.
  */
 
-#ifndef EVENT_LISTENER_H
-#define EVENT_LISTENER_H
+#ifndef UPDATE_CONTEXTS_H
+#define UPDATE_CONTEXTS_H
 
-#include <cstdint>
+#include <vector>
+#include <string>
 
-#include "telephony_update_event_type.h"
-#include "napi/native_api.h"
+#include "refbase.h"
+#include "signal_information.h"
+#include "network_state.h"
+#include "event_listener.h"
 
 namespace OHOS {
 namespace Telephony {
-struct EventListener {
-    napi_env env;
-    TelephonyUpdateEventType eventType;
-    int32_t slotId;
-    bool isOnce;
-    napi_ref callbackRef;
-    int64_t index = 0;
+struct CallStateContext : EventListener {
+    int32_t callState;
+    std::u16string phoneNumber;
+};
+
+struct SignalListContext : EventListener {
+    std::vector<sptr<SignalInformation>> signalInfoList;
+};
+
+struct NetworkStateContext : EventListener {
+    sptr<NetworkState> networkState;
+};
+
+struct SimStateContext : EventListener {
+    int32_t simState;
+    std::u16string reason;
 };
 } // namespace Telephony
 } // namespace OHOS
-#endif // EVENT_LISTENER_H
+#endif // UPDATE_CONTEXTS_H

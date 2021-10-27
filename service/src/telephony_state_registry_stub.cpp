@@ -107,6 +107,16 @@ int32_t TelephonyStateRegistryStub::UpdateSignalInfoInner(MessageParcel &data, M
         return ret;
     }
     std::vector<sptr<SignalInformation>> result;
+    parseSignalInfos(data, size, result);
+    ret = UpdateSignalInfo(simId, result);
+    TELEPHONY_LOGD("TelephonyStateRegistryStub::UpdateSignalInfoInner end##ret=%{public}d\n", ret);
+    reply.WriteInt32(ret);
+    return ret;
+}
+
+void TelephonyStateRegistryStub::parseSignalInfos(
+    MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result)
+{
     SignalInformation::NetworkType type;
     for (int i = 0; i < size; ++i) {
         type = static_cast<SignalInformation::NetworkType>(data.ReadInt32());
@@ -129,14 +139,28 @@ int32_t TelephonyStateRegistryStub::UpdateSignalInfoInner(MessageParcel &data, M
                 }
                 break;
             }
+            case SignalInformation::NetworkType::LTE: {
+                TELEPHONY_LOGD("TelephonyStateRegistryStub::UpdateSignalInfoInner NetworkType::LTE\n");
+                std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
+                if (signal != nullptr) {
+                    signal->ReadFromParcel(data);
+                    result.emplace_back(signal.release());
+                }
+                break;
+            }
+            case SignalInformation::NetworkType::WCDMA: {
+                TELEPHONY_LOGD("TelephonyStateRegistryStub::UpdateSignalInfoInner NetworkType::Wcdma\n");
+                std::unique_ptr<WcdmaSignalInformation> signal = std::make_unique<WcdmaSignalInformation>();
+                if (signal != nullptr) {
+                    signal->ReadFromParcel(data);
+                    result.emplace_back(signal.release());
+                }
+                break;
+            }
             default:
                 break;
         }
     }
-    ret = UpdateSignalInfo(simId, result);
-    TELEPHONY_LOGD("TelephonyStateRegistryStub::UpdateSignalInfoInner end##ret=%{public}d\n", ret);
-    reply.WriteInt32(ret);
-    return ret;
 }
 
 int32_t TelephonyStateRegistryStub::UpdateNetworkStateInner(MessageParcel &data, MessageParcel &reply)

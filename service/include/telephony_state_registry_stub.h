@@ -43,6 +43,8 @@ private:
     int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t simId,
         uint32_t mask, const std::u16string &package, bool isUpdate) override;
     int32_t UnregisterStateChange(int32_t simId, uint32_t mask) override;
+    void parseSignalInfos(
+        MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result);
 
 private:
     using TelephonyStateFunc = int32_t (TelephonyStateRegistryStub::*)(MessageParcel &data, MessageParcel &reply);

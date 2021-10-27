@@ -15,193 +15,240 @@
 
 #include "napi_state_registry.h"
 
-#include "string_ex.h"
+#include <utility>
+
+#include "napi_util.h"
 #include "telephony_state_manager.h"
 #include "event_listener.h"
+#include "event_listener_manager.h"
 #include "napi_telephony_observer.h"
+#include "telephony_errors.h"
 #include "telephony_log_wrapper.h"
-#include "core_manager.h"
 
 namespace OHOS {
 namespace Telephony {
-constexpr int BUF_SIZE = 31;
-constexpr int EVENT_TYPE_LENGTH = 32;
-static std::unique_ptr<TelephonyStateManager> g_telephonyStateManager;
-static std::list<EventListener> g_eventListenerList;
-static uint32_t g_eventMasks = 0;
-static bool InitTelephonyStateManager()
+constexpr int32_t DEFAULT_REF_COUNT = 1;
+
+static bool MatchEventType(const std::string &type, const std::string &goalTypeStr)
 {
-    if (g_telephonyStateManager == nullptr) {
-        g_telephonyStateManager = std::make_unique<TelephonyStateManager>();
+    return goalTypeStr.compare(type) == 0;
+}
+
+static TelephonyUpdateEventType GetEventType(const std::string &type)
+{
+    if (MatchEventType(type, NET_WORK_STATE_CHANGE)) {
+        return TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE;
     }
-    return g_telephonyStateManager != nullptr;
+    if (MatchEventType(type, CALL_STATE_CHANGE)) {
+        return TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE;
+    }
+    if (MatchEventType(type, SIGNAL_STRENGTHS_CHANGE)) {
+        return TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE;
+    }
+    if (MatchEventType(type, SIM_STATE_CHANGE)) {
+        return TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE;
+    }
+    return TelephonyUpdateEventType::NONE_EVENT_TYPE;
 }
 
-static int32_t GetDefaultSlotId()
+static std::pair<bool, std::string> MatchOnParameters(
+    napi_env env, const napi_value parameters[], size_t parameterCount)
 {
-    return CoreManager::DEFAULT_SLOT_ID;
-}
-
-static void AddStateObserver(uint32_t eventType, int32_t slotId, const std::u16string &package)
-{
-    if ((eventType & g_eventMasks) == 0) {
-        g_eventMasks += eventType;
-        sptr<TelephonyObserverBroker> observer = new NapiTelephonyObserver(eventType, g_eventListenerList);
-        if ((observer != nullptr) && InitTelephonyStateManager()) {
-            g_telephonyStateManager->AddStateObserver(observer, slotId, eventType, package, false);
-            TELEPHONY_LOGD("Exec ObserverOnce AddStateObserver");
+    if (parameterCount == 2) {
+        return std::make_pair(NapiUtil::MatchParameters(env, parameters, {napi_string, napi_function}),
+            "type mismatch: expect string, function");
+    } else if (parameterCount == 3) {
+        bool typeMatch = false;
+        bool parameterTypeMatch =
+            NapiUtil::MatchParameters(env, parameters, {napi_string, napi_object, napi_function});
+        if (parameterTypeMatch) {
+            typeMatch = NapiUtil::HasNamedTypeProperty(env, parameters[1], napi_number, "slotId");
         }
-    }
-}
-
-static void HasSlotIdProperty(
-    bool hasSlotIdProperty, napi_env env, int32_t slotId, const std::string &slotIdStr, napi_value value)
-{
-    if (hasSlotIdProperty) {
-        napi_value propertyName = nullptr;
-        napi_value slotIdValue = nullptr;
-        char *nameChars = (char *)slotIdStr.data();
-        napi_create_string_utf8(env, nameChars, std::strlen(nameChars), &propertyName);
-        napi_get_property(env, value, propertyName, &slotIdValue);
-        napi_get_value_int32(env, slotIdValue, &(slotId));
-    }
-}
-
-static napi_value ObserverOn(napi_env env, napi_callback_info info)
-{
-    size_t parameterCount = 3;
-    napi_value parameters[3] = {0};
-    napi_value thisVar = nullptr;
-    void *data = nullptr;
-    napi_get_cb_info(env, info, &parameterCount, parameters, &thisVar, &data);
-    if (parameterCount == 2) {
-        NAPI_ASSERT(env, NapiTelephonyObserver::MatchParameters(env, parameters, {napi_string, napi_function}),
-            "type mismatch");
-    } else if (parameterCount == 3) {
-        NAPI_ASSERT(env,
-            NapiTelephonyObserver::MatchParameters(env, parameters, {napi_string, napi_object, napi_function}),
-            "type mismatch");
+        return std::make_pair(typeMatch, "type mismatch: expect string, object, function");
     } else {
-        NAPI_ASSERT(env, false, "type mismatch");
+        return std::make_pair(false, "type mismatch:expect 2 or 3 parameters");
     }
-    napi_ref callbackRef = nullptr;
-    char eventTypeChars[EVENT_TYPE_LENGTH];
-    size_t eventTypeCharsSize;
-    int32_t slotId = GetDefaultSlotId();
-    napi_get_value_string_utf8(env, parameters[0], eventTypeChars, BUF_SIZE, &eventTypeCharsSize);
-    std::string eventTypeStr(eventTypeChars, eventTypeCharsSize);
-    if (parameterCount == 2) {
-        napi_create_reference(env, parameters[1], 1, &callbackRef);
-    } else if (parameterCount == 3) {
-        bool hasSlotIdProperty = false;
-        std::string slotIdStr = "slotId";
-        napi_has_named_property(env, parameters[1], slotIdStr.data(), &hasSlotIdProperty);
-        HasSlotIdProperty(hasSlotIdProperty, env, slotId, slotIdStr, parameters[1]);
-        napi_create_reference(env, parameters[2], 1, &callbackRef);
-    }
-    napi_value result = nullptr;
-    uint32_t eventType = NapiTelephonyObserver::GetEventType(eventTypeStr);
-    if (eventType != NONE_EVENT_TYPE) {
-        EventListener listener = {env, eventType, false, thisVar, callbackRef, slotId};
-        g_eventListenerList.push_back(listener);
-    }
-    std::string package("telephony.state_registry.on");
-    std::u16string packageForU16 = Str8ToStr16(package);
-    AddStateObserver(eventType, slotId, packageForU16);
-    return result;
 }
 
-static napi_value ObserverOnce(napi_env env, napi_callback_info info)
+static void NativeOn(napi_env env, void *data)
+{
+    TELEPHONY_LOGD("NativeOn start");
+    auto asyncContext = static_cast<ObserverContext *>(data);
+    TELEPHONY_LOGD("NativeOn eventType = %{public}d", asyncContext->eventType);
+    EventListener listener {
+        env, asyncContext->eventType, asyncContext->slotId, false, asyncContext->callbackRef, 0};
+    std::pair<bool, int32_t> resultPair = EventListenerManager::AddEventListener(listener);
+    asyncContext->resolved = resultPair.first;
+    asyncContext->errorCode = resultPair.second;
+}
+
+static void OnCallback(napi_env env, napi_status status, void *data)
+{
+    TELEPHONY_LOGD("OnCallback start");
+    auto asyncContext = static_cast<ObserverContext *>(data);
+    TELEPHONY_LOGD("NativeOn end resolved = %{public}d , errorCode = %{public}d", asyncContext->resolved,
+        asyncContext->errorCode);
+    if (!asyncContext->resolved) {
+        TELEPHONY_LOGE("OnCallback error by add observer failed");
+    }
+    napi_delete_async_work(env, asyncContext->work);
+    delete asyncContext;
+    asyncContext = nullptr;
+}
+
+static napi_value On(napi_env env, napi_callback_info info)
 {
     size_t parameterCount = 3;
     napi_value parameters[3] = {0};
     napi_value thisVar = nullptr;
     void *data = nullptr;
     napi_get_cb_info(env, info, &parameterCount, parameters, &thisVar, &data);
+    std::pair<bool, std::string> matchResult = MatchOnParameters(env, parameters, parameterCount);
+    NAPI_ASSERT(env, matchResult.first, "type mismatch");
+    auto asyncContext = std::make_unique<ObserverContext>();
+    std::string eventTypeStr = NapiUtil::GetStringFromValue(env, parameters[0]);
     if (parameterCount == 2) {
-        NAPI_ASSERT(env, NapiTelephonyObserver::MatchParameters(env, parameters, {napi_string, napi_function}),
-            "type mismatch");
+        napi_create_reference(env, parameters[1], DEFAULT_REF_COUNT, &asyncContext->callbackRef);
     } else if (parameterCount == 3) {
-        NAPI_ASSERT(env,
-            NapiTelephonyObserver::MatchParameters(env, parameters, {napi_string, napi_object, napi_function}),
-            "type mismatch");
+        napi_value slotIdValue = NapiUtil::GetNamedProperty(env, parameters[1], "slotId");
+        if (slotIdValue != nullptr) {
+            NapiValueConverted(env, slotIdValue, &asyncContext->slotId);
+        }
+        napi_create_reference(env, parameters[2], DEFAULT_REF_COUNT, &asyncContext->callbackRef);
+    }
+    asyncContext->eventType = GetEventType(eventTypeStr);
+    if (asyncContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
+        return NapiUtil::HandleAsyncWork(env, asyncContext.release(), "On", NativeOn, OnCallback);
     } else {
-        NAPI_ASSERT(env, false, "type mismatch");
+        napi_throw_error(env, "1", "first parameter \"type\" mismatch with the observer.d.ts");
     }
-    napi_ref callbackRef = nullptr;
-    char eventTypeChars[EVENT_TYPE_LENGTH];
-    size_t eventTypeCharsSize;
-    int32_t slotId = GetDefaultSlotId();
-    napi_get_value_string_utf8(env, parameters[0], eventTypeChars, BUF_SIZE, &eventTypeCharsSize);
-    if (parameterCount == 2) {
-        napi_create_reference(env, parameters[1], 1, &callbackRef);
-    } else if (parameterCount == 3) {
-        bool hasSlotIdProperty = false;
-        std::string slotIdStr = "slotId";
-        napi_has_named_property(env, parameters[1], slotIdStr.data(), &hasSlotIdProperty);
-        HasSlotIdProperty(hasSlotIdProperty, env, slotId, slotIdStr, parameters[1]);
-        napi_create_reference(env, parameters[2], 1, &callbackRef);
-    }
-    napi_value result = nullptr;
-    uint32_t eventType = NapiTelephonyObserver::GetEventType(eventTypeChars);
-    if (eventType != NONE_EVENT_TYPE) {
-        EventListener listener = {env, eventType, true, thisVar, callbackRef, slotId};
-        g_eventListenerList.push_back(listener);
-        TELEPHONY_LOGD("Exec ObserverOnce after push_back size = %{public}zu", g_eventListenerList.size());
-    }
-    std::string package("telephony.test.once");
-    std::u16string packageForU16 = Str8ToStr16(package);
-    AddStateObserver(eventType, slotId, packageForU16);
-    return result;
+    return NapiUtil::CreateUndefined(env);
 }
 
-static napi_value ObserverOff(napi_env env, napi_callback_info info)
+static void NativeOnce(napi_env env, void *data)
+{
+    TELEPHONY_LOGD("NativeOnce start");
+    auto asyncContext = static_cast<ObserverContext *>(data);
+    TELEPHONY_LOGD("NativeOnce eventType = %{public}d", asyncContext->eventType);
+    EventListener listener {env, asyncContext->eventType, asyncContext->slotId, true, asyncContext->callbackRef, 0};
+    std::pair<bool, int32_t> resultPair = EventListenerManager::AddEventListener(listener);
+    asyncContext->resolved = resultPair.first;
+    asyncContext->errorCode = resultPair.second;
+}
+
+static void OnceCallback(napi_env env, napi_status status, void *data)
+{
+    TELEPHONY_LOGD("OnceCallback start");
+    auto asyncContext = static_cast<ObserverContext *>(data);
+    TELEPHONY_LOGD("OnceCallback resolved = %{public}d , errorCode = %{public}d", asyncContext->resolved,
+        asyncContext->errorCode);
+    if (!asyncContext->resolved) {
+        TELEPHONY_LOGE("OnceCallback error by add observer failed");
+    }
+    napi_delete_async_work(env, asyncContext->work);
+    delete asyncContext;
+    asyncContext = nullptr;
+    TELEPHONY_LOGD("OnceCallback end");
+}
+
+static napi_value Once(napi_env env, napi_callback_info info)
 {
     size_t parameterCount = 3;
     napi_value parameters[3] = {0};
     napi_value thisVar = nullptr;
     void *data = nullptr;
     napi_get_cb_info(env, info, &parameterCount, parameters, &thisVar, &data);
+    std::pair<bool, std::string> matchResult = MatchOnParameters(env, parameters, parameterCount);
+    NAPI_ASSERT(env, matchResult.first, "type mismatch");
+    auto asyncContext = std::make_unique<ObserverContext>();
+    std::string eventTypeStr = NapiUtil::GetStringFromValue(env, parameters[0]);
+    if (parameterCount == 2) {
+        napi_create_reference(env, parameters[1], DEFAULT_REF_COUNT, &asyncContext->callbackRef);
+    } else if (parameterCount == 3) {
+        napi_value slotIdValue = NapiUtil::GetNamedProperty(env, parameters[1], "slotId");
+        if (slotIdValue != nullptr) {
+            NapiValueConverted(env, slotIdValue, &asyncContext->slotId);
+        }
+        napi_create_reference(env, parameters[2], DEFAULT_REF_COUNT, &asyncContext->callbackRef);
+    }
+    asyncContext->eventType = GetEventType(eventTypeStr);
+    if (asyncContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
+        return NapiUtil::HandleAsyncWork(env, asyncContext.release(), "Once", NativeOnce, OnceCallback);
+    } else {
+        napi_throw_error(env, "1", "first parameter \"type\" mismatch with the observer.d.ts");
+    }
+    return NapiUtil::CreateUndefined(env);
+}
+
+static void NativeOff(napi_env env, void *data)
+{
+    TELEPHONY_LOGD("NativeOff start");
+    auto asyncContext = static_cast<ObserverContext *>(data);
+    std::pair<bool, int32_t> resultPair =
+        EventListenerManager::RemoveEventListener(asyncContext->slotId, asyncContext->eventType);
+    asyncContext->resolved = resultPair.first;
+    asyncContext->errorCode = resultPair.second;
+}
+
+static void OffCallback(napi_env env, napi_status status, void *data)
+{
+    TELEPHONY_LOGD("OffCallback start");
+    auto asyncContext = static_cast<ObserverContext *>(data);
+    TELEPHONY_LOGD("OffCallback resolved = %{public}d , errorCode = %{public}d", asyncContext->resolved,
+        asyncContext->errorCode);
+    if (!asyncContext->resolved) {
+        TELEPHONY_LOGE("OffCallback error by remove observer failed");
+    }
+    napi_delete_async_work(env, asyncContext->work);
+    delete asyncContext;
+    asyncContext = nullptr;
+    TELEPHONY_LOGD("OffCallback end");
+}
+
+static std::pair<bool, std::string> MatchOffParameters(
+    napi_env env, const napi_value parameters[], const size_t parameterCount)
+{
     if (parameterCount == 1) {
-        NAPI_ASSERT(env, NapiTelephonyObserver::MatchParameters(env, parameters, {napi_string}), "type mismatch");
+        return std::make_pair(
+            NapiUtil::MatchParameters(env, parameters, {napi_string}), "type mismatch: expect string");
     } else if (parameterCount == 2) {
-        NAPI_ASSERT(env, NapiTelephonyObserver::MatchParameters(env, parameters, {napi_string, napi_function}),
-            "type mismatch");
+        return std::make_pair(NapiUtil::MatchParameters(env, parameters, {napi_string, napi_function}),
+            "type mismatch: expect string, function");
     } else {
-        NAPI_ASSERT(env, false, "type mismatch");
+        return std::make_pair(false, "type mismatch:expect 1 or 2 parameters");
     }
-    napi_value result = nullptr;
-    char eventTypeChars[EVENT_TYPE_LENGTH];
-    size_t eventTypeCharsSize;
-    napi_get_value_string_utf8(env, parameters[0], eventTypeChars, BUF_SIZE, &eventTypeCharsSize);
-    int32_t eventType = NapiTelephonyObserver::GetEventType(eventTypeChars);
+}
 
-    if (eventType == NONE_EVENT_TYPE) {
-        return result;
+static napi_value Off(napi_env env, napi_callback_info info)
+{
+    size_t parameterCount = 2;
+    napi_value parameters[2] = {0};
+    napi_value thisVar = nullptr;
+    void *data = nullptr;
+    napi_get_cb_info(env, info, &parameterCount, parameters, &thisVar, &data);
+    std::pair<bool, std::string> matchResult = MatchOffParameters(env, parameters, parameterCount);
+    NAPI_ASSERT(env, matchResult.first, "type mismatch");
+    auto asyncContext = std::make_unique<ObserverContext>();
+    std::string eventTypeStr = NapiUtil::GetStringFromValue(env, parameters[0]);
+    if (parameterCount == 2) {
+        napi_create_reference(env, parameters[1], DEFAULT_REF_COUNT, &asyncContext->callbackRef);
     }
-
-    if (InitTelephonyStateManager()) {
-        for (std::list<EventListener>::iterator it = g_eventListenerList.begin(); it != g_eventListenerList.end();
-             it++) {
-            if (it->eventType == eventType) {
-                g_telephonyStateManager->RemoveStateObserver(it->slotId, it->eventType);
-                TELEPHONY_LOGD("Exec ObserverOff after RemoveStateObserver eventType = %{public}d", it->eventType);
-            }
-        }
+    asyncContext->eventType = GetEventType(eventTypeStr);
+    if (asyncContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
+        return NapiUtil::HandleAsyncWork(env, asyncContext.release(), "Off", NativeOff, OffCallback);
+    } else {
+        napi_throw_error(env, "1", "first parameter \"type\" mismatch with the @ohos.telephony.observer.d.ts");
+    return NapiUtil::CreateUndefined(env);
     }
-    g_eventListenerList.remove_if(
-        [eventType](EventListener listener) -> bool { return listener.eventType == eventType; });
-
-    return result;
 }
 
 EXTERN_C_START
 napi_value InitNapiStateRegistry(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("on", ObserverOn),
-        DECLARE_NAPI_FUNCTION("once", ObserverOnce),
-        DECLARE_NAPI_FUNCTION("off", ObserverOff),
+        DECLARE_NAPI_FUNCTION("on", On),
+        DECLARE_NAPI_FUNCTION("once", Once),
+        DECLARE_NAPI_FUNCTION("off", Off),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     return exports;

@@ -13,24 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef EVENT_LISTENER_H
-#define EVENT_LISTENER_H
+#ifndef EVENT_LISTENER_MANAGER_H
+#define EVENT_LISTENER_MANAGER_H
 
 #include <cstdint>
+#include <memory>
 
 #include "telephony_update_event_type.h"
-#include "napi/native_api.h"
+#include "event_listener.h"
+#include "event_listener_handler.h"
+#include "singleton.h"
 
 namespace OHOS {
 namespace Telephony {
-struct EventListener {
-    napi_env env;
-    TelephonyUpdateEventType eventType;
-    int32_t slotId;
-    bool isOnce;
-    napi_ref callbackRef;
-    int64_t index = 0;
+class EventListenerManager {
+public:
+    template<typename T, typename D>
+    inline static bool SendEvent(uint32_t innerEventId, std::unique_ptr<T, D> &object, int64_t delayTime = 0)
+    {
+        return DelayedSingleton<EventListenerHandler>::GetInstance()->SendEvent(innerEventId, object, delayTime);
+    }
+    static std::pair<bool, int32_t> AddEventListener(EventListener &eventListener);
+    static std::pair<bool, int32_t> RemoveEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
 };
 } // namespace Telephony
 } // namespace OHOS
-#endif // EVENT_LISTENER_H
+#endif // EVENT_LISTENER_MANAGER_H
