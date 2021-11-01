@@ -13,23 +13,21 @@
  * limitations under the License.
  */
 
-#include "telephony_state_manager.h"
+#include "event_listener_manager.h"
 
-#include "telephony_observer_proxy_holder.h"
-#include "singleton.h"
+#include "telephony_update_event_type.h"
 
 namespace OHOS {
 namespace Telephony {
-int32_t TelephonyStateManager::AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
-    int32_t slotId, uint32_t mask, const std::u16string &callingPackage, bool notifyNow)
+std::pair<bool, int32_t> EventListenerManager::AddEventListener(EventListener &eventListener)
 {
-    return DelayedSingleton<TelephonyObserverProxyHolder>::GetInstance()->AddStateObserver(
-        telephonyObserver, slotId, mask, callingPackage, notifyNow);
+    return DelayedSingleton<EventListenerHandler>::GetInstance()->AddEventListener(eventListener);
 }
 
-int32_t TelephonyStateManager::RemoveStateObserver(int32_t slotId, uint32_t mask)
+std::pair<bool, int32_t> EventListenerManager::RemoveEventListener(
+    int32_t slotId, const TelephonyUpdateEventType eventType)
 {
-    return DelayedSingleton<TelephonyObserverProxyHolder>::GetInstance()->RemoveStateObserver(slotId, mask);
+    return DelayedSingleton<EventListenerHandler>::GetInstance()->RemoveEventListener(slotId, eventType);
 }
 } // namespace Telephony
 } // namespace OHOS

@@ -94,7 +94,6 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
         cellularDataConnectionState_[simId] = dataState;
         cellularDataConnectionNetworkType_[simId] = networkType;
     }
-    SendCellularDataConnectStateChanged(simId, dataState, networkType);
     return result;
 }
 
@@ -102,7 +101,6 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
 {
     std::lock_guard<std::mutex> guard(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
-    int32_t simId = 1;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
@@ -117,7 +115,6 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
             result = TELEPHONY_SUCCESS;
         }
     }
-    SendCallStateChanged(simId, callState, number);
     return result;
 }
 
@@ -140,7 +137,6 @@ int32_t TelephonyStateRegistryService::UpdateCallStateForSimId(
             }
         }
     }
-    SendCallStateChanged(simId, callState, incomingNumberStr);
     return result;
 }
 
@@ -160,7 +156,6 @@ int32_t TelephonyStateRegistryService::UpdateSimState(int32_t simId, int32_t sta
             }
         }
     }
-    SendSimStateChanged(simId, state, reason);
     return result;
 }
 
@@ -180,7 +175,6 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(
             }
         }
     }
-    SendSignalInfoChanged(simId, vec);
     return result;
 }
 
@@ -199,7 +193,6 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t simId, const s
             }
         }
     }
-    SendNetworkStateChanged(simId, networkState);
     TELEPHONY_LOGD("TelephonyStateRegistryService::NotifyNetworkStateUpdated end");
     return result;
 }

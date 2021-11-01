@@ -13,26 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef NAPI_TELEPHONY_OBSERVER_H
-#define NAPI_TELEPHONY_OBSERVER_H
+#ifndef TELEPHONY_OBSERVER_PROXY_HOLDER_H
+#define TELEPHONY_OBSERVER_PROXY_HOLDER_H
 
-#include <vector>
-#include <memory>
-#include <string>
-
-#include "cellular_data_types.h"
-#include "signal_information.h"
+#include "i_telephony_state_notify.h"
 #include "telephony_observer.h"
 
 namespace OHOS {
 namespace Telephony {
-class NapiTelephonyObserver : public TelephonyObserver {
+class TelephonyObserverProxyHolder {
 public:
-    void OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber) override;
-    void OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &vec) override;
-    void OnNetworkStateUpdated(const sptr<NetworkState> &networkState) override;
-    void OnSimStateUpdated(int32_t state, const std::u16string &reason) override;
+    int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId, uint32_t mask,
+        const std::u16string &callingPackage, bool notifyNow);
+    int32_t RemoveStateObserver(int32_t slotId, uint32_t mask);
+    bool InitStateObserverProxy();
+    void ResetServiceProxy();
+
+private:
+    std::mutex mutex_;
+    sptr<ITelephonyStateNotify> telephonyStateNotify_ = nullptr;
+    sptr<IRemoteObject::DeathRecipient> recipient_ = nullptr;
 };
 } // namespace Telephony
 } // namespace OHOS
-#endif // NAPI_TELEPHONY_OBSERVER_H
+#endif // TELEPHONY_OBSERVER_PROXY_HOLDER_H

@@ -51,9 +51,9 @@ int32_t TelephonyObserver::OnRemoteRequest(
             break;
         }
         case TelephonyObserverBroker::ON_SIM_STATE_UPDATED: {
-            int32_t callState = data.ReadInt32();
+            int32_t simState = data.ReadInt32();
             std::u16string reson = data.ReadString16();
-            OnSimStateUpdated(callState, reson);
+            OnSimStateUpdated(simState, reson);
             break;
         }
         default: {
@@ -80,6 +80,24 @@ void TelephonyObserver::ConvertSignalInfoList(MessageParcel &data, std::vector<s
             }
             case SignalInformation::NetworkType::CDMA: {
                 std::unique_ptr<CdmaSignalInformation> signal = std::make_unique<CdmaSignalInformation>();
+                if (signal != nullptr) {
+                    signal->ReadFromParcel(data);
+                    result.emplace_back(signal.release());
+                }
+                break;
+            }
+            case SignalInformation::NetworkType::LTE: {
+                TELEPHONY_LOGD("TelephonyObserver::ConvertSignalInfoList NetworkType::LTE\n");
+                std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
+                if (signal != nullptr) {
+                    signal->ReadFromParcel(data);
+                    result.emplace_back(signal.release());
+                }
+                break;
+            }
+            case SignalInformation::NetworkType::WCDMA: {
+                TELEPHONY_LOGD("TelephonyObserver::ConvertSignalInfoList NetworkType::Wcdma\n");
+                std::unique_ptr<WcdmaSignalInformation> signal = std::make_unique<WcdmaSignalInformation>();
                 if (signal != nullptr) {
                     signal->ReadFromParcel(data);
                     result.emplace_back(signal.release());

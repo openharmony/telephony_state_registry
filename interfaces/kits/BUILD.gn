@@ -22,6 +22,7 @@ ohos_shared_library("tel_state_registry_api") {
     "$CORE_DIR/network_search/src/signal_information.cpp",
     "$STATE_REGISTRY_API_DIR/src/telephony_observer.cpp",
     "$STATE_REGISTRY_API_DIR/src/telephony_observer_proxy.cpp",
+    "$STATE_REGISTRY_API_DIR/src/telephony_observer_proxy_holder.cpp",
     "$STATE_REGISTRY_API_DIR/src/telephony_state_manager.cpp",
   ]
 

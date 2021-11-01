@@ -16,13 +16,14 @@
 #ifndef NAPI_STATE_REGISTRY_H
 #define NAPI_STATE_REGISTRY_H
 
-#include <cstring>
 #include <initializer_list>
 #include <string>
 
+#include "base_context.h"
+#include "telephony_update_event_type.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-
+#include "core_manager.h"
 #include "telephony_observer_broker.h"
 
 namespace OHOS {
@@ -208,6 +209,12 @@ enum class NetworkType : int32_t {
      * Indicates that the network type is 5G NR.
      */
     NETWORK_TYPE_NR
+};
+
+struct ObserverContext : BaseContext {
+    int32_t slotId = CoreManager::DEFAULT_SLOT_ID;
+    TelephonyUpdateEventType eventType = TelephonyUpdateEventType::NONE_EVENT_TYPE;
+    int32_t errorCode = 0;
 };
 } // namespace Telephony
 } // namespace OHOS

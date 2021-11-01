@@ -13,23 +13,26 @@
  * limitations under the License.
  */
 
-#include "telephony_state_manager.h"
+#ifndef TELEPHONY_CALLBACK_EVENT_ID_H
+#define TELEPHONY_CALLBACK_EVENT_ID_H
 
-#include "telephony_observer_proxy_holder.h"
-#include "singleton.h"
+#include <cstdint>
 
 namespace OHOS {
 namespace Telephony {
-int32_t TelephonyStateManager::AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
-    int32_t slotId, uint32_t mask, const std::u16string &callingPackage, bool notifyNow)
-{
-    return DelayedSingleton<TelephonyObserverProxyHolder>::GetInstance()->AddStateObserver(
-        telephonyObserver, slotId, mask, callingPackage, notifyNow);
-}
+enum class TelephonyCallbackEventId : uint32_t {
+    EVENT_REMOVE_ONCE = 0,
+    EVENT_ON_CALL_STATE_UPDATE = 1,
+    EVENT_ON_SIGNAL_INFO_UPDATE = 2,
+    EVENT_ON_NETWORK_STATE_UPDATE = 3,
+    EVENT_ON_SIM_STATE_UPDATE = 4,
+};
 
-int32_t TelephonyStateManager::RemoveStateObserver(int32_t slotId, uint32_t mask)
+template<typename EnumClass>
+auto ToUint32t(EnumClass const value) -> typename std::underlying_type<EnumClass>::type
 {
-    return DelayedSingleton<TelephonyObserverProxyHolder>::GetInstance()->RemoveStateObserver(slotId, mask);
+    return static_cast<typename std::underlying_type<EnumClass>::type>(value);
 }
 } // namespace Telephony
 } // namespace OHOS
+#endif // TELEPHONY_CALLBACK_EVENT_ID_H
