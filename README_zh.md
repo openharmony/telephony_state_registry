@@ -48,29 +48,12 @@
 **表 1**  注册接口
 
 <a name="table165976561598"></a>
-<table><thead align="left"><tr id="row1059785615915"><th class="cellrowborder" valign="top" width="50.019999999999996%" id="mcps1.2.3.1.1"><p id="p81665114103"><a name="p81665114103"></a><a name="p81665114103"></a>接口定义</p>
-</th>
-<th class="cellrowborder" valign="top" width="49.980000000000004%" id="mcps1.2.3.1.2"><p id="p916145121017"><a name="p916145121017"></a><a name="p916145121017"></a><strong id="b15161551111018"><a name="b15161551111018"></a><a name="b15161551111018"></a>接口描述</strong></p>
-</th>
-</tr>
-</thead>
-<tbody><tr id="row137081297171"><td class="cellrowborder" valign="top" width="50.019999999999996%" headers="mcps1.2.3.1.1 "><p id="p570813931718"><a name="p570813931718"></a><a name="p570813931718"></a>function on(type: String, options: { slotId?: number }, callback: AsyncCallback&lt;T&gt;): void;</p>
-</td>
-<td class="cellrowborder" valign="top" width="49.980000000000004%" headers="mcps1.2.3.1.2 "><p id="p770811916175"><a name="p770811916175"></a><a name="p770811916175"></a>开启订阅</p>
-</td>
-</tr>
-<tr id="row176541675174"><td class="cellrowborder" valign="top" width="50.019999999999996%" headers="mcps1.2.3.1.1 "><p id="p06544714174"><a name="p06544714174"></a><a name="p06544714174"></a>function off(type: String, callback?: AsyncCallback&lt;T&gt;): void;</p>
-</td>
-<td class="cellrowborder" valign="top" width="49.980000000000004%" headers="mcps1.2.3.1.2 "><p id="p26546716175"><a name="p26546716175"></a><a name="p26546716175"></a>关闭订阅</p>
-</td>
-</tr>
-<tr id="row1526612541718"><td class="cellrowborder" valign="top" width="50.019999999999996%" headers="mcps1.2.3.1.1 "><p id="p62673520171"><a name="p62673520171"></a><a name="p62673520171"></a>function once(type: String, options: { slotId?: number }, callback: AsyncCallback&lt;T&gt;): void;</p>
-</td>
-<td class="cellrowborder" valign="top" width="49.980000000000004%" headers="mcps1.2.3.1.2 "><p id="p152671855177"><a name="p152671855177"></a><a name="p152671855177"></a>一次性订阅</p>
-</td>
-</tr>
-</tbody>
-</table>
+
+| 接口定义                                                     | **接口描述** |
+| ------------------------------------------------------------ | ------------ |
+| function on(type: String, options: { slotId?: number }, callback: AsyncCallback\<T\>): void; | 开启订阅     |
+| function off(type: String, callback?: AsyncCallback\<T\>): void; | 关闭订阅     |
+| function once(type: String, options: { slotId?: number }, callback: AsyncCallback\<T\>): void; | 一次性订阅   |
 
 ## 使用说明<a name="section163mcpsimp"></a>
 
@@ -81,51 +64,14 @@
 **表 2**  type参数说明
 
 <a name="table1234838197"></a>
-<table><thead align="left"><tr id="row82351335191"><th class="cellrowborder" valign="top" width="33.33333333333333%" id="mcps1.2.4.1.1"><p id="p2023519312196"><a name="p2023519312196"></a><a name="p2023519312196"></a>type参数</p>
-</th>
-<th class="cellrowborder" valign="top" width="33.33333333333333%" id="mcps1.2.4.1.2"><p id="p1823516361916"><a name="p1823516361916"></a><a name="p1823516361916"></a>说明</p>
-</th>
-<th class="cellrowborder" valign="top" width="33.33333333333333%" id="mcps1.2.4.1.3"><p id="p17904634202019"><a name="p17904634202019"></a><a name="p17904634202019"></a>所需权限</p>
-</th>
-</tr>
-</thead>
-<tbody><tr id="row122350371913"><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.1 "><p id="p22351321915"><a name="p22351321915"></a><a name="p22351321915"></a>networkStateChange</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.2 "><p id="p142353317193"><a name="p142353317193"></a><a name="p142353317193"></a>网络状态变化事件</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.3 "><p id="p15933202217"><a name="p15933202217"></a><a name="p15933202217"></a>ohos.permission.GET_NETWORK_INFO</p>
-</td>
-</tr>
-<tr id="row9235183101918"><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.1 "><p id="p1523593201916"><a name="p1523593201916"></a><a name="p1523593201916"></a>signalInfoChange</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.2 "><p id="p1123553161910"><a name="p1123553161910"></a><a name="p1123553161910"></a>信号变化事件</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.3 "><p id="p2904134182011"><a name="p2904134182011"></a><a name="p2904134182011"></a>无</p>
-</td>
-</tr>
-<tr id="row823512391918"><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.1 "><p id="p1823516319196"><a name="p1823516319196"></a><a name="p1823516319196"></a>cellularDataConnectionStateChange</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.2 "><p id="p8235103161914"><a name="p8235103161914"></a><a name="p8235103161914"></a>蜂窝数据连接状态事件</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.3 "><p id="p1790403492014"><a name="p1790403492014"></a><a name="p1790403492014"></a>无</p>
-</td>
-</tr>
-<tr id="row823510321915"><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.1 "><p id="p1423523191911"><a name="p1423523191911"></a><a name="p1423523191911"></a>cellularDataFlowChange</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.2 "><p id="p423515361917"><a name="p423515361917"></a><a name="p423515361917"></a>蜂窝数据流变化事件</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.3 "><p id="p1190463416203"><a name="p1190463416203"></a><a name="p1190463416203"></a>无</p>
-</td>
-</tr>
-<tr id="row223563151918"><td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.1 "><p id="p2235153191910"><a name="p2235153191910"></a><a name="p2235153191910"></a>callStateChange</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.2 "><p id="p123513331917"><a name="p123513331917"></a><a name="p123513331917"></a>通话状态变化事件，其中phoneNumber没有权限返回空字符串</p>
-</td>
-<td class="cellrowborder" valign="top" width="33.33333333333333%" headers="mcps1.2.4.1.3 "><p id="p1828812257217"><a name="p1828812257217"></a><a name="p1828812257217"></a>ohos.permission.READ_CALL_LOG</p>
-</td>
-</tr>
-</tbody>
-</table>
+
+| type参数                          | 说明                                                  | 所需权限                         |
+| --------------------------------- | ----------------------------------------------------- | -------------------------------- |
+| networkStateChange                | 网络状态变化事件                                      | ohos.permission.GET_NETWORK_INFO |
+| signalInfoChange                  | 信号变化事件                                          | 无                               |
+| cellularDataConnectionStateChange | 蜂窝数据连接状态事件                                  | 无                               |
+| cellularDataFlowChange            | 蜂窝数据流变化事件                                    | 无                               |
+| callStateChange                   | 通话状态变化事件，其中phoneNumber没有权限返回空字符串 | ohos.permission.READ_CALL_LOG    |
 
 ### 接口调用代码示例<a name="section1558565082915"></a>
 
@@ -138,7 +84,7 @@
     ```
     // 引入包名
     import observer from '@ohos.telephony.observer';
-
+    
     // 开启订阅
     observer.on('callStateChange', {slotId: 1}, (err, value) => {
       if (err) {
@@ -149,7 +95,7 @@
       // 接口调用成功，err为空
       console.log(`success on. number is ` + value.number + ", state is " + value.state);
     });
-
+    
     // 只订阅一次
     observer.once('callStateChange', {slotId: 1}, (err, value) => {
       if (err) {
@@ -160,7 +106,7 @@
       // 接口调用成功，err为空
       console.log(`success once. number is ` + value.number + ", state is " + value.state);
     });
-
+    
     // 关闭订阅
     observer.off('callStateChange', (err, value) => {
       if (err) {
