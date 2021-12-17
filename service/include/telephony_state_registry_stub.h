@@ -44,22 +44,23 @@ private:
         uint32_t mask, const std::u16string &package, bool isUpdate) override;
     int32_t UnregisterStateChange(int32_t simId, uint32_t mask) override;
     void parseSignalInfos(
-        MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result);
+            MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result);
 
 private:
     using TelephonyStateFunc = int32_t (TelephonyStateRegistryStub::*)(MessageParcel &data, MessageParcel &reply);
 
-    int32_t UpdateCallStateInner(MessageParcel &data, MessageParcel &reply);
-    int32_t UpdateCallStateForSimIdInner(MessageParcel &data, MessageParcel &reply);
-    int32_t UpdateSignalInfoInner(MessageParcel &data, MessageParcel &reply);
-    int32_t UpdateNetworkStateInner(MessageParcel &data, MessageParcel &reply);
-    int32_t UpdateSimStateInner(MessageParcel &data, MessageParcel &reply);
-    int32_t RegisterStateChangeInner(MessageParcel &data, MessageParcel &reply);
-    int32_t UnregisterStateChangeInner(MessageParcel &data, MessageParcel &reply);
-    int32_t UpdateCellularDataConnectStateInner(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateCellInfo(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateCallState(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateCallStateForSimId(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateSignalInfo(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateNetworkState(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateSimState(MessageParcel &data, MessageParcel &reply);
+    int32_t OnRegisterStateChange(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUnregisterStateChange(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateCellularDataConnectState(MessageParcel &data, MessageParcel &reply);
 
 private:
-    std::map<uint32_t, TelephonyStateFunc> memberFuncMap_;
+    std::map<StateNotifyCode, TelephonyStateFunc> memberFuncMap_;
 };
 } // namespace Telephony
 } // namespace OHOS

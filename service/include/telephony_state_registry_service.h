@@ -27,6 +27,7 @@
 
 #include "telephony_state_registry_record.h"
 #include "telephony_state_registry_stub.h"
+#include "sim_state_type.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -48,14 +49,18 @@ public:
     void OnStart() override;
     void OnStop() override;
     void OnDump() override;
-
+    int Dump(std::int32_t fd, const std::vector<std::u16string> &args) override;
+    std::string GetBindStartTime();
+    std::string GetBindEndTime();
+    std::string GetBindSpendTime();
     int32_t UpdateCellularDataConnectState(int32_t simId, int32_t dataState, int32_t networkType) override;
     int32_t UpdateCallState(int32_t callState, const std::u16string &phoneNumber) override;
     int32_t UpdateCallStateForSimId(
         int32_t simId, int32_t callId, int32_t callState, const std::u16string &incomingNumber) override;
     int32_t UpdateSignalInfo(int32_t simId, const std::vector<sptr<SignalInformation>> &vec) override;
     int32_t UpdateNetworkState(int32_t simId, const sptr<NetworkState> &networkState) override;
-    int32_t UpdateSimState(int32_t simId, int32_t state, const std::u16string &reason) override;
+    int32_t UpdateSimState(int32_t simId, SimState state, LockReason reason) override;
+    int32_t UpdateCellInfo(int32_t simId, const std::vector<sptr<CellInformation>> &vec) override;
     int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t simId,
         uint32_t mask, const std::u16string &callingPackage, bool notifyNow, pid_t pid) override;
     int32_t UnregisterStateChange(int32_t simId, uint32_t mask, pid_t pid) override;
@@ -75,25 +80,31 @@ private:
         int32_t simId, int32_t dataState, int32_t networkType, const std::u16string &apnType);
     void SendSignalInfoChanged(int32_t simId, const std::vector<sptr<SignalInformation>> &vec);
     void SendNetworkStateChanged(int32_t simId, const sptr<NetworkState> &networkState);
-    void SendSimStateChanged(int32_t simId, int32_t state, const std::u16string &reason);
+    void SendSimStateChanged(int32_t simId, SimState state, LockReason reason);
+    void SendCellInfoChanged(int32_t simId, const std::vector<sptr<CellInformation>> &vec);
     void SendCellularDataConnectStateChanged(int32_t simId, int32_t dataState, int32_t networkType);
 
 private:
     ServiceRunningState state_ = ServiceRunningState::STATE_STOPPED;
     std::mutex lock_;
     int32_t slotSize_;
+    int64_t bindStartTime_ = 0L;
+    int64_t bindEndTime_ = 0L;
+    int64_t bindSpendTime_ = 0L;
     std::map<int32_t, int32_t> callState_;
     std::map<int32_t, std::u16string> callIncomingNumber_;
     std::map<int32_t, std::vector<sptr<SignalInformation>>> signalInfos_;
+    std::map<int32_t, std::vector<sptr<CellInformation>>> cellInfos_;
     std::map<int32_t, sptr<NetworkState>> searchNetworkState_;
     std::vector<TelephonyStateRegistryRecord> stateRecords_;
     std::shared_ptr<StateSubscriber> stateSubscriber_;
-    std::map<int32_t, int32_t> simState_;
-    std::map<int32_t, std::u16string> simReason_;
+    std::map<int32_t, SimState> simState_;
+    std::map<int32_t, LockReason> simReason_;
     std::map<int32_t, int32_t> cellularDataConnectionState_;
     std::map<int32_t, int32_t> cellularDataConnectionNetworkType_;
 
 private:
+    const std::string CELL_INFO_CHANGE_ACTION = "com.hos.action.CELL_INFO_CHANGE";
     const std::string CALL_STATE_CHANGE_ACTION = "com.hos.action.CALL_STATE_CHANGE";
     const std::string SEARCH_NET_WORK_STATE_CHANGE_ACTION = "com.hos.action.SEARCH_NET_WORK_STATE_CHANGE";
     const std::string SEARCH_SIGNAL_INFO_CHANGE_ACTION = "com.hos.action.SEARCH_SIGNAL_INFO_CHANGE";
