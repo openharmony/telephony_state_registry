@@ -13,33 +13,29 @@
  * limitations under the License.
  */
 
-#ifndef STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
-#define STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
+#ifndef TELEPHONY_STATE_REGISTRY_DUMP_HELPER_H
+#define TELEPHONY_STATE_REGISTRY_DUMP_HELPER_H
 
+#include <vector>
 #include <string>
 
-#include "telephony_observer_broker.h"
+#include "telephony_state_registry_service.h"
+#include "telephony_log_wrapper.h"
 
 namespace OHOS {
 namespace Telephony {
-class TelephonyStateRegistryRecord {
+class TelephonyStateRegistryDumpHelper {
 public:
-    bool IsCanReadCallHistory();
-    /**
-     * IsExistStateListener
-     *
-     * @param mask Listening type bitmask
-     * @return bool mask exist on true, others on false.
-     */
-    bool IsExistStateListener(uint32_t mask) const;
+    explicit TelephonyStateRegistryDumpHelper();
+    ~TelephonyStateRegistryDumpHelper() = default;
+    bool Dump(const std::vector<std::string> &args,
+        std::vector<TelephonyStateRegistryRecord> &stateRecords, std::string &result) const;
 
-public:
-    std::u16string package_;
-    pid_t pid_ = 0;
-    unsigned int mask_ = 0;
-    int simId_ = 0;
-    sptr<TelephonyObserverBroker> telephonyObserver_ = nullptr;
+private:
+    bool ShowTelephonyStateRegistryInfo(
+        std::vector<TelephonyStateRegistryRecord> &stateRecords, std::string &result) const;
 };
 } // namespace Telephony
 } // namespace OHOS
-#endif // STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
+
+#endif // TELEPHONY_STATE_REGISTRY_DUMP_HELPER_H

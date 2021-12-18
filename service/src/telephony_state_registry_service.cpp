@@ -14,11 +14,14 @@
  */
 
 #include "telephony_state_registry_service.h"
-#include "system_ability_definition.h"
+
+#include <sstream>
 
 #include "string_ex.h"
+#include "system_ability_definition.h"
 
 #include "state_registry_errors.h"
+#include "telephony_state_registry_dump_helper.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -28,7 +31,6 @@ bool g_registerResult =
 TelephonyStateRegistryService::TelephonyStateRegistryService()
     : SystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID, true)
 {
-    TELEPHONY_LOGD("TelephonyStateRegistryService SystemAbility create");
     slotSize_ = 0;
     RegisterSubscriber();
 }
@@ -45,6 +47,8 @@ TelephonyStateRegistryService::~TelephonyStateRegistryService()
 
 void TelephonyStateRegistryService::OnStart()
 {
+    bindStartTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
     std::lock_guard<std::mutex> guard(lock_);
     if (state_ == ServiceRunningState::STATE_RUNNING) {
         TELEPHONY_LOGE("Leave, FAILED, already running");
@@ -55,24 +59,24 @@ void TelephonyStateRegistryService::OnStart()
     if (!ret) {
         TELEPHONY_LOGE("Leave, Failed to publish TelephonyStateRegistryService");
     }
-    TELEPHONY_LOGD("TelephonyStateRegistryService start success.");
+    bindEndTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(
+        std::chrono::system_clock::now().time_since_epoch()).count();
 }
 
 void TelephonyStateRegistryService::OnStop()
 {
-    TELEPHONY_LOGD("TelephonyStateRegistryService OnStop ");
     std::lock_guard<std::mutex> guard(lock_);
     state_ = ServiceRunningState::STATE_STOPPED;
 }
 
 void TelephonyStateRegistryService::Finalize()
 {
-    TELEPHONY_LOGD("TelephonyStateRegistryService Finalize");
+    TELEPHONY_LOGI("TelephonyStateRegistryService Finalize");
 }
 
 void TelephonyStateRegistryService::OnDump()
 {
-    TELEPHONY_LOGD("TelephonyStateRegistryService OnDump");
+    TELEPHONY_LOGI("TelephonyStateRegistryService OnDump");
 }
 
 int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
@@ -80,9 +84,12 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
 {
     std::lock_guard<std::mutex> guard(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
-    if (VerifySimId(simId) &&
-        (cellularDataConnectionState_[simId] != dataState ||
-        cellularDataConnectionNetworkType_[simId] != networkType)) {
+    if (!VerifySimId(simId)) {
+        SendCellularDataConnectStateChanged(simId, dataState, networkType);
+        return result;
+    }
+    if (cellularDataConnectionState_[simId] != dataState ||
+        cellularDataConnectionNetworkType_[simId] != networkType) {
         for (size_t i = 0; i < stateRecords_.size(); i++) {
             TelephonyStateRegistryRecord record = stateRecords_[i];
             if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE) &&
@@ -94,6 +101,7 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
         cellularDataConnectionState_[simId] = dataState;
         cellularDataConnectionNetworkType_[simId] = networkType;
     }
+    SendCellularDataConnectStateChanged(simId, dataState, networkType);
     return result;
 }
 
@@ -101,10 +109,11 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
 {
     std::lock_guard<std::mutex> guard(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    int32_t simId = 1;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
-            record.telephonyObserver_ != nullptr) {
+            (record.simId_ == simId) && record.telephonyObserver_ != nullptr) {
             std::u16string phoneNumberStr;
             if (record.IsCanReadCallHistory()) {
                 phoneNumberStr = number;
@@ -140,7 +149,7 @@ int32_t TelephonyStateRegistryService::UpdateCallStateForSimId(
     return result;
 }
 
-int32_t TelephonyStateRegistryService::UpdateSimState(int32_t simId, int32_t state, const std::u16string &reason)
+int32_t TelephonyStateRegistryService::UpdateSimState(int32_t simId, SimState state, LockReason reason)
 {
     std::lock_guard<std::mutex> guard(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
@@ -156,6 +165,7 @@ int32_t TelephonyStateRegistryService::UpdateSimState(int32_t simId, int32_t sta
             }
         }
     }
+    SendSimStateChanged(simId, state, reason);
     return result;
 }
 
@@ -175,6 +185,26 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(
             }
         }
     }
+    SendSignalInfoChanged(simId, vec);
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::UpdateCellInfo(int32_t simId, const std::vector<sptr<CellInformation>> &vec)
+{
+    std::lock_guard<std::mutex> guard(lock_);
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    if (VerifySimId(simId)) {
+        cellInfos_[simId] = vec;
+        for (size_t i = 0; i < stateRecords_.size(); i++) {
+            TelephonyStateRegistryRecord record = stateRecords_[i];
+            if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO) &&
+                record.simId_ == simId) {
+                record.telephonyObserver_->OnCellInfoUpdated(vec);
+                result = TELEPHONY_SUCCESS;
+            }
+        }
+    }
+    SendCellInfoChanged(simId, vec);
     return result;
 }
 
@@ -185,15 +215,15 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t simId, const s
     if (VerifySimId(simId)) {
         searchNetworkState_[simId] = networkState;
         for (size_t i = 0; i < stateRecords_.size(); i++) {
-            TelephonyStateRegistryRecord record = stateRecords_[i];
-            if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) &&
-                (record.simId_ == simId) && record.telephonyObserver_ != nullptr) {
-                record.telephonyObserver_->OnNetworkStateUpdated(networkState);
+            TelephonyStateRegistryRecord r = stateRecords_[i];
+            if (r.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) &&
+                (r.simId_ == simId) && r.telephonyObserver_ != nullptr) {
+                r.telephonyObserver_->OnNetworkStateUpdated(networkState);
                 result = TELEPHONY_SUCCESS;
             }
         }
     }
-    TELEPHONY_LOGD("TelephonyStateRegistryService::NotifyNetworkStateUpdated end");
+    SendNetworkStateChanged(simId, networkState);
     return result;
 }
 
@@ -261,24 +291,29 @@ std::u16string TelephonyStateRegistryService::GetCallIncomingNumberForSimId(
 void TelephonyStateRegistryService::UpdateData(
     const TelephonyStateRegistryRecord &record, uint32_t mask, int32_t simId)
 {
-    TELEPHONY_LOGD("TelephonyStateRegistryService::RegisterStateChange##Notify start");
+    TELEPHONY_LOGI("TelephonyStateRegistryService::RegisterStateChange##Notify start");
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) != 0) {
         std::u16string phoneNumber = GetCallIncomingNumberForSimId(record, simId);
-        TELEPHONY_LOGD("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE");
+        TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE");
         record.telephonyObserver_->OnCallStateUpdated(callState_[simId], phoneNumber);
     }
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) != 0) {
-        TELEPHONY_LOGD("RegisterStateChange##Notify-OBSERVER_MASK_SIGNAL_STRENGTHS");
+        TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_SIGNAL_STRENGTHS");
         record.telephonyObserver_->OnSignalInfoUpdated(signalInfos_[simId]);
     }
 
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) != 0) {
-        TELEPHONY_LOGD("RegisterStateChange##Notify-OBSERVER_MASK_NETWORK_STATE");
+        TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_NETWORK_STATE");
         record.telephonyObserver_->OnNetworkStateUpdated(searchNetworkState_[simId]);
     }
 
+    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO) != 0) {
+        TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CELL_INFO");
+        record.telephonyObserver_->OnCellInfoUpdated(cellInfos_[simId]);
+    }
+
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE) != 0) {
-        TELEPHONY_LOGD("RegisterStateChange##Notify-OBSERVER_MASK_SIM_STATE");
+        TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_SIM_STATE");
         record.telephonyObserver_->OnSimStateUpdated(simState_[simId], simReason_[simId]);
     }
 }
@@ -293,7 +328,7 @@ bool TelephonyStateRegistryService::PublishSimFileEvent(
     EventFwk::CommonEventPublishInfo publishInfo;
     publishInfo.SetOrdered(true);
     bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
-    TELEPHONY_LOGD("PublishSimFileEvent end###publishResult = %{public}d\n", publishResult);
+    TELEPHONY_LOGI("PublishSimFileEvent end###publishResult = %{public}d\n", publishResult);
     return publishResult;
 }
 
@@ -301,9 +336,8 @@ void TelephonyStateRegistryService::UnregisterSubscriber()
 {
     if (stateSubscriber_ != nullptr) {
         bool subscribeResult = EventFwk::CommonEventManager::UnSubscribeCommonEvent(stateSubscriber_);
-        TELEPHONY_LOGD("UnregisterSubscriber end###subscribeResult = %{public}d\n", subscribeResult);
+        TELEPHONY_LOGI("UnregisterSubscriber end###subscribeResult = %{public}d\n", subscribeResult);
     }
-    TELEPHONY_LOGD("UnregisterSubscriber end..\n");
 }
 
 void TelephonyStateRegistryService::RegisterSubscriber()
@@ -313,31 +347,19 @@ void TelephonyStateRegistryService::RegisterSubscriber()
     EventFwk::CommonEventSubscribeInfo subscriberInfo(matchingSkills);
     stateSubscriber_ = std::make_shared<StateSubscriber>(subscriberInfo);
     bool subscribeResult = EventFwk::CommonEventManager::SubscribeCommonEvent(stateSubscriber_);
-    TELEPHONY_LOGD("RegisterSubscriber end###subscribeResult = %{public}d\n", subscribeResult);
+    TELEPHONY_LOGI("RegisterSubscriber end###subscribeResult = %{public}d\n", subscribeResult);
 }
 
 void StateSubscriber::OnReceiveEvent(const EventFwk::CommonEventData &data)
 {
     AAFwk::Want want = data.GetWant();
     std::string action = data.GetWant().GetAction();
-    TELEPHONY_LOGD("Subscriber::OnReceiveEvent action = %{public}s\n", action.c_str());
+    TELEPHONY_LOGI("Subscriber::OnReceiveEvent action = %{public}s\n", action.c_str());
 
     int msgCode = GetCode();
     std::string msgData = GetData();
-    TELEPHONY_LOGD(
+    TELEPHONY_LOGI(
         "Subscriber::OnReceiveEvent msgData = %{public}s,msgCode = %{public}d\n", msgData.c_str(), msgCode);
-}
-
-void TelephonyStateRegistryService::SendCallStateChanged(int32_t simId, int32_t state, const std::u16string &number)
-{
-    AAFwk::Want want;
-    want.SetParam("simId", simId);
-    want.SetParam("state", state);
-    want.SetParam("number", Str16ToStr8(number));
-    want.SetAction(CALL_STATE_CHANGE_ACTION);
-    int32_t eventCode = 1;
-    std::string eventData("callStateChanged");
-    PublishSimFileEvent(want, eventCode, eventData);
 }
 
 void TelephonyStateRegistryService::SendCellularDataConnectStateChanged(
@@ -353,12 +375,12 @@ void TelephonyStateRegistryService::SendCellularDataConnectStateChanged(
     PublishSimFileEvent(want, eventCode, eventData);
 }
 
-void TelephonyStateRegistryService::SendSimStateChanged(int32_t simId, int32_t state, const std::u16string &reason)
+void TelephonyStateRegistryService::SendSimStateChanged(int32_t simId, SimState state, LockReason reason)
 {
     AAFwk::Want want;
     want.SetParam("simId", simId);
-    want.SetParam("reason", Str16ToStr8(reason));
-    want.SetParam("state", state);
+    want.SetParam("reason", static_cast<int32_t>(reason));
+    want.SetParam("state", static_cast<int32_t>(state));
     want.SetAction(SIM_STATE_CHANGE_ACTION);
     int32_t eventCode = 1;
     std::string eventData("simStateChanged");
@@ -384,6 +406,22 @@ void TelephonyStateRegistryService::SendSignalInfoChanged(
     PublishSimFileEvent(want, eventCode, eventData);
 }
 
+void TelephonyStateRegistryService::SendCellInfoChanged(int32_t simId, const std::vector<sptr<CellInformation>> &vec)
+{
+    AAFwk::Want want;
+    want.SetParam("simId", simId);
+    want.SetAction(CELL_INFO_CHANGE_ACTION);
+    std::vector<std::string> contentStr;
+    for (size_t i = 0; i < vec.size(); i++) {
+        sptr<CellInformation> cellInfo = vec[i];
+        contentStr.push_back(cellInfo->ToString());
+    }
+    want.SetParam("cellInfos", contentStr);
+    int32_t eventCode = 1;
+    std::string eventData("cellInfoChanged");
+    PublishSimFileEvent(want, eventCode, eventData);
+}
+
 void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t simId, const sptr<NetworkState> &networkState)
 {
     AAFwk::Want want;
@@ -395,6 +433,52 @@ void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t simId, const
     }
     std::string eventData("networkStateChanged");
     PublishSimFileEvent(want, eventCode, eventData);
+}
+
+int TelephonyStateRegistryService::Dump(std::int32_t fd, const std::vector<std::u16string> &args)
+{
+    if (fd < 0) {
+        TELEPHONY_LOGE("dump fd invalid");
+        return TELEPHONY_ERR_FAIL;
+    }
+    std::vector<std::string> argsInStr;
+    for (const auto &arg : args) {
+        TELEPHONY_LOGI("Dump args: %{public}s", Str16ToStr8(arg).c_str());
+        argsInStr.emplace_back(Str16ToStr8(arg));
+    }
+    std::string result;
+    TelephonyStateRegistryDumpHelper dumpHelper;
+    if (dumpHelper.Dump(argsInStr, stateRecords_, result)) {
+        std::int32_t ret = dprintf(fd, "%s", result.c_str());
+        if (ret < 0) {
+            TELEPHONY_LOGE("dprintf to dump fd failed");
+            return TELEPHONY_ERR_FAIL;
+        }
+        return TELEPHONY_SUCCESS;
+    }
+    TELEPHONY_LOGW("dumpHelper failed");
+    return TELEPHONY_ERR_FAIL;
+}
+
+std::string TelephonyStateRegistryService::GetBindStartTime()
+{
+    std::ostringstream oss;
+    oss << bindStartTime_;
+    return oss.str();
+}
+
+std::string TelephonyStateRegistryService::GetBindEndTime()
+{
+    std::ostringstream oss;
+    oss << bindEndTime_;
+    return oss.str();
+}
+
+std::string TelephonyStateRegistryService::GetBindSpendTime()
+{
+    std::ostringstream oss;
+    oss << bindEndTime_ - bindStartTime_;
+    return oss.str();
 }
 } // namespace Telephony
 } // namespace OHOS

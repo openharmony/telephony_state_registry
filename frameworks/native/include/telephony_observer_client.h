@@ -13,33 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
-#define STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
+#ifndef TELEPHONY_OBSERVER_CLIENT_HOLDER_H
+#define TELEPHONY_OBSERVER_CLIENT_HOLDER_H
 
-#include <string>
-
-#include "telephony_observer_broker.h"
+#include "i_telephony_state_notify.h"
+#include "telephony_observer.h"
 
 namespace OHOS {
 namespace Telephony {
-class TelephonyStateRegistryRecord {
+class TelephonyObserverClient {
 public:
-    bool IsCanReadCallHistory();
-    /**
-     * IsExistStateListener
-     *
-     * @param mask Listening type bitmask
-     * @return bool mask exist on true, others on false.
-     */
-    bool IsExistStateListener(uint32_t mask) const;
+    int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId, uint32_t mask,
+        const std::u16string &callingPackage, bool notifyNow);
+    int32_t RemoveStateObserver(int32_t slotId, uint32_t mask);
+    bool InitStateObserverClient();
+    void ResetServiceProxy();
 
-public:
-    std::u16string package_;
-    pid_t pid_ = 0;
-    unsigned int mask_ = 0;
-    int simId_ = 0;
-    sptr<TelephonyObserverBroker> telephonyObserver_ = nullptr;
+private:
+    std::mutex mutex_;
+    sptr<ITelephonyStateNotify> telephonyStateNotify_ = nullptr;
+    sptr<IRemoteObject::DeathRecipient> recipient_ = nullptr;
 };
 } // namespace Telephony
 } // namespace OHOS
-#endif // STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
+#endif // TELEPHONY_OBSERVER_CLIENT_HOLDER_H

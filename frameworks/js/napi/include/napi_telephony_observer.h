@@ -13,33 +13,27 @@
  * limitations under the License.
  */
 
-#ifndef STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
-#define STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
+#ifndef NAPI_TELEPHONY_OBSERVER_H
+#define NAPI_TELEPHONY_OBSERVER_H
 
+#include <vector>
+#include <memory>
 #include <string>
 
-#include "telephony_observer_broker.h"
+#include "cellular_data_types.h"
+#include "signal_information.h"
+#include "telephony_observer.h"
 
 namespace OHOS {
 namespace Telephony {
-class TelephonyStateRegistryRecord {
+class NapiTelephonyObserver : public TelephonyObserver {
 public:
-    bool IsCanReadCallHistory();
-    /**
-     * IsExistStateListener
-     *
-     * @param mask Listening type bitmask
-     * @return bool mask exist on true, others on false.
-     */
-    bool IsExistStateListener(uint32_t mask) const;
-
-public:
-    std::u16string package_;
-    pid_t pid_ = 0;
-    unsigned int mask_ = 0;
-    int simId_ = 0;
-    sptr<TelephonyObserverBroker> telephonyObserver_ = nullptr;
+    void OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber) override;
+    void OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &vec) override;
+    void OnNetworkStateUpdated(const sptr<NetworkState> &networkState) override;
+    void OnSimStateUpdated(SimState state, LockReason reason) override;
+    void OnCellInfoUpdated(const std::vector<sptr<CellInformation>> &vec) override;
 };
 } // namespace Telephony
 } // namespace OHOS
-#endif // STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
+#endif // NAPI_TELEPHONY_OBSERVER_H

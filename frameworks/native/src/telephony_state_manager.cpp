@@ -13,18 +13,22 @@
  * limitations under the License.
  */
 
-#include "telephony_state_registry_record.h"
+#include "telephony_state_manager.h"
+#include "singleton.h"
+#include "telephony_observer_client.h"
 
 namespace OHOS {
 namespace Telephony {
-bool TelephonyStateRegistryRecord::IsCanReadCallHistory()
+int32_t TelephonyStateManager::AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
+    int32_t slotId, uint32_t mask, const std::u16string &callingPackage, bool notifyNow)
 {
-    return true;
+    return DelayedSingleton<TelephonyObserverClient>::GetInstance()->AddStateObserver(
+        telephonyObserver, slotId, mask, callingPackage, notifyNow);
 }
 
-bool TelephonyStateRegistryRecord::IsExistStateListener(uint32_t mask) const
+int32_t TelephonyStateManager::RemoveStateObserver(int32_t slotId, uint32_t mask)
 {
-    return (telephonyObserver_ != nullptr) && ((mask_ & mask) != 0);
+    return DelayedSingleton<TelephonyObserverClient>::GetInstance()->RemoveStateObserver(slotId, mask);
 }
 } // namespace Telephony
 } // namespace OHOS

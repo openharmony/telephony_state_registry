@@ -13,33 +13,25 @@
  * limitations under the License.
  */
 
-#ifndef STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
-#define STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
-
-#include <string>
-
-#include "telephony_observer_broker.h"
+#ifndef TELEPHONY_CALLBACK_EVENT_ID_H
+#define TELEPHONY_CALLBACK_EVENT_ID_H
 
 namespace OHOS {
 namespace Telephony {
-class TelephonyStateRegistryRecord {
-public:
-    bool IsCanReadCallHistory();
-    /**
-     * IsExistStateListener
-     *
-     * @param mask Listening type bitmask
-     * @return bool mask exist on true, others on false.
-     */
-    bool IsExistStateListener(uint32_t mask) const;
-
-public:
-    std::u16string package_;
-    pid_t pid_ = 0;
-    unsigned int mask_ = 0;
-    int simId_ = 0;
-    sptr<TelephonyObserverBroker> telephonyObserver_ = nullptr;
+enum class TelephonyCallbackEventId : uint32_t {
+    EVENT_REMOVE_ONCE = 0,
+    EVENT_ON_CALL_STATE_UPDATE = 1,
+    EVENT_ON_SIGNAL_INFO_UPDATE = 2,
+    EVENT_ON_NETWORK_STATE_UPDATE = 3,
+    EVENT_ON_SIM_STATE_UPDATE = 4,
+    EVENT_ON_CELL_INFOMATION_UPDATE = 5,
 };
+
+template<typename EnumClass>
+auto ToUint32t(EnumClass const value) -> typename std::underlying_type<EnumClass>::type
+{
+    return static_cast<typename std::underlying_type<EnumClass>::type>(value);
+}
 } // namespace Telephony
 } // namespace OHOS
-#endif // STATE_REGISTRY_TELEPHONY_STATE_REGISTRY_RECORD_H
+#endif // TELEPHONY_CALLBACK_EVENT_ID_H
