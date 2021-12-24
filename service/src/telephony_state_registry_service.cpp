@@ -477,7 +477,7 @@ std::string TelephonyStateRegistryService::GetBindEndTime()
 std::string TelephonyStateRegistryService::GetBindSpendTime()
 {
     std::ostringstream oss;
-    oss << bindEndTime_ - bindStartTime_;
+    oss << (bindEndTime_ - bindStartTime_);
     return oss.str();
 }
 } // namespace Telephony
