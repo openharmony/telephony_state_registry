@@ -1,0 +1,60 @@
+{
+    "name": "@ohos/telephony_state_registry",
+    "version": "",
+    "description": "支持电话相关模块的状态注册和监听，比如驻网状态、信号强度、通话、蜂窝数据等，提供相关API供应用使用",
+    "homePage": "https://gitee.com/openharmony",
+    "license": "Apache V2",
+    "repository": "https://gitee.com/openharmony/telephony_state_registry",
+    "domain": "os",
+    "language": "",
+    "publishAs": "code-segment",
+    "private": false,
+    "scripts": {},
+    "tags": [
+        "base"
+    ],
+    "keywords": [
+        "telephony",
+        "state",
+        "registry"
+    ],
+    "envs": [],
+    "dirs": [],
+    "author": {
+        "name": "",
+        "email": "",
+        "url": ""
+    },
+    "contributors": [
+        {
+            "name": "",
+            "email": "",
+            "url": ""
+        }
+    ],
+    "segment": {
+        "destPath": "base/telephony/state_registry"
+    },
+    "component": {
+        "name": "state_registry",
+        "subsystem": "telephony",
+        "syscap": [
+            "SystemCapability.Telephony.StateRegistry"
+        ],
+        "features": [],
+        "adapted_system_type": [
+            "standard"
+        ],
+        "rom": "",
+        "ram": "",
+        "deps": {
+            "components": [],
+            "third_party": []
+        },
+        "build": {
+            "sub_component": [],
+            "inner_kits": [],
+            "test": []
+        }
+    }
+}
