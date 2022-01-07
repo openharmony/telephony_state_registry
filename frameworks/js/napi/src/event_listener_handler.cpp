@@ -61,16 +61,27 @@ bool IsEventTypeRegistered(const TelephonyUpdateEventType eventType)
 std::u16string GetBundleName(napi_env env)
 {
     napi_value global = nullptr;
-    napi_get_global(env, &global);
+    napi_status status = napi_get_global(env, &global);
+    if (status != napi_ok || global == nullptr) {
+        TELEPHONY_LOGE("can't get global instance for %{public}d", status);
+        return u"";
+    }
 
     napi_value abilityObj = nullptr;
-    napi_get_named_property(env, global, "ability", &abilityObj);
+    status = napi_get_named_property(env, global, "ability", &abilityObj);
+    if (status != napi_ok || abilityObj == nullptr) {
+        TELEPHONY_LOGE("can't get ability obj for %{public}d", status);
+        return u"";
+    }
 
     OHOS::AppExecFwk::Ability *ability = nullptr;
-    napi_get_value_external(env, abilityObj, (void **)&ability);
+    status = napi_get_value_external(env, abilityObj, (void **)&ability);
+    if (status != napi_ok || ability == nullptr) {
+        TELEPHONY_LOGE("get ability from property failed for %{public}d", status);
+        return u"";
+    }
 
-    std::string bundleName = ability->GetBundleName();
-    return NapiUtil::ToUtf16(bundleName);
+    return NapiUtil::ToUtf16(ability->GetBundleName());
 }
 
 int32_t WrapRegState(int32_t nativeState)
@@ -337,7 +348,10 @@ bool InitLoop(napi_env env, uv_loop_s **loop)
     napi_get_version(env, &napiVersion);
 #if NAPI_VERSION >= 2
     napi_status status = napi_get_uv_event_loop(env, loop);
-    TELEPHONY_LOGI("napi_get_uv_event_loop napi_status = %{public}d", status);
+    if (status != napi_ok) {
+        TELEPHONY_LOGE("napi_get_uv_event_loop napi_status = %{public}d", status);
+        return false;
+    }
 #endif // NAPI_VERSION >= 2
     return *loop != nullptr;
 }
