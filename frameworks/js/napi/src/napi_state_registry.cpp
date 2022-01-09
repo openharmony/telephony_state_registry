@@ -43,6 +43,10 @@ TelephonyUpdateEventType GetEventType(const std::string &event)
 
 static void NativeOn(napi_env env, void *data)
 {
+    if (data == nullptr) {
+        TELEPHONY_LOGE("NativeOn data is nullptr");
+        return;
+    }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     EventListener listener {
         std::move(env),
@@ -58,6 +62,10 @@ static void NativeOn(napi_env env, void *data)
 
 static void OnCallback(napi_env env, napi_status status, void *data)
 {
+    if (data == nullptr) {
+        TELEPHONY_LOGE("OnCallback data is nullptr");
+        return;
+    }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     if (!asyncContext->resolved) {
         TELEPHONY_LOGE("OnCallback error by add observer failed");
@@ -110,6 +118,10 @@ static napi_value On(napi_env env, napi_callback_info info)
 
 static void NativeOff(napi_env env, void *data)
 {
+    if (data == nullptr) {
+        TELEPHONY_LOGE("NativeOff data is nullptr");
+        return;
+    }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     std::pair<bool, int32_t> resultPair =
         EventListenerManager::RemoveEventListener(asyncContext->slotId, asyncContext->eventType);
@@ -119,6 +131,10 @@ static void NativeOff(napi_env env, void *data)
 
 static void OffCallback(napi_env env, napi_status status, void *data)
 {
+    if (data == nullptr) {
+        TELEPHONY_LOGE("OffCallback data is nullptr");
+        return;
+    }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     if (!asyncContext->resolved) {
         TELEPHONY_LOGE("OffCallback error by remove observer failed");
