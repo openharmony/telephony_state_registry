@@ -25,7 +25,8 @@
 /base/telephony/state_registry      # 状态注册转发服务
 ├─ BUILD.gn                         # 编译gn脚本
 ├─ README.md                        # Readme文档
-├─ interfaces                       # API,js文件
+├─ frameworks                       # js,native文件
+├─ interfaces                       # API,innerkits文件
 ├─ service
 │  ├─ include                       # 头文件
 │  └─ src                           # 源文件
@@ -71,7 +72,8 @@
 | signalInfoChange                  | 信号变化事件                                          | 无                               |
 | cellularDataConnectionStateChange | 蜂窝数据连接状态事件                                  | 无                               |
 | cellularDataFlowChange            | 蜂窝数据流变化事件                                    | 无                               |
-| callStateChange                   | 通话状态变化事件，其中phoneNumber没有权限返回空字符串 | ohos.permission.READ_CALL_LOG    |
+| callStateChange                   | 通话状态变化事件                                      | ohos.permission.READ_CALL_LOG    |
+| simStateChange                    | SIM卡状态变化事件                                    | ohos.permission.READ_SIM_STATE    |
 
 ### 接口调用代码示例<a name="section1558565082915"></a>
 

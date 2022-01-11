@@ -19,12 +19,12 @@
 
 namespace OHOS {
 namespace Telephony {
-std::pair<bool, int32_t> EventListenerManager::AddEventListener(EventListener &eventListener)
+std::optional<int32_t> EventListenerManager::AddEventListener(EventListener &eventListener)
 {
     return DelayedSingleton<EventListenerHandler>::GetInstance()->AddEventListener(eventListener);
 }
 
-std::pair<bool, int32_t> EventListenerManager::RemoveEventListener(
+std::optional<int32_t> EventListenerManager::RemoveEventListener(
     int32_t slotId, const TelephonyUpdateEventType eventType)
 {
     return DelayedSingleton<EventListenerHandler>::GetInstance()->RemoveEventListener(slotId, eventType);

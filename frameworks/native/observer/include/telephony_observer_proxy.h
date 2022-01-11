@@ -27,12 +27,20 @@ class TelephonyObserverProxy : public IRemoteProxy<TelephonyObserverBroker> {
 public:
     explicit TelephonyObserverProxy(const sptr<IRemoteObject> &impl);
     virtual ~TelephonyObserverProxy() = default;
-    void OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber);
-    void OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &vec);
-    void OnNetworkStateUpdated(const sptr<NetworkState> &networkState);
-    void OnCellInfoUpdated(const std::vector<sptr<CellInformation>> &vec);
-    void OnSimStateUpdated(SimState state, LockReason reason);
-    void OnCellularDataConnectStateUpdated(int32_t dataState, int32_t networkType);
+    void OnCallStateUpdated(
+        int32_t slotId, int32_t callState, const std::u16string &phoneNumber);
+    void OnSignalInfoUpdated(
+        int32_t slotId, const std::vector<sptr<SignalInformation>> &vec);
+    void OnNetworkStateUpdated(
+        int32_t slotId, const sptr<NetworkState> &networkState);
+    void OnCellInfoUpdated(
+        int32_t slotId, const std::vector<sptr<CellInformation>> &vec);
+    void OnSimStateUpdated(
+        int32_t slotId, CardType type, SimState state, LockReason reason);
+    void OnCellularDataConnectStateUpdated(
+        int32_t slotId, int32_t dataState, int32_t networkType);
+    void OnCellularDataFlowUpdated(
+        int32_t slotId, CellDataFlowType dataFlowType);
 
 private:
     static inline BrokerDelegator<TelephonyObserverProxy> delegator_;

@@ -16,7 +16,7 @@
 #ifndef TELEPHONY_UPDATE_EVENT_TYPE_H
 #define TELEPHONY_UPDATE_EVENT_TYPE_H
 
-#include "telephony_observer_broker.h"
+#include "../../../native/common/include/telephony_observer_broker.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -28,6 +28,7 @@ enum class TelephonyUpdateEventType {
     EVENT_SIGNAL_STRENGTHS_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS,
     EVENT_SIM_STATE_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE,
     EVENT_DATA_CONNECTION_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE,
+    EVENT_CELLULAR_DATA_FLOW_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW,
 };
 } // namespace Telephony
 } // namespace OHOS

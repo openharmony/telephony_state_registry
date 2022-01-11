@@ -21,7 +21,7 @@
 #include "iremote_stub.h"
 
 #include "telephony_log_wrapper.h"
-#include "i_telephony_state_notify.h"
+#include "../../frameworks/native/common/include/i_telephony_state_notify.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -33,16 +33,16 @@ public:
     int32_t OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
-    virtual int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t simId,
+    virtual int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
         uint32_t mask, const std::u16string &package, bool notifyNow, pid_t pid) = 0;
 
-    virtual int32_t UnregisterStateChange(int32_t simId, uint32_t mask, pid_t pid) = 0;
+    virtual int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid) = 0;
 
 private:
     int32_t ReadData(MessageParcel &data, MessageParcel &reply, sptr<TelephonyObserverBroker> &callback);
-    int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t simId,
+    int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
         uint32_t mask, const std::u16string &package, bool isUpdate) override;
-    int32_t UnregisterStateChange(int32_t simId, uint32_t mask) override;
+    int32_t UnregisterStateChange(int32_t slotId, uint32_t mask) override;
     void parseSignalInfos(
             MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result);
 
@@ -51,13 +51,14 @@ private:
 
     int32_t OnUpdateCellInfo(MessageParcel &data, MessageParcel &reply);
     int32_t OnUpdateCallState(MessageParcel &data, MessageParcel &reply);
-    int32_t OnUpdateCallStateForSimId(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateCallStateForSlotId(MessageParcel &data, MessageParcel &reply);
     int32_t OnUpdateSignalInfo(MessageParcel &data, MessageParcel &reply);
     int32_t OnUpdateNetworkState(MessageParcel &data, MessageParcel &reply);
     int32_t OnUpdateSimState(MessageParcel &data, MessageParcel &reply);
     int32_t OnRegisterStateChange(MessageParcel &data, MessageParcel &reply);
     int32_t OnUnregisterStateChange(MessageParcel &data, MessageParcel &reply);
     int32_t OnUpdateCellularDataConnectState(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateCellularDataFlow(MessageParcel &data, MessageParcel &reply);
 
 private:
     std::map<StateNotifyCode, TelephonyStateFunc> memberFuncMap_;

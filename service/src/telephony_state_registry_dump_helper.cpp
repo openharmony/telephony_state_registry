@@ -24,10 +24,7 @@ bool TelephonyStateRegistryDumpHelper::Dump(const std::vector<std::string> &args
     return ShowTelephonyStateRegistryInfo(stateRecords, result);
 }
 
-TelephonyStateRegistryDumpHelper::TelephonyStateRegistryDumpHelper()
-{
-    TELEPHONY_LOGI("TelephonyStateRegistryDumpHelper() entry.");
-}
+TelephonyStateRegistryDumpHelper::TelephonyStateRegistryDumpHelper() {}
 
 bool TelephonyStateRegistryDumpHelper::ShowTelephonyStateRegistryInfo(
     std::vector<TelephonyStateRegistryRecord> &stateRecords, std::string &result) const
@@ -36,41 +33,43 @@ bool TelephonyStateRegistryDumpHelper::ShowTelephonyStateRegistryInfo(
     if (!stateRecords.empty()) {
         for (const auto &item: stateRecords) {
             if (item.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE)) {
-                result.append("CellularDataConnectState Register: ").append("\n");
+                result.append("CellularDataConnectState Register: ");
+            } else if (item.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW)) {
+                result.append("CellularDataFlow Register: ");
             } else if (item.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE)) {
-                result.append("CallState Register: ").append("\n");
+                result.append("CallState Register: ");
             } else if (item.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE)) {
-                result.append("SimState Register: ").append("\n");
+                result.append("SimState Register: ");
             } else if (item.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS)) {
-                result.append("SignalInfo Register: ").append("\n");
+                result.append("SignalInfo Register: ");
             } else if (item.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO)) {
-                result.append("CellInfo Register: ").append("\n");
+                result.append("CellInfo Register: ");
             } else if (item.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE)) {
-                result.append("NetworkState Register: ").append("\n");
+                result.append("NetworkState Register: ");
             } else {
-                result.append("Unknown Subscriber: ").append("\n");
+                result.append("Unknown Subscriber: ");
             }
-            result.append("    { ");
+            result.append("\n").append("    { ");
             result.append("package: ").append(Str16ToStr8(item.package_));
             result.append(" pid: ").append(std::to_string(item.pid_));
             result.append(" mask: ").append(std::to_string(item.mask_));
-            result.append(" simId: ").append(std::to_string(item.simId_));
+            result.append(" slotId: ").append(std::to_string(item.slotId_));
             result.append(" }");
-            result.append("\n");
-            result.append("BindStartTime: ");
-            result.append(
-                DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->GetBindStartTime());
-            result.append("\n");
-            result.append("BindEndTime: ");
-            result.append(
-                DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->GetBindEndTime());
-            result.append("\n");
-            result.append("BindSpendTime: ");
-            result.append(
-                DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->GetBindSpendTime());
             result.append("\n");
         }
     }
+    result.append("BindStartTime: ");
+    result.append(
+        DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->GetBindStartTime());
+    result.append("\n");
+    result.append("BindEndTime: ");
+    result.append(
+        DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->GetBindEndTime());
+    result.append("\n");
+    result.append("BindSpendTime: ");
+    result.append(
+        DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->GetBindSpendTime());
+    result.append("\n");
     return true;
 }
 } // namespace Telephony

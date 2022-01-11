@@ -16,9 +16,9 @@
 #ifndef NAPI_TELEPHONY_OBSERVER_H
 #define NAPI_TELEPHONY_OBSERVER_H
 
-#include <vector>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "cellular_data_types.h"
 #include "signal_information.h"
@@ -28,11 +28,13 @@ namespace OHOS {
 namespace Telephony {
 class NapiTelephonyObserver : public TelephonyObserver {
 public:
-    void OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber) override;
-    void OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &vec) override;
-    void OnNetworkStateUpdated(const sptr<NetworkState> &networkState) override;
-    void OnSimStateUpdated(SimState state, LockReason reason) override;
-    void OnCellInfoUpdated(const std::vector<sptr<CellInformation>> &vec) override;
+    void OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
+    void OnSignalInfoUpdated(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec) override;
+    void OnNetworkStateUpdated(int32_t slotId, const sptr<NetworkState> &networkState) override;
+    void OnSimStateUpdated(int32_t slotId, CardType type, SimState state, LockReason reason) override;
+    void OnCellInfoUpdated(int32_t slotId, const std::vector<sptr<CellInformation>> &vec) override;
+    void OnCellularDataConnectStateUpdated(int32_t slotId, int32_t dataState, int32_t networkType) override;
+    void OnCellularDataFlowUpdated(int32_t slotId, CellDataFlowType dataFlowType) override;
 };
 } // namespace Telephony
 } // namespace OHOS

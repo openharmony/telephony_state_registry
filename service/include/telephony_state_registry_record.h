@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "telephony_observer_broker.h"
+#include "../../frameworks/native/common/include/telephony_observer_broker.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -37,7 +37,7 @@ public:
     std::u16string package_;
     pid_t pid_ = 0;
     unsigned int mask_ = 0;
-    int simId_ = 0;
+    int slotId_ = 0;
     sptr<TelephonyObserverBroker> telephonyObserver_ = nullptr;
 };
 } // namespace Telephony

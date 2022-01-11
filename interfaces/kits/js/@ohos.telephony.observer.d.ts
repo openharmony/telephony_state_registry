@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-import {Callback} from "./basic";
+import { Callback } from "./basic";
 import radio from "./@ohos.telephony.radio";
 import data from "./@ohos.telephony.data";
 import call from "./@ohos.telephony.call";
@@ -53,6 +53,12 @@ declare namespace observer {
   function on(type: 'networkStateChange', callback: Callback<NetworkState>): void;
   function on(type: 'networkStateChange', options: { slotId: number }, callback: Callback<NetworkState>): void;
 
+  /**
+   * @deprecated Advised to use the on/off method instead of the once method.
+   */
+  function once(type: 'networkStateChange', callback: Callback<NetworkState>): void;
+  function once(type: 'networkStateChange', options: { slotId: number }, callback: Callback<NetworkState>): void;
+
   function off(type: 'networkStateChange', callback?: Callback<NetworkState>): void;
 
   /**
@@ -65,6 +71,13 @@ declare namespace observer {
    */
   function on(type: 'signalInfoChange', callback: Callback<Array<SignalInformation>>): void;
   function on(type: 'signalInfoChange', options: { slotId: number },
+    callback: Callback<Array<SignalInformation>>): void;
+
+  /**
+   * @deprecated Advised to use the on/off method instead of the once method.
+   */
+  function once(type: 'signalInfoChange', callback: Callback<Array<SignalInformation>>): void;
+  function once(type: 'signalInfoChange', options: { slotId: number },
     callback: Callback<Array<SignalInformation>>): void;
 
   function off(type: 'signalInfoChange', callback?: Callback<Array<SignalInformation>>): void;
@@ -86,6 +99,13 @@ declare namespace observer {
   function on(type: 'cellInfoChange', options: { slotId: number },
     callback: Callback<Array<CellInformation>>): void;
 
+  /**
+   * @deprecated Advised to use the on/off method instead of the once method.
+   */
+  function once(type: 'cellInfoChange', callback: Callback<Array<CellInformation>>): void;
+  function once(type: 'cellInfoChange', options: { slotId: number },
+    callback: Callback<Array<CellInformation>>): void;
+
   function off(type: 'cellInfoChange', callback?: Callback<Array<CellInformation>>): void;
 
   /**
@@ -102,6 +122,14 @@ declare namespace observer {
   function on(type: 'cellularDataConnectionStateChange', options: { slotId: number },
     callback: Callback<{ state: DataConnectState, network: RatType }>): void;
 
+  /**
+   * @deprecated Advised to use the on/off method instead of the once method.
+   */
+  function once(type: 'cellularDataConnectionStateChange',
+    callback: Callback<{ state: DataConnectState, network: RatType }>): void;
+  function once(type: 'cellularDataConnectionStateChange', options: { slotId: number },
+    callback: Callback<{ state: DataConnectState, network: RatType }>): void;
+
   function off(type: 'cellularDataConnectionStateChange',
     callback?: Callback<{ state: DataConnectState, network: RatType }>): void;
 
@@ -116,6 +144,13 @@ declare namespace observer {
   function on(type: 'cellularDataFlowChange', callback: Callback<DataFlowType>): void;
   function on(type: 'cellularDataFlowChange', options: { slotId: number },
     callback: Callback<DataFlowType>): void;
+
+  /**
+   * @deprecated Advised to use the on/off method instead of the once method.
+   */
+  function once(type: 'cellularDataFlowChange', options: { slotId: number },
+    callback: Callback<DataFlowType>): void;
+  function once(type: 'cellularDataFlowChange', callback: Callback<DataFlowType>): void;
 
   function off(type: 'cellularDataFlowChange', callback?: Callback<DataFlowType>): void;
 
@@ -134,31 +169,14 @@ declare namespace observer {
   function on(type: 'callStateChange', options: { slotId: number },
     callback: Callback<{ state: CallState, number: string }>): void;
 
-  function off(type: 'callStateChange', callback?: Callback<{ state: CallState, number: string }>): void;
-
   /**
-   * If type is ’cfuIndicatorChange‘, Receives a CFU setting update. This callback is invoked when the CFU setting
-   * of a specified card updates and the observer is added to monitor the updates.
-   *
-   * If type is ‘voiceMailMsgIndicatorChange’, Receives a voice mailbox state change. This callback is invoked when
-   * the voice mailbox state of a specified card updates and the observer is added to monitor the updates.
-   *
-   * <p>Applications must have the {@code ohos.permission.GET_TELEPHONY_STATE} permission
-   * to register these events.
-   *
-   * @param type cfuIndicatorChange or voiceMailMsgIndicatorChange
-   * @param options including slotId Indicates the ID of the target card slot.
-   *   The value {@code 0} indicates card 1, and the value {@code 1} indicates card 2.
-   * @param callback If type is ’cfuIndicatorChange‘, specifies whether the CFU function is enabled.
-   *   If type is ‘voiceMailMsgIndicatorChange, specifies whether a voice mailbox message exists.
-   * @permission ohos.permission.GET_TELEPHONY_STATE
+   * @deprecated Advised to use the on/off method instead of the once method.
    */
-  function on(type: 'cfuIndicatorChange' | 'voiceMailMsgIndicatorChange',
-    callback: Callback<boolean>): void;
-  function on(type: 'cfuIndicatorChange' | 'voiceMailMsgIndicatorChange', options: { slotId: number },
-    callback: Callback<boolean>): void;
+  function once(type: 'callStateChange', callback: Callback<{ state: CallState, number: string }>): void;
+  function once(type: 'callStateChange', options: { slotId: number },
+    callback: Callback<{ state: CallState, number: string }>): void;
 
-  function off(type: 'cfuIndicatorChange' | 'voiceMailMsgIndicatorChange', callback?: Callback<boolean>): void;
+  function off(type: 'callStateChange', callback?: Callback<{ state: CallState, number: string }>): void;
 
   /**
    * Receives a sim state change. This callback is invoked when the sim state of a specified card updates
@@ -172,6 +190,12 @@ declare namespace observer {
    */
   function on(type: 'simStateChange', callback: Callback<SimStateData>): void;
   function on(type: 'simStateChange', options: { slotId: number }, callback: Callback<SimStateData>): void;
+
+  /**
+   * @deprecated Advised to use the on/off method instead of the once method.
+   */
+  function once(type: 'simStateChange', options: { slotId: number }, callback: Callback<SimStateData>): void;
+  function once(type: 'simStateChange', callback: Callback<SimStateData>): void;
 
   function off(type: 'simStateChange', callback?: Callback<SimStateData>): void;
 
@@ -191,7 +215,16 @@ declare namespace observer {
     SIM_NONE,
     SIM_PIN,
     SIM_PUK,
-    SIM_NETWORK,
+    SIM_PN_PIN, //Network Personalization (refer 3GPP TS 22.022 [33])
+    SIM_PN_PUK,
+    SIM_PU_PIN, //network sUbset Personalization (refer 3GPP TS 22.022 [33])
+    SIM_PU_PUK,
+    SIM_PP_PIN, //service Provider Personalization (refer 3GPP TS 22.022 [33])
+    SIM_PP_PUK,
+    SIM_PC_PIN, //Corporate Personalization (refer 3GPP TS 22.022 [33])
+    SIM_PC_PUK,
+    SIM_SIM_PIN, //SIM/USIM personalisation (refer 3GPP TS 22.022 [33])
+    SIM_SIM_PUK,
   }
 }
 

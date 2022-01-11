@@ -16,6 +16,7 @@
 #include "state_registry_test.h"
 #include "telephony_log_wrapper.h"
 #include "sim_state_type.h"
+#include "telephony_state_registry_client.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -23,43 +24,23 @@ using namespace testing::ext;
 void StateRegistryTest::SetUpTestCase(void)
 {
     // step 3: Set Up Test Case
-    printf("SetUpTestCase\n");
 }
 
 void StateRegistryTest::TearDownTestCase(void)
 {
     // step 3: Tear Down Test Case
-    printf("TearDownTestCase\n");
-}
-
-void StateRegistryTest::CreateProxy()
-{
-    if (telephonyStateNotify_ != nullptr) {
-        return;
-    }
-    sptr<ISystemAbilityManager> systemAbilityMgr =
-            SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
-    if (systemAbilityMgr == nullptr) {
-        printf("StateRegisterService Get ISystemAbilityManager failed.\n");
-        return;
-    }
-    sptr<IRemoteObject> remote = systemAbilityMgr->CheckSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
-    if (remote == nullptr) {
-        printf("StateRegisterService Remote service not exists.\n");
-        return;
-    }
-    telephonyStateNotify_ = iface_cast<ITelephonyStateNotify>(remote);
 }
 
 void StateRegistryTest::SetUp(void)
 {
     // step 3: input testcase setup step
     requestFuncMap_['A'] = &StateRegistryTest::UpdateCallState;
-    requestFuncMap_['B'] = &StateRegistryTest::UpdateCallStateForSimId;
+    requestFuncMap_['B'] = &StateRegistryTest::UpdateCallStateForSlotId;
     requestFuncMap_['C'] = &StateRegistryTest::UpdateSignalInfo;
     requestFuncMap_['D'] = &StateRegistryTest::UpdateCellularDataConnectState;
     requestFuncMap_['E'] = &StateRegistryTest::UpdateSimState;
     requestFuncMap_['F'] = &StateRegistryTest::UpdateNetworkState;
+    requestFuncMap_['G'] = &StateRegistryTest::UpdateCellularDataFlow;
 }
 
 void StateRegistryTest::TearDown(void)
@@ -69,76 +50,74 @@ void StateRegistryTest::TearDown(void)
 
 void StateRegistryTest::UpdateCallState()
 {
-    CreateProxy();
-    if (telephonyStateNotify_ != nullptr) {
-        int32_t callState = 16;
-        std::string phoneNumber("137xxxxxxxx");
-        std::u16string number = Str8ToStr16(phoneNumber);
-        telephonyStateNotify_->UpdateCallState(callState, number);
-    }
+    int32_t callState = 16;
+    int32_t slotId = 0;
+    std::string phoneNumber("137xxxxxxxx");
+    std::u16string number = Str8ToStr16(phoneNumber);
+    DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
+        UpdateCallState(slotId, callState, number);
 }
 
-void StateRegistryTest::UpdateCallStateForSimId()
+void StateRegistryTest::UpdateCallStateForSlotId()
 {
-    CreateProxy();
-    if (telephonyStateNotify_ != nullptr) {
-        int32_t callState = 16;
-        int32_t simId = 1;
-        int32_t callId = 0;
-        std::string phoneNumber("137xxxxxxxx");
-        std::u16string number = Str8ToStr16(phoneNumber);
-        telephonyStateNotify_->UpdateCallStateForSimId(simId, callId, callState, number);
-    }
+    int32_t callState = 16;
+    int32_t slotId = 0;
+    int32_t callId = 0;
+    std::string phoneNumber("137xxxxxxxx");
+    std::u16string number = Str8ToStr16(phoneNumber);
+    DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
+        UpdateCallStateForSlotId(slotId, callId, callState, number);
 }
 
 void StateRegistryTest::UpdateSignalInfo()
 {
-    CreateProxy();
-    if (telephonyStateNotify_ != nullptr) {
-        int32_t simId = 1;
-        std::vector<sptr<SignalInformation>> vec;
-        std::unique_ptr<SignalInformation> signal = std::make_unique<GsmSignalInformation>();
-        if (signal == nullptr) {
-            TELEPHONY_LOGE("SignalInformation is nullptr\n");
-        }
-        vec.push_back(signal.release());
-        telephonyStateNotify_->UpdateSignalInfo(simId, vec);
+    int32_t slotId = 0;
+    std::vector<sptr<SignalInformation>> vec;
+    std::unique_ptr<SignalInformation> signal = std::make_unique<GsmSignalInformation>();
+    if (signal == nullptr) {
+        TELEPHONY_LOGE("SignalInformation is nullptr\n");
     }
+    vec.push_back(signal.release());
+    DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
+        UpdateSignalInfo(slotId, vec);
 }
 
 void StateRegistryTest::UpdateCellularDataConnectState()
 {
-    CreateProxy();
-    if (telephonyStateNotify_ != nullptr) {
-        int32_t simId = 1;
-        int32_t dataState = 1;
-        int32_t networkState = 1;
-        telephonyStateNotify_->UpdateCellularDataConnectState(simId, dataState, networkState);
-    }
+    int32_t slotId = 0;
+    int32_t dataState = 1;
+    int32_t networkState = 1;
+    DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
+        UpdateCellularDataConnectState(slotId, dataState, networkState);
+}
+
+void StateRegistryTest::UpdateCellularDataFlow()
+{
+    int32_t slotId = 0;
+    CellDataFlowType dataFlowType = CellDataFlowType::DATA_FLOW_TYPE_DOWN;
+    DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
+        UpdateCellularDataFlow(slotId, dataFlowType);
 }
 
 void StateRegistryTest::UpdateSimState()
 {
-    CreateProxy();
-    if (telephonyStateNotify_ != nullptr) {
-        int32_t simId = 1;
-        SimState state = SimState::SIM_STATE_UNKNOWN;
-        LockReason reason = LockReason::SIM_NONE;
-        telephonyStateNotify_->UpdateSimState(simId, state, reason);
-    }
+    int32_t slotId = 0;
+    CardType type = CardType::UNKNOWN_CARD;
+    SimState state = SimState::SIM_STATE_UNKNOWN;
+    LockReason reason = LockReason::SIM_NONE;
+    DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
+        UpdateSimState(slotId, type, state, reason);
 }
 
 void StateRegistryTest::UpdateNetworkState()
 {
-    CreateProxy();
-    if (telephonyStateNotify_ != nullptr) {
-        int32_t simId = 1;
-        std::unique_ptr<NetworkState> networkState = std::make_unique<NetworkState>();
-        if (networkState == nullptr) {
-            TELEPHONY_LOGE("NetworkState is nullptr\n");
-        }
-        telephonyStateNotify_->UpdateNetworkState(simId, networkState.release());
+    int32_t slotId = 0;
+    std::unique_ptr<NetworkState> networkState = std::make_unique<NetworkState>();
+    if (networkState == nullptr) {
+        TELEPHONY_LOGE("NetworkState is nullptr\n");
     }
+    DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
+        UpdateNetworkState(slotId, networkState.release());
 }
 
 HWTEST_F(StateRegistryTest, UpdateCallState_001, TestSize.Level1)
@@ -146,9 +125,9 @@ HWTEST_F(StateRegistryTest, UpdateCallState_001, TestSize.Level1)
     UpdateCallState();
 }
 
-HWTEST_F(StateRegistryTest, UpdateCallStateForSimId_001, TestSize.Level1)
+HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_001, TestSize.Level1)
 {
-    UpdateCallStateForSimId();
+    UpdateCallStateForSlotId();
 }
 
 HWTEST_F(StateRegistryTest, UpdateSignalInfo_001, TestSize.Level1)
@@ -159,6 +138,11 @@ HWTEST_F(StateRegistryTest, UpdateSignalInfo_001, TestSize.Level1)
 HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_001, TestSize.Level1)
 {
     UpdateCellularDataConnectState();
+}
+
+HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_001, TestSize.Level1)
+{
+    UpdateCellularDataFlow();
 }
 
 HWTEST_F(StateRegistryTest, UpdateSimState_001, TestSize.Level1)

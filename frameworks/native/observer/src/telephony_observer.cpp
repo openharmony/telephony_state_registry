@@ -18,17 +18,26 @@
 
 namespace OHOS {
 namespace Telephony {
-void TelephonyObserver::OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber) {}
+void TelephonyObserver::OnCallStateUpdated(
+    int32_t slotId, int32_t callState, const std::u16string &phoneNumber) {}
 
-void TelephonyObserver::OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &vec) {}
+void TelephonyObserver::OnSignalInfoUpdated(
+    int32_t slotId, const std::vector<sptr<SignalInformation>> &vec) {}
 
-void TelephonyObserver::OnNetworkStateUpdated(const sptr<NetworkState> &networkState) {}
+void TelephonyObserver::OnNetworkStateUpdated(
+    int32_t slotId, const sptr<NetworkState> &networkState) {}
 
-void TelephonyObserver::OnCellInfoUpdated(const std::vector<sptr<CellInformation>> &vec) {}
+void TelephonyObserver::OnCellInfoUpdated(
+    int32_t slotId, const std::vector<sptr<CellInformation>> &vec) {}
 
-void TelephonyObserver::OnSimStateUpdated(SimState state, LockReason reason) {}
+void TelephonyObserver::OnSimStateUpdated(
+    int32_t slotId, CardType type, SimState state, LockReason reason) {}
 
-void TelephonyObserver::OnCellularDataConnectStateUpdated(int32_t dataState, int32_t networkType) {}
+void TelephonyObserver::OnCellularDataConnectStateUpdated(
+    int32_t slotId, int32_t dataState, int32_t networkType) {}
+
+void TelephonyObserver::OnCellularDataFlowUpdated(
+    int32_t slotId, CellDataFlowType dataFlowType) {}
 
 int32_t TelephonyObserver::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -36,32 +45,31 @@ int32_t TelephonyObserver::OnRemoteRequest(
     TELEPHONY_LOGI("TelephonyObserver::OnRemoteRequest code = %{public}u......\n", code);
     switch (static_cast<ObserverBrokerCode>(code)) {
         case ObserverBrokerCode::ON_CALL_STATE_UPDATED: {
-            int32_t callState = data.ReadInt32();
-            std::u16string phoneNumber = data.ReadString16();
-            OnCallStateUpdated(callState, phoneNumber);
+            OnCallStateUpdatedInner(data, reply);
             break;
         }
         case ObserverBrokerCode::ON_SIGNAL_INFO_UPDATED: {
-            std::vector<sptr<SignalInformation>> signalInfos;
-            ConvertSignalInfoList(data, signalInfos);
-            OnSignalInfoUpdated(signalInfos);
+            OnSignalInfoUpdatedInner(data, reply);
             break;
         }
         case ObserverBrokerCode::ON_CELL_INFO_UPDATED: {
-            std::vector<sptr<CellInformation>> cells;
-            ConvertCellInfoList(data, cells);
-            OnCellInfoUpdated(cells);
+            OnCellInfoUpdatedInner(data, reply);
             break;
         }
         case ObserverBrokerCode::ON_NETWORK_STATE_UPDATED: {
-            sptr<NetworkState> networkState = NetworkState::Unmarshalling(data);
-            OnNetworkStateUpdated(networkState);
+            OnNetworkStateUpdatedInner(data, reply);
             break;
         }
         case ObserverBrokerCode::ON_SIM_STATE_UPDATED: {
-            SimState simState = static_cast<SimState>(data.ReadInt32());
-            LockReason reson = static_cast<LockReason>(data.ReadInt32());
-            OnSimStateUpdated(simState, reson);
+            OnSimStateUpdatedInner(data, reply);
+            break;
+        }
+        case ObserverBrokerCode::ON_CELLULAR_DATA_CONNECT_STATE_UPDATED: {
+            OnCellularDataConnectStateUpdatedInner(data, reply);
+            break;
+        }
+        case ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED: {
+            OnCellularDataFlowUpdatedInner(data, reply);
             break;
         }
         default: {
@@ -71,7 +79,70 @@ int32_t TelephonyObserver::OnRemoteRequest(
     return OHOS::NO_ERROR;
 }
 
-void TelephonyObserver::ConvertSignalInfoList(MessageParcel &data, std::vector<sptr<SignalInformation>> &result)
+void TelephonyObserver::OnCallStateUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    int32_t callState = data.ReadInt32();
+    std::u16string phoneNumber = data.ReadString16();
+    OnCallStateUpdated(slotId, callState, phoneNumber);
+}
+
+void TelephonyObserver::OnSignalInfoUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    std::vector<sptr<SignalInformation>> signalInfos;
+    ConvertSignalInfoList(data, signalInfos);
+    OnSignalInfoUpdated(slotId, signalInfos);
+}
+
+void TelephonyObserver::OnNetworkStateUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    sptr<NetworkState> networkState = NetworkState::Unmarshalling(data);
+    OnNetworkStateUpdated(slotId, networkState);
+}
+
+void TelephonyObserver::OnCellInfoUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    std::vector<sptr<CellInformation>> cells;
+    ConvertCellInfoList(data, cells);
+    OnCellInfoUpdated(slotId, cells);
+}
+
+void TelephonyObserver::OnSimStateUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    CardType type = static_cast<CardType>(data.ReadInt32());
+    SimState simState = static_cast<SimState>(data.ReadInt32());
+    LockReason reson = static_cast<LockReason>(data.ReadInt32());
+    OnSimStateUpdated(slotId, type, simState, reson);
+}
+
+void TelephonyObserver::OnCellularDataConnectStateUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    int32_t dataState = data.ReadInt32();
+    int32_t networkType = data.ReadInt32();
+    OnCellularDataConnectStateUpdated(slotId, dataState, networkType);
+}
+
+void TelephonyObserver::OnCellularDataFlowUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    CellDataFlowType flowType = static_cast<CellDataFlowType>(data.ReadInt32());
+    OnCellularDataFlowUpdated(slotId, flowType);
+}
+
+void TelephonyObserver::ConvertSignalInfoList(
+    MessageParcel &data, std::vector<sptr<SignalInformation>> &result)
 {
     int32_t size = data.ReadInt32();
     SignalInformation::NetworkType type;
@@ -95,7 +166,6 @@ void TelephonyObserver::ConvertSignalInfoList(MessageParcel &data, std::vector<s
                 break;
             }
             case SignalInformation::NetworkType::LTE: {
-                TELEPHONY_LOGI("TelephonyObserver::ConvertSignalInfoList NetworkType::LTE\n");
                 std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
                 if (signal != nullptr) {
                     signal->ReadFromParcel(data);
@@ -104,7 +174,6 @@ void TelephonyObserver::ConvertSignalInfoList(MessageParcel &data, std::vector<s
                 break;
             }
             case SignalInformation::NetworkType::WCDMA: {
-                TELEPHONY_LOGI("TelephonyObserver::ConvertSignalInfoList NetworkType::Wcdma\n");
                 std::unique_ptr<WcdmaSignalInformation> signal = std::make_unique<WcdmaSignalInformation>();
                 if (signal != nullptr) {
                     signal->ReadFromParcel(data);
@@ -117,7 +186,9 @@ void TelephonyObserver::ConvertSignalInfoList(MessageParcel &data, std::vector<s
         }
     }
 }
-void TelephonyObserver::ConvertCellInfoList(MessageParcel &data, std::vector<sptr<CellInformation>> &cells)
+
+void TelephonyObserver::ConvertCellInfoList(
+    MessageParcel &data, std::vector<sptr<CellInformation>> &cells)
 {
     int32_t size = data.ReadInt32();
     CellInformation::CellType type;

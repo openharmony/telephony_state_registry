@@ -4,10 +4,48 @@
         "state_registry": {
             "module_list": [
                 "//base/telephony/state_registry:tel_state_registry",
-                "//base/telephony/state_registry/frameworks/native:tel_state_registry_api",
+                "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api",
+                "//base/telephony/state_registry/frameworks/native/notify:tel_state_registry_notify",
                 "//base/telephony/state_registry/frameworks/js/napi:observer",
                 "//base/telephony/state_registry/sa_profile:state_registry_sa_profile"
             ],
+            "inner_kits": [
+                {
+                    "type": "so",
+                    "header": {
+                        "header_base" : "//base/telephony/core_service/interfaces/innerkits/core",
+                        "header_files": [
+                            "../../../../state_registry/interfaces/innerkits/notify/telephony_state_registry_client.h",
+                            "../../../../state_registry/frameworks/native/common/include/i_telephony_state_notify.h",
+                            "../../../../state_registry/frameworks/native/common/include/telephony_observer_broker.h",
+                            "cell_information.h",
+                            "network_state.h",
+                            "signal_information.h",
+                            "sim_state_type.h",
+                            "../cellular_data/cellular_data_types.h"
+                        ]
+                    },
+                    "name":"//base/telephony/state_registry/frameworks/native/notify:tel_state_registry_notify"
+                },
+                {
+                    "type": "so",
+                    "name": "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api",
+                    "header": {
+                        "header_files": [
+                            "../../../../state_registry/interfaces/innerkits/observer/telephony_observer_client.h",
+                            "../../../../state_registry/frameworks/native/common/include/i_telephony_state_notify.h",
+                            "../../../../state_registry/frameworks/native/common/include/telephony_observer_broker.h",
+                            "cell_information.h",
+                            "network_state.h",
+                            "signal_information.h",
+                            "sim_state_type.h",
+                            "../cellular_data/cellular_data_types.h"
+                        ],
+                        "header_base": "//base/telephony/core_service/interfaces/innerkits/core"
+                    }
+                }
+            ],
+
             "test_list": [
                 "//base/telephony/state_registry/test:unittest"
             ]

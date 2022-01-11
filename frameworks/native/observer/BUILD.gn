@@ -10,40 +10,39 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
-import("//build/test.gni")
-SOURCE_DIR = "//base/telephony/state_registry"
+import("//build/ohos.gni")
+SUBSYSTEM_DIR = "//base/telephony/state_registry"
 CORE_DIR = "//base/telephony/core_service"
 
-ohos_unittest("tel_state_registry_test") {
-  part_name = "state_registry"
-  subsystem_name = "telephony"
-  test_module = "tel_state_registry_test"
-  module_out_path = part_name + "/" + test_module
+config("state_registry_observer_config") {
+  include_dirs = [
+    "$SUBSYSTEM_DIR/interfaces/innerkits/observer",
+    "$SUBSYSTEM_DIR/frameworks/native/common/include",
+  ]
+}
 
+ohos_shared_library("tel_state_registry_api") {
   sources = [
+    "$CORE_DIR/frameworks/native/src/cell_information.cpp",
     "$CORE_DIR/frameworks/native/src/network_state.cpp",
     "$CORE_DIR/frameworks/native/src/signal_information.cpp",
-    "$SOURCE_DIR/frameworks/native/common/src/telephony_state_registry_proxy.cpp",
-    "$SOURCE_DIR/frameworks/native/notify/src/telephony_state_registry_client.cpp",
-    "$SOURCE_DIR/test/unittest/state_test/state_registry_test.cpp",
+    "$SUBSYSTEM_DIR/frameworks/native/common/src/telephony_state_registry_proxy.cpp",
+    "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_observer.cpp",
+    "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_observer_client.cpp",
+    "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_observer_proxy.cpp",
+    "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_state_manager.cpp",
   ]
 
   include_dirs = [
-    "$SOURCE_DIR/interfaces/innerkits/notify",
-    "$SOURCE_DIR/frameworks/native/observer/include",
-    "$SOURCE_DIR/frameworks/native/notify/include",
-    "$SOURCE_DIR/frameworks/native/common/include",
-    "$SOURCE_DIR/service/include",
+    "$SUBSYSTEM_DIR/frameworks/native/observer/include",
     "$CORE_DIR/interfaces/innerkits/state_registry",
     "$CORE_DIR/interfaces/innerkits/core",
     "$CORE_DIR/interfaces/innerkits/cellular_data",
   ]
 
-  deps = [
-    "$CORE_DIR/utils:libtelephony_common",
-    "//utils/native/base:utils",
-  ]
+  public_configs = [ ":state_registry_observer_config" ]
+
+  deps = [ "$CORE_DIR/utils:libtelephony_common" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",
@@ -53,12 +52,10 @@ ohos_unittest("tel_state_registry_test") {
   ]
 
   defines = [
-    "TELEPHONY_LOG_TAG = \"STATE_REGISTRY_TEST\"",
+    "TELEPHONY_LOG_TAG = \"STATE_REGISTRY\"",
     "LOG_DOMAIN = 0",
   ]
-}
 
-group("unittest") {
-  testonly = true
-  deps = [ ":tel_state_registry_test" ]
+  part_name = "state_registry"
+  subsystem_name = "telephony"
 }

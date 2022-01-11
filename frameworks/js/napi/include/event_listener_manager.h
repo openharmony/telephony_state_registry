@@ -19,10 +19,9 @@
 #include <cstdint>
 #include <memory>
 
-#include "telephony_update_event_type.h"
 #include "event_listener.h"
 #include "event_listener_handler.h"
-#include "singleton.h"
+#include "telephony_update_event_type.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -33,8 +32,8 @@ public:
     {
         return DelayedSingleton<EventListenerHandler>::GetInstance()->SendEvent(innerEventId, object, delayTime);
     }
-    static std::pair<bool, int32_t> AddEventListener(EventListener &eventListener);
-    static std::pair<bool, int32_t> RemoveEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
+    static std::optional<int32_t> AddEventListener(EventListener &eventListener);
+    static std::optional<int32_t> RemoveEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
 };
 } // namespace Telephony
 } // namespace OHOS

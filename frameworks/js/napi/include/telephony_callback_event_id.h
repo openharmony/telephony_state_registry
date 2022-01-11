@@ -25,6 +25,8 @@ enum class TelephonyCallbackEventId : uint32_t {
     EVENT_ON_NETWORK_STATE_UPDATE = 3,
     EVENT_ON_SIM_STATE_UPDATE = 4,
     EVENT_ON_CELL_INFOMATION_UPDATE = 5,
+    EVENT_ON_CELLULAR_DATA_CONNECTION_UPDATE = 6,
+    EVENT_ON_CELLULAR_DATA_FLOW_UPDATE = 7,
 };
 
 template<typename EnumClass>
