@@ -18,46 +18,24 @@
 #include <cinttypes>
 
 #include "ability.h"
-#include "inner_event.h"
-#include "singleton.h"
-
 #include "call_manager_inner_type.h"
 #include "event_listener_manager.h"
+#include "inner_event.h"
+#include "napi_parameter_util.h"
 #include "napi_radio_types.h"
+#include "napi_sim_type.h"
 #include "napi_state_registry.h"
 #include "napi_telephony_observer.h"
 #include "napi_util.h"
+#include "singleton.h"
 #include "telephony_errors.h"
+#include "telephony_log_wrapper.h"
 #include "telephony_state_manager.h"
 #include "update_contexts.h"
 
 namespace OHOS {
 namespace Telephony {
 namespace {
-std::map<TelephonyUpdateEventType, bool> registerStateMap {
-    {TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE, false},
-    {TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE, false},
-    {TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE, false},
-    {TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE, false},
-    {TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE, false},
-};
-
-void SetRegisterState(const TelephonyUpdateEventType eventType, bool regist)
-{
-    auto itor = registerStateMap.find(eventType);
-    if (itor != registerStateMap.end()) {
-        registerStateMap[eventType] = regist;
-    } else {
-        TELEPHONY_LOGE("AddEventType mismatch eventType = %{public}u", static_cast<uint32_t>(eventType));
-    }
-}
-
-bool IsEventTypeRegistered(const TelephonyUpdateEventType eventType)
-{
-    auto itor = registerStateMap.find(eventType);
-    return (itor != registerStateMap.end() ? itor->second : false);
-}
-
 std::u16string GetBundleName(napi_env env)
 {
     napi_value global = nullptr;
@@ -109,17 +87,17 @@ int32_t WrapRegState(int32_t nativeState)
 int32_t WrapCallState(int32_t callState)
 {
     switch (callState) {
-        case Telephony::CALL_STATUS_ACTIVE:
-        case Telephony::CALL_STATUS_HOLDING:
-        case Telephony::CALL_STATUS_DIALING:
-        case Telephony::CALL_STATUS_ALERTING:
-        case Telephony::CALL_STATUS_DISCONNECTING:
+        case (int32_t)Telephony::TelCallState::CALL_STATUS_ACTIVE:
+        case (int32_t)Telephony::TelCallState::CALL_STATUS_HOLDING:
+        case (int32_t)Telephony::TelCallState::CALL_STATUS_DIALING:
+        case (int32_t)Telephony::TelCallState::CALL_STATUS_ALERTING:
+        case (int32_t)Telephony::TelCallState::CALL_STATUS_DISCONNECTING:
             return static_cast<int32_t>(CallState::CALL_STATE_OFFHOOK);
-        case Telephony::CALL_STATUS_WAITING:
-        case Telephony::CALL_STATUS_INCOMING:
+        case (int32_t)Telephony::TelCallState::CALL_STATUS_WAITING:
+        case (int32_t)Telephony::TelCallState::CALL_STATUS_INCOMING:
             return static_cast<int32_t>(CallState::CALL_STATE_RINGING);
-        case Telephony::CALL_STATUS_DISCONNECTED:
-        case Telephony::CALL_STATUS_IDLE:
+        case (int32_t)Telephony::TelCallState::CALL_STATUS_DISCONNECTED:
+        case (int32_t)Telephony::TelCallState::CALL_STATUS_IDLE:
             return static_cast<int32_t>(CallState::CALL_STATE_IDLE);
         default:
             return static_cast<int32_t>(CallState::CALL_STATE_UNKNOWN);
@@ -165,15 +143,21 @@ napi_status NapiReturnToJS(napi_env env, napi_ref callbackRef, napi_value callba
     napi_value recv = nullptr;
     napi_get_undefined(env, &recv);
     napi_value callbackResult = nullptr;
-    return napi_call_function(env, recv, callbackFunc, std::size(callbackValues), callbackValues, &callbackResult);
+    napi_status status =
+        napi_call_function(env, recv, callbackFunc, std::size(callbackValues), callbackValues, &callbackResult);
+    if (status != napi_ok) {
+        TELEPHONY_LOGE("NapiReturnToJS napi_call_function return error : %{public}d", status);
+    }
+    DelayedSingleton<EventListenerHandler>::GetInstance()->SetCallbackCompleteToListener(callbackRef);
+    return status;
 }
 
 napi_value SignalInfoConversion(napi_env env, int32_t type, int32_t level)
 {
     napi_value val = nullptr;
     napi_create_object(env, &val);
-    napi_set_named_property(env, val, "signalType", GetNapiValue(env, type));
-    napi_set_named_property(env, val, "signalLevel", GetNapiValue(env, level));
+    SetPropertyToNapiObject(env, val, "signalType", type);
+    SetPropertyToNapiObject(env, val, "signalLevel", level);
     return val;
 }
 
@@ -181,12 +165,12 @@ napi_value DataOfNetworkConversion(napi_env env, const GsmCellInformation &info)
 {
     napi_value val = nullptr;
     napi_create_object(env, &val);
-    napi_set_named_property(env, val, "lac", GetNapiValue(env, info.GetLac()));
-    napi_set_named_property(env, val, "cellId", GetNapiValue(env, info.GetCellId()));
-    napi_set_named_property(env, val, "arfcn", GetNapiValue(env, info.GetArfcn()));
-    napi_set_named_property(env, val, "basic", GetNapiValue(env, info.GetBsic()));
-    napi_set_named_property(env, val, "mcc", GetNapiValue(env, info.GetMcc()));
-    napi_set_named_property(env, val, "mnc", GetNapiValue(env, info.GetMnc()));
+    SetPropertyToNapiObject(env, val, "lac", info.GetLac());
+    SetPropertyToNapiObject(env, val, "cellId", info.GetCellId());
+    SetPropertyToNapiObject(env, val, "arfcn", info.GetArfcn());
+    SetPropertyToNapiObject(env, val, "basic", info.GetBsic());
+    SetPropertyToNapiObject(env, val, "mcc", info.GetMcc());
+    SetPropertyToNapiObject(env, val, "mnc", info.GetMnc());
     return val;
 }
 
@@ -194,14 +178,14 @@ napi_value DataOfNetworkConversion(napi_env env, const LteCellInformation &info)
 {
     napi_value val = nullptr;
     napi_create_object(env, &val);
-    napi_set_named_property(env, val, "cgi", GetNapiValue(env, 0));
-    napi_set_named_property(env, val, "pci", GetNapiValue(env, info.GetPci()));
-    napi_set_named_property(env, val, "tac", GetNapiValue(env, info.GetTac()));
-    napi_set_named_property(env, val, "earfcn", GetNapiValue(env, info.GetArfcn()));
-    napi_set_named_property(env, val, "bandwith", GetNapiValue(env, 0));
-    napi_set_named_property(env, val, "mcc", GetNapiValue(env, info.GetMnc()));
-    napi_set_named_property(env, val, "mnc", GetNapiValue(env, info.GetMnc()));
-    napi_set_named_property(env, val, "isSupportEndc", GetNapiValue(env, false));
+    SetPropertyToNapiObject(env, val, "cgi", 0);
+    SetPropertyToNapiObject(env, val, "pci", info.GetPci());
+    SetPropertyToNapiObject(env, val, "tac", info.GetTac());
+    SetPropertyToNapiObject(env, val, "earfcn", info.GetArfcn());
+    SetPropertyToNapiObject(env, val, "bandwith", 0);
+    SetPropertyToNapiObject(env, val, "mcc", info.GetMnc());
+    SetPropertyToNapiObject(env, val, "mnc", info.GetMnc());
+    SetPropertyToNapiObject(env, val, "isSupportEndc", false);
     return val;
 }
 
@@ -209,12 +193,12 @@ napi_value DataOfNetworkConversion(napi_env env, const WcdmaCellInformation &inf
 {
     napi_value val = nullptr;
     napi_create_object(env, &val);
-    napi_set_named_property(env, val, "lac", GetNapiValue(env, info.GetLac()));
-    napi_set_named_property(env, val, "cellId", GetNapiValue(env, info.GetCellId()));
-    napi_set_named_property(env, val, "psc", GetNapiValue(env, info.GetPsc()));
-    napi_set_named_property(env, val, "uarfcn", GetNapiValue(env, info.GetArfcn()));
-    napi_set_named_property(env, val, "mcc", GetNapiValue(env, info.GetMcc()));
-    napi_set_named_property(env, val, "mnc", GetNapiValue(env, info.GetMnc()));
+    SetPropertyToNapiObject(env, val, "lac", info.GetLac());
+    SetPropertyToNapiObject(env, val, "cellId", info.GetCellId());
+    SetPropertyToNapiObject(env, val, "psc", info.GetPsc());
+    SetPropertyToNapiObject(env, val, "uarfcn", info.GetArfcn());
+    SetPropertyToNapiObject(env, val, "mcc", info.GetMcc());
+    SetPropertyToNapiObject(env, val, "mnc", info.GetMnc());
     return val;
 }
 
@@ -223,10 +207,10 @@ napi_value CellInfoConversion(napi_env env, const CellInformation &info)
     napi_value val = nullptr;
     napi_create_object(env, &val);
     CellInformation::CellType networkType = info.GetNetworkType();
-    napi_set_named_property(env, val, "networkType", GetNapiValue(env, static_cast<int32_t>(networkType)));
-    napi_set_named_property(env, val, "isCamped", GetNapiValue(env, info.GetIsCamped()));
-    napi_set_named_property(env, val, "timeStamp", GetNapiValue(env, static_cast<int32_t>(info.GetTimeStamp())));
-    napi_set_named_property(env, val, "signalInfomation",
+    SetPropertyToNapiObject(env, val, "networkType", static_cast<int32_t>(networkType));
+    SetPropertyToNapiObject(env, val, "isCamped", info.GetIsCamped());
+    SetPropertyToNapiObject(env, val, "timeStamp", info.GetTimeStamp());
+    SetPropertyToNapiObject(env, val, "signalInfomation",
         SignalInfoConversion(env, static_cast<int32_t>(networkType), info.GetSignalLevel()));
 
     switch (networkType) {
@@ -247,14 +231,23 @@ napi_value CellInfoConversion(napi_env env, const CellInformation &info)
     }
     return val;
 }
+
+bool InitLoop(napi_env env, uv_loop_s **loop)
+{
+    uint32_t napiVersion = -1;
+    napi_get_version(env, &napiVersion);
+#if NAPI_VERSION >= 2
+    napi_status status = napi_get_uv_event_loop(env, loop);
+    if (status != napi_ok) {
+        TELEPHONY_LOGE("napi_get_uv_event_loop napi_status = %{public}d", status);
+        return false;
+    }
+#endif // NAPI_VERSION >= 2
+    return *loop != nullptr;
+}
 } // namespace
 
 EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecFwk::EventRunner::Create())
-{
-    InitProcessFunc();
-}
-
-void EventListenerHandler::InitProcessFunc()
 {
     handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CALL_STATE_UPDATE] =
         &EventListenerHandler::HandleCallbackInfoUpdate<CallStateContext, CallStateUpdateInfo,
@@ -271,6 +264,12 @@ void EventListenerHandler::InitProcessFunc()
     handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELL_INFOMATION_UPDATE] =
         &EventListenerHandler::HandleCallbackInfoUpdate<CellInfomationContext, CellInfomationUpdate,
             TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE>;
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_CONNECTION_UPDATE] =
+        &EventListenerHandler::HandleCallbackInfoUpdate<CellularDataConnectStateContext, CellularDataConnectState,
+            TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE>;
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_FLOW_UPDATE] =
+        &EventListenerHandler::HandleCallbackInfoUpdate<CellularDataFlowContext, CellularDataFlowUpdate,
+            TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE>;
 
     workFuncMap_[TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE] = &EventListenerHandler::WorkCallStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE] =
@@ -280,6 +279,18 @@ void EventListenerHandler::InitProcessFunc()
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE] = &EventListenerHandler::WorkSimStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE] =
         &EventListenerHandler::WorkCellInfomationUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE] =
+        &EventListenerHandler::WorkCellularDataConnectStateUpdate;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE] =
+        &EventListenerHandler::WorkCellularDataFlowUpdate;
+}
+
+EventListenerHandler::~EventListenerHandler()
+{
+    handleFuncMap_.clear();
+    workFuncMap_.clear();
+    listenerList_.clear();
+    registerStateMap_.clear();
 }
 
 void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
@@ -294,41 +305,61 @@ void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &e
     }
 }
 
-std::pair<bool, int32_t> EventListenerHandler::AddEventListener(EventListener &eventListener)
+std::optional<int32_t> EventListenerHandler::AddEventListener(EventListener &eventListener)
 {
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
     eventListener.index = listenerList_.size();
-    listenerList_.push_back(std::move(eventListener));
-    bool registered = IsEventTypeRegistered(eventListener.eventType);
+    listenerList_.push_back(eventListener);
+    bool registered = IsEventTypeRegistered(eventListener.slotId, eventListener.eventType);
     if (!registered) {
         auto telephonyObserver = std::make_unique<NapiTelephonyObserver>().release();
         if (telephonyObserver == nullptr) {
             TELEPHONY_LOGE("error by telephonyObserver nullptr");
-            return std::make_pair(false, ERROR_DEFAULT);
+            return std::make_optional<int32_t>(ERROR_DEFAULT);
         }
         sptr<TelephonyObserverBroker> observer(telephonyObserver);
         if (observer == nullptr) {
             TELEPHONY_LOGE("error by observer nullptr");
-            return std::make_pair(false, ERROR_DEFAULT);
+            return std::make_optional<int32_t>(ERROR_DEFAULT);
         }
         std::u16string packageName = GetBundleName(eventListener.env);
         int32_t addResult = TelephonyStateManager::AddStateObserver(
             observer, eventListener.slotId, ToUint32t(eventListener.eventType), packageName, false);
-        bool addSuccess = (addResult == TELEPHONY_SUCCESS);
-        if (addSuccess) {
-            SetRegisterState(eventListener.eventType, true);
+        if (addResult == TELEPHONY_SUCCESS) {
+            ManageRegistrants(eventListener.slotId, eventListener.eventType, true);
+        } else {
+            TELEPHONY_LOGE("AddStateObserver failed, ret=%{public}d!", addResult);
+            return std::make_optional<int32_t>(addResult);
         }
-        return std::make_pair(addSuccess, addResult);
     }
-    return std::make_pair(true, ERROR_NONE);
+    return std::nullopt;
 }
 
-std::pair<bool, int32_t> EventListenerHandler::RemoveEventListener(
+std::optional<int32_t> EventListenerHandler::RemoveEventListener(
     int32_t slotId, const TelephonyUpdateEventType eventType)
 {
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
+    if (listenerList_.empty()) {
+        TELEPHONY_LOGE("EventListenerHandler::RemoveEventListener listener list is empty.");
+        return std::nullopt;
+    }
+    if (!IsEventTypeRegistered(slotId, eventType)) {
+        TELEPHONY_LOGE("EventListenerHandler::RemoveEventListener eventType %{public}d was not registered!",
+            static_cast<int32_t>(eventType));
+        return std::nullopt;
+    }
+
+    std::atomic_uint32_t allListenersCallbackComplete = 1;
+    do {
+        for (const EventListener &listener : listenerList_) {
+            if (listener.eventType == eventType) {
+                allListenersCallbackComplete &= listener.callbackComplete;
+            }
+        }
+    } while (!allListenersCallbackComplete);
+
     listenerList_.remove_if([eventType](EventListener listener) -> bool {
-        auto matched = listener.eventType == eventType;
+        bool matched = listener.eventType == eventType;
         if (matched) {
             if (listener.env != nullptr && listener.callbackRef != nullptr) {
                 napi_delete_reference(listener.env, listener.callbackRef);
@@ -336,36 +367,43 @@ std::pair<bool, int32_t> EventListenerHandler::RemoveEventListener(
         };
         return matched;
     });
-    SetRegisterState(eventType, false);
-    int32_t removeResult = TelephonyStateManager::RemoveStateObserver(slotId, ToUint32t(eventType));
-    bool removeSuccess = (removeResult == TELEPHONY_SUCCESS);
-    return std::make_pair(removeSuccess, removeResult);
+    ManageRegistrants(slotId, eventType, false);
+    int32_t result = TelephonyStateManager::RemoveStateObserver(slotId, ToUint32t(eventType));
+    return (result == TELEPHONY_SUCCESS) ? std::nullopt : std::make_optional<int32_t>(result);
 }
 
-bool InitLoop(napi_env env, uv_loop_s **loop)
+void EventListenerHandler::SetCallbackCompleteToListener(napi_ref ref, bool flag)
 {
-    uint32_t napiVersion = -1;
-    napi_get_version(env, &napiVersion);
-#if NAPI_VERSION >= 2
-    napi_status status = napi_get_uv_event_loop(env, loop);
-    if (status != napi_ok) {
-        TELEPHONY_LOGE("napi_get_uv_event_loop napi_status = %{public}d", status);
-        return false;
+    for (EventListener &listen : listenerList_) {
+        if (listen.callbackRef == ref) {
+            listen.callbackComplete = flag;
+        }
     }
-#endif // NAPI_VERSION >= 2
-    return *loop != nullptr;
 }
 
-void InitContext(EventListener *eventListener, std::list<EventListener>::iterator listenerIterator)
+void EventListenerHandler::ManageRegistrants(
+    uint32_t slotId, const TelephonyUpdateEventType eventType, bool isRegister)
 {
-    eventListener->env = listenerIterator->env;
-    eventListener->eventType = listenerIterator->eventType;
-    eventListener->slotId = listenerIterator->slotId;
-    eventListener->callbackRef = listenerIterator->callbackRef;
-    eventListener->index = listenerIterator->index;
+    auto itor = registerStateMap_.find(slotId);
+    if (itor != registerStateMap_.end()) {
+        if (isRegister) {
+            itor->second.insert(eventType);
+        } else {
+            itor->second.erase(eventType);
+        }
+    } else {
+        std::set<TelephonyUpdateEventType> &&typeInfo {eventType};
+        registerStateMap_.insert(std::make_pair(slotId, typeInfo));
+    }
 }
 
-template<typename T, typename T1, TelephonyUpdateEventType eventType>
+bool EventListenerHandler::IsEventTypeRegistered(uint32_t slotId, const TelephonyUpdateEventType eventType) const
+{
+    auto itor = registerStateMap_.find(slotId);
+    return (itor != registerStateMap_.end() ? itor->second.count(eventType) : false);
+}
+
+template<typename T, typename D, TelephonyUpdateEventType eventType>
 void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent::Pointer &event)
 {
     if (event == nullptr) {
@@ -373,32 +411,34 @@ void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
         return;
     }
 
-    std::unique_ptr<T1> info = event->GetUniqueObject<T1>();
+    std::unique_ptr<D> info = event->GetUniqueObject<D>();
     if (info == nullptr) {
         TELEPHONY_LOGE("update info nullptr");
         return;
     }
+
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
-    for (auto itor = listenerList_.begin(); itor != listenerList_.end(); ++itor) {
-        if (itor->eventType == eventType) {
+    for (const EventListener &listen : listenerList_) {
+        if ((listen.eventType == eventType) && (listen.slotId == info->slotId_)) {
             uv_loop_s *loop = nullptr;
-            if (!InitLoop(itor->env, &loop)) {
+            if (!InitLoop(listen.env, &loop)) {
                 TELEPHONY_LOGE("loop is null");
                 break;
             }
-            auto context = std::make_unique<T>().release();
+            T *context = std::make_unique<T>().release();
             if (context == nullptr) {
                 TELEPHONY_LOGE("make context failed");
                 break;
             }
-            InitContext(context, itor);
+            *(static_cast<EventListener *>(context)) = listen;
             *context = *info;
-            auto work = std::make_unique<uv_work_t>().release();
+            context->callbackComplete = false;
+            uv_work_t *work = std::make_unique<uv_work_t>().release();
             if (work == nullptr) {
                 TELEPHONY_LOGE("make work failed");
                 break;
             }
-            work->data = (void *)context;
+            work->data = static_cast<void *>(context);
             uv_queue_work(
                 loop, work, [](uv_work_t *) {}, (workFuncMap_.find(eventType))->second);
         }
@@ -415,9 +455,9 @@ void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work, int status)
     napi_value callbackValue = nullptr;
     napi_create_object(callStateInfo->env, &callbackValue);
     int32_t wrappedCallState = WrapCallState(callStateInfo->callState);
-    NapiUtil::SetPropertyInt32(callStateInfo->env, callbackValue, "state", wrappedCallState);
     std::string number = NapiUtil::ToUtf8(callStateInfo->phoneNumber);
-    NapiUtil::SetPropertyStringUtf8(callStateInfo->env, callbackValue, "number", number);
+    SetPropertyToNapiObject(callStateInfo->env, callbackValue, "state", wrappedCallState);
+    SetPropertyToNapiObject(callStateInfo->env, callbackValue, "number", number);
     NapiReturnToJS(callStateInfo->env, callStateInfo->callbackRef, callbackValue);
 }
 
@@ -429,18 +469,18 @@ void EventListenerHandler::WorkSignalUpdated(uv_work_t *work, int status)
     }
     std::unique_ptr<SignalListContext> infoListUpdateInfo(static_cast<SignalListContext *>(work->data));
     napi_value callbackValue = nullptr;
-    napi_create_array(infoListUpdateInfo->env, &callbackValue);
-    int listSize = static_cast<int>(infoListUpdateInfo->signalInfoList.size());
-    for (int i = 0; i < listSize; ++i) {
+    const napi_env &env = infoListUpdateInfo->env;
+    napi_create_array(env, &callbackValue);
+    size_t infoSize = infoListUpdateInfo->signalInfoList.size();
+    for (size_t i = 0; i < infoSize; ++i) {
         sptr<SignalInformation> infoItem = infoListUpdateInfo->signalInfoList[i];
         napi_value info = nullptr;
-        napi_create_object(infoListUpdateInfo->env, &info);
-        NapiUtil::SetPropertyInt32(
-            infoListUpdateInfo->env, info, "signalType", WrapNetworkType(infoItem->GetNetworkType()));
-        NapiUtil::SetPropertyInt32(infoListUpdateInfo->env, info, "signalLevel", infoItem->GetSignalLevel());
-        napi_set_element(infoListUpdateInfo->env, callbackValue, i, info);
+        napi_create_object(env, &info);
+        SetPropertyToNapiObject(env, info, "signalType", WrapNetworkType(infoItem->GetNetworkType()));
+        SetPropertyToNapiObject(env, info, "signalLevel", infoItem->GetSignalLevel());
+        napi_set_element(env, callbackValue, i, info);
     }
-    NapiReturnToJS(infoListUpdateInfo->env, infoListUpdateInfo->callbackRef, callbackValue);
+    NapiReturnToJS(env, infoListUpdateInfo->callbackRef, callbackValue);
 }
 
 void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work, int status)
@@ -451,22 +491,22 @@ void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work, int status)
     }
     std::unique_ptr<NetworkStateContext> networkStateUpdateInfo(static_cast<NetworkStateContext *>(work->data));
     napi_value callbackValue = nullptr;
-    napi_create_object(networkStateUpdateInfo->env, &callbackValue);
-    std::string longOperatorName = networkStateUpdateInfo->networkState->GetLongOperatorName();
-    std::string shortOperatorName = networkStateUpdateInfo->networkState->GetShortOperatorName();
-    std::string plmnNumeric = networkStateUpdateInfo->networkState->GetPlmnNumeric();
-    bool isRoaming = networkStateUpdateInfo->networkState->IsRoaming();
-    int32_t regStatus = static_cast<int32_t>(networkStateUpdateInfo->networkState->GetRegStatus());
-    bool isEmergency = networkStateUpdateInfo->networkState->IsEmergency();
-    NapiUtil::SetPropertyStringUtf8(
-        networkStateUpdateInfo->env, callbackValue, "longOperatorName", longOperatorName);
-    NapiUtil::SetPropertyStringUtf8(
-        networkStateUpdateInfo->env, callbackValue, "shortOperatorName", shortOperatorName);
-    NapiUtil::SetPropertyStringUtf8(networkStateUpdateInfo->env, callbackValue, "plmnNumeric", plmnNumeric);
-    NapiUtil::SetPropertyBoolean(networkStateUpdateInfo->env, callbackValue, "isRoaming", isRoaming);
-    NapiUtil::SetPropertyInt32(networkStateUpdateInfo->env, callbackValue, "regStatus", WrapRegState(regStatus));
-    NapiUtil::SetPropertyBoolean(networkStateUpdateInfo->env, callbackValue, "isEmergency", isEmergency);
-    NapiReturnToJS(networkStateUpdateInfo->env, networkStateUpdateInfo->callbackRef, callbackValue);
+    const napi_env &env = networkStateUpdateInfo->env;
+    const sptr<NetworkState> &networkState = networkStateUpdateInfo->networkState;
+    napi_create_object(env, &callbackValue);
+    std::string longOperatorName = networkState->GetLongOperatorName();
+    std::string shortOperatorName = networkState->GetShortOperatorName();
+    std::string plmnNumeric = networkState->GetPlmnNumeric();
+    bool isRoaming = networkState->IsRoaming();
+    int32_t regStatus = static_cast<int32_t>(networkState->GetRegStatus());
+    bool isEmergency = networkState->IsEmergency();
+    SetPropertyToNapiObject(env, callbackValue, "longOperatorName", longOperatorName);
+    SetPropertyToNapiObject(env, callbackValue, "shortOperatorName", shortOperatorName);
+    SetPropertyToNapiObject(env, callbackValue, "plmnNumeric", plmnNumeric);
+    SetPropertyToNapiObject(env, callbackValue, "isRoaming", isRoaming);
+    SetPropertyToNapiObject(env, callbackValue, "regStatus", WrapRegState(regStatus));
+    SetPropertyToNapiObject(env, callbackValue, "isEmergency", isEmergency);
+    NapiReturnToJS(env, networkStateUpdateInfo->callbackRef, callbackValue);
 }
 
 void EventListenerHandler::WorkSimStateUpdated(uv_work_t *work, int status)
@@ -477,11 +517,13 @@ void EventListenerHandler::WorkSimStateUpdated(uv_work_t *work, int status)
     }
     std::unique_ptr<SimStateContext> simStateUpdateInfo(static_cast<SimStateContext *>(work->data));
     napi_value callbackValue = nullptr;
+    int32_t cardType = static_cast<int32_t>(simStateUpdateInfo->cardType);
     int32_t simState = static_cast<int32_t>(simStateUpdateInfo->simState);
     int32_t lockReason = static_cast<int32_t>(simStateUpdateInfo->reason);
     napi_create_object(simStateUpdateInfo->env, &callbackValue);
-    NapiUtil::SetPropertyInt32(simStateUpdateInfo->env, callbackValue, "state", simState);
-    NapiUtil::SetPropertyInt32(simStateUpdateInfo->env, callbackValue, "reason", lockReason);
+    SetPropertyToNapiObject(simStateUpdateInfo->env, callbackValue, "type", cardType);
+    SetPropertyToNapiObject(simStateUpdateInfo->env, callbackValue, "state", simState);
+    SetPropertyToNapiObject(simStateUpdateInfo->env, callbackValue, "reason", lockReason);
     NapiReturnToJS(simStateUpdateInfo->env, simStateUpdateInfo->callbackRef, callbackValue);
 }
 
@@ -499,6 +541,32 @@ void EventListenerHandler::WorkCellInfomationUpdated(uv_work_t *work, int status
         napi_set_element(cellInfo->env, callbackValue, i, val);
     }
     NapiReturnToJS(cellInfo->env, cellInfo->callbackRef, callbackValue);
+}
+
+void EventListenerHandler::WorkCellularDataConnectStateUpdate(uv_work_t *work, int status)
+{
+    if (work == nullptr) {
+        TELEPHONY_LOGE("work is null");
+        return;
+    }
+    std::unique_ptr<CellularDataConnectStateContext> context(
+        static_cast<CellularDataConnectStateContext *>(work->data));
+    napi_value callbackValue = nullptr;
+    napi_create_object(context->env, &callbackValue);
+    SetPropertyToNapiObject(context->env, callbackValue, "state", context->dataState);
+    SetPropertyToNapiObject(context->env, callbackValue, "network", context->networkType);
+    NapiReturnToJS(context->env, context->callbackRef, callbackValue);
+}
+
+void EventListenerHandler::WorkCellularDataFlowUpdate(uv_work_t *work, int status)
+{
+    if (work == nullptr) {
+        TELEPHONY_LOGE("work is null");
+        return;
+    }
+    std::unique_ptr<CellularDataFlowContext> dataFlowInfo(static_cast<CellularDataFlowContext *>(work->data));
+    napi_value callbackValue = GetNapiValue(dataFlowInfo->env, dataFlowInfo->flowType_);
+    NapiReturnToJS(dataFlowInfo->env, dataFlowInfo->callbackRef, callbackValue);
 }
 } // namespace Telephony
 } // namespace OHOS

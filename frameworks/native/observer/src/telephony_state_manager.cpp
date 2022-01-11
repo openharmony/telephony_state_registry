@@ -14,7 +14,7 @@
  */
 
 #include "telephony_state_manager.h"
-#include "singleton.h"
+
 #include "telephony_observer_client.h"
 
 namespace OHOS {
@@ -22,13 +22,14 @@ namespace Telephony {
 int32_t TelephonyStateManager::AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
     int32_t slotId, uint32_t mask, const std::u16string &callingPackage, bool notifyNow)
 {
-    return DelayedSingleton<TelephonyObserverClient>::GetInstance()->AddStateObserver(
+    return DelayedRefSingleton<TelephonyObserverClient>::GetInstance().AddStateObserver(
         telephonyObserver, slotId, mask, callingPackage, notifyNow);
 }
 
 int32_t TelephonyStateManager::RemoveStateObserver(int32_t slotId, uint32_t mask)
 {
-    return DelayedSingleton<TelephonyObserverClient>::GetInstance()->RemoveStateObserver(slotId, mask);
+    return DelayedRefSingleton<TelephonyObserverClient>::GetInstance().
+        RemoveStateObserver(slotId, mask);
 }
 } // namespace Telephony
 } // namespace OHOS

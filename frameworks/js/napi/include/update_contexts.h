@@ -32,8 +32,8 @@ struct CallStateContext : EventListener {
     std::u16string phoneNumber;
     CallStateContext &operator=(const CallStateUpdateInfo &info)
     {
-        callState = info.callState;
-        phoneNumber = info.phoneNumber;
+        callState = info.callState_;
+        phoneNumber = info.phoneNumber_;
         return *this;
     }
 };
@@ -42,7 +42,7 @@ struct SignalListContext : EventListener {
     std::vector<sptr<SignalInformation>> signalInfoList;
     SignalListContext &operator=(SignalUpdateInfo &info)
     {
-        signalInfoList.swap(info.signalInfoList);
+        signalInfoList = info.signalInfoList_;
         return *this;
     }
 };
@@ -51,18 +51,20 @@ struct NetworkStateContext : EventListener {
     sptr<NetworkState> networkState;
     NetworkStateContext &operator=(const NetworkStateUpdateInfo &info)
     {
-        networkState = info.networkState;
+        networkState = info.networkState_;
         return *this;
     }
 };
 
 struct SimStateContext : EventListener {
+    CardType cardType;
     SimState simState;
     LockReason reason;
     SimStateContext &operator=(const SimStateUpdateInfo &info)
     {
-        simState = info.state;
-        reason = info.reason;
+        cardType = info.type_;
+        simState = info.state_;
+        reason = info.reason_;
         return *this;
     }
 };
@@ -71,7 +73,27 @@ struct CellInfomationContext : EventListener {
     std::vector<sptr<CellInformation>> cellInfoVec;
     CellInfomationContext &operator=(CellInfomationUpdate &info)
     {
-        cellInfoVec.swap(info.cellInfoVec);
+        cellInfoVec = info.cellInfoVec_;
+        return *this;
+    }
+};
+
+struct CellularDataConnectStateContext : EventListener {
+    int32_t dataState;
+    int32_t networkType;
+    CellularDataConnectStateContext &operator=(const CellularDataConnectState &info)
+    {
+        dataState = info.dataState_;
+        networkType = info.networkType_;
+        return *this;
+    }
+};
+
+struct CellularDataFlowContext : EventListener {
+    int32_t flowType_;
+    CellularDataFlowContext &operator=(const CellularDataFlowUpdate &info)
+    {
+        flowType_ = info.flowType_;
         return *this;
     }
 };

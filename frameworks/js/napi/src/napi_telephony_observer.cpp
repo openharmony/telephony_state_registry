@@ -21,44 +21,88 @@
 
 namespace OHOS {
 namespace Telephony {
-void NapiTelephonyObserver::OnCallStateUpdated(int32_t callState, const std::u16string &phoneNumber)
+void NapiTelephonyObserver::OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber)
 {
-    TELEPHONY_LOGI("OnCallStateUpdated callState = %{public}d, phoneNumber = %{public}s", callState,
-        NapiUtil::ToUtf8(phoneNumber).c_str());
+    TELEPHONY_LOGI("OnCallStateUpdated slotId = %{public}d, callState = %{public}d", slotId, callState);
     std::unique_ptr<CallStateUpdateInfo> callStateInfo =
-        std::make_unique<CallStateUpdateInfo>(callState, phoneNumber);
+        std::make_unique<CallStateUpdateInfo>(slotId, callState, phoneNumber);
     EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_CALL_STATE_UPDATE), callStateInfo);
 }
 
-void NapiTelephonyObserver::OnSignalInfoUpdated(const std::vector<sptr<SignalInformation>> &signalInfoList)
+void NapiTelephonyObserver::OnSignalInfoUpdated(
+    int32_t slotId, const std::vector<sptr<SignalInformation>> &signalInfoList)
 {
-    TELEPHONY_LOGI("OnSignalInfoUpdated signalInfoList.size = %{public}zu", signalInfoList.size());
-    std::unique_ptr<SignalUpdateInfo> infoList = std::make_unique<SignalUpdateInfo>(signalInfoList);
+    TELEPHONY_LOGI("OnSignalInfoUpdated slotId = %{public}d, signalInfoList.size = %{public}zu", slotId,
+        signalInfoList.size());
+    std::unique_ptr<SignalUpdateInfo> infoList = std::make_unique<SignalUpdateInfo>(slotId, signalInfoList);
+    if (infoList == nullptr) {
+        TELEPHONY_LOGE("SignalUpdateInfo is nullptr!");
+    }
     EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_SIGNAL_INFO_UPDATE), infoList);
 }
 
-void NapiTelephonyObserver::OnNetworkStateUpdated(const sptr<NetworkState> &networkState)
+void NapiTelephonyObserver::OnNetworkStateUpdated(int32_t slotId, const sptr<NetworkState> &networkState)
 {
-    TELEPHONY_LOGI("OnNetworkStateUpdated networkState = %{public}d", networkState == nullptr);
+    TELEPHONY_LOGI(
+        "OnNetworkStateUpdated slotId = %{public}d, networkState = %{public}d", slotId, networkState == nullptr);
     std::unique_ptr<NetworkStateUpdateInfo> networkStateUpdateInfo =
-        std::make_unique<NetworkStateUpdateInfo>(networkState);
+        std::make_unique<NetworkStateUpdateInfo>(slotId, networkState);
+    if (networkStateUpdateInfo == nullptr) {
+        TELEPHONY_LOGE("NetworkStateUpdateInfo is nullptr!");
+    }
     EventListenerManager::SendEvent(
         ToUint32t(TelephonyCallbackEventId::EVENT_ON_NETWORK_STATE_UPDATE), networkStateUpdateInfo);
 }
 
-void NapiTelephonyObserver::OnSimStateUpdated(SimState state, LockReason reason)
+void NapiTelephonyObserver::OnSimStateUpdated(int32_t slotId, CardType type, SimState state, LockReason reason)
 {
-    TELEPHONY_LOGI("OnSimStateUpdated simState =  %{public}d", state);
-    std::unique_ptr<SimStateUpdateInfo> simStateUpdateInfo = std::make_unique<SimStateUpdateInfo>(state, reason);
+    TELEPHONY_LOGI("OnSimStateUpdated slotId = %{public}d, simState =  %{public}d", slotId, state);
+    std::unique_ptr<SimStateUpdateInfo> simStateUpdateInfo =
+        std::make_unique<SimStateUpdateInfo>(slotId, type, state, reason);
+    if (simStateUpdateInfo == nullptr) {
+        TELEPHONY_LOGE("SimStateUpdateInfo is nullptr!");
+    }
     EventListenerManager::SendEvent(
         ToUint32t(TelephonyCallbackEventId::EVENT_ON_SIM_STATE_UPDATE), simStateUpdateInfo);
 }
 
-void NapiTelephonyObserver::OnCellInfoUpdated(const std::vector<sptr<CellInformation>> &vec)
+void NapiTelephonyObserver::OnCellInfoUpdated(int32_t slotId, const std::vector<sptr<CellInformation>> &vec)
 {
-    TELEPHONY_LOGI("OnCellInfoUpdated cell info size =  %{public}zu", vec.size());
-    std::unique_ptr<CellInfomationUpdate> cellInfo = std::make_unique<CellInfomationUpdate>(vec);
+    TELEPHONY_LOGI("OnCellInfoUpdated slotId = %{public}d, cell info size =  %{public}zu", slotId, vec.size());
+    std::unique_ptr<CellInfomationUpdate> cellInfo = std::make_unique<CellInfomationUpdate>(slotId, vec);
+    if (cellInfo == nullptr) {
+        TELEPHONY_LOGE("CellInfomationUpdate is nullptr!");
+    }
     EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_CELL_INFOMATION_UPDATE), cellInfo);
+}
+
+void NapiTelephonyObserver::OnCellularDataConnectStateUpdated(
+    int32_t slotId, int32_t dataState, int32_t networkType)
+{
+    TELEPHONY_LOGI(
+        "OnCellularDataConnectStateUpdated slotId=%{public}d, dataState=%{public}d, networkType="
+        "%{public}d",
+        slotId, dataState, networkType);
+    std::unique_ptr<CellularDataConnectState> cellularDataConnectState =
+        std::make_unique<CellularDataConnectState>(slotId, dataState, networkType);
+    if (cellularDataConnectState == nullptr) {
+        TELEPHONY_LOGE("OnCellularDataConnectStateUpdated cellularDataConnectState is nullptr!");
+    }
+    EventListenerManager::SendEvent(
+        ToUint32t(TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_CONNECTION_UPDATE), cellularDataConnectState);
+}
+
+void NapiTelephonyObserver::OnCellularDataFlowUpdated(int32_t slotId, CellDataFlowType dataFlowType)
+{
+    TELEPHONY_LOGI(
+        "OnCellularDataFlowUpdated slotId = %{public}d, dataFlowType =  %{public}d", slotId, dataFlowType);
+    std::unique_ptr<CellularDataFlowUpdate> cellularDataFlowUpdateInfo =
+        std::make_unique<CellularDataFlowUpdate>(slotId, static_cast<int32_t>(dataFlowType));
+    if (cellularDataFlowUpdateInfo == nullptr) {
+        TELEPHONY_LOGE("CellularDataFlowUpdate is nullptr!");
+    }
+    EventListenerManager::SendEvent(
+        ToUint32t(TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_FLOW_UPDATE), cellularDataFlowUpdateInfo);
 }
 } // namespace Telephony
 } // namespace OHOS

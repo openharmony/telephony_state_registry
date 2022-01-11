@@ -13,27 +13,19 @@
  * limitations under the License.
  */
 
-#ifndef TELEPHONY_OBSERVER_CLIENT_HOLDER_H
-#define TELEPHONY_OBSERVER_CLIENT_HOLDER_H
+#ifndef TELEPHONY_STATE_MANAGER_H
+#define TELEPHONY_STATE_MANAGER_H
 
-#include "i_telephony_state_notify.h"
 #include "telephony_observer.h"
 
 namespace OHOS {
 namespace Telephony {
-class TelephonyObserverClient {
+class TelephonyStateManager {
 public:
-    int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId, uint32_t mask,
-        const std::u16string &callingPackage, bool notifyNow);
-    int32_t RemoveStateObserver(int32_t slotId, uint32_t mask);
-    bool InitStateObserverClient();
-    void ResetServiceProxy();
-
-private:
-    std::mutex mutex_;
-    sptr<ITelephonyStateNotify> telephonyStateNotify_ = nullptr;
-    sptr<IRemoteObject::DeathRecipient> recipient_ = nullptr;
+    static int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
+        uint32_t mask, const std::u16string &callingPackage, bool notifyNow);
+    static int32_t RemoveStateObserver(int32_t slotId, uint32_t mask);
 };
 } // namespace Telephony
 } // namespace OHOS
-#endif // TELEPHONY_OBSERVER_CLIENT_HOLDER_H
+#endif // TELEPHONY_STATE_MANAGER_H

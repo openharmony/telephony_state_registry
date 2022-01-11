@@ -18,8 +18,8 @@
 
 #include <cstdint>
 
-#include "telephony_update_event_type.h"
 #include "napi/native_api.h"
+#include "telephony_update_event_type.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -28,7 +28,8 @@ struct EventListener {
     TelephonyUpdateEventType eventType;
     int32_t slotId;
     napi_ref callbackRef;
-    int64_t index = 0;
+    bool callbackComplete = false;
+    size_t index = 0;
 };
 } // namespace Telephony
 } // namespace OHOS

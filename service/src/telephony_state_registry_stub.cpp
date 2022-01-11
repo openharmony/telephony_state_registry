@@ -18,8 +18,9 @@
 #include "ipc_skeleton.h"
 #include "string_ex.h"
 
-#include "telephony_errors.h"
 #include "sim_state_type.h"
+#include "cellular_data_types.h"
+#include "state_registry_errors.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -30,7 +31,10 @@ TelephonyStateRegistryStub::TelephonyStateRegistryStub()
     memberFuncMap_[StateNotifyCode::SIGNAL_INFO] = &TelephonyStateRegistryStub::OnUpdateSignalInfo;
     memberFuncMap_[StateNotifyCode::NET_WORK_STATE] = &TelephonyStateRegistryStub::OnUpdateNetworkState;
     memberFuncMap_[StateNotifyCode::CALL_STATE] = &TelephonyStateRegistryStub::OnUpdateCallState;
-    memberFuncMap_[StateNotifyCode::CALL_STATE_FOR_ID] = &TelephonyStateRegistryStub::OnUpdateCallStateForSimId;
+    memberFuncMap_[StateNotifyCode::CALL_STATE_FOR_ID] = &TelephonyStateRegistryStub::OnUpdateCallStateForSlotId;
+    memberFuncMap_[StateNotifyCode::CELLULAR_DATA_STATE] =
+        &TelephonyStateRegistryStub::OnUpdateCellularDataConnectState;
+    memberFuncMap_[StateNotifyCode::CELLULAR_DATA_FLOW] = &TelephonyStateRegistryStub::OnUpdateCellularDataFlow;
     memberFuncMap_[StateNotifyCode::ADD_OBSERVER] = &TelephonyStateRegistryStub::OnRegisterStateChange;
     memberFuncMap_[StateNotifyCode::REMOVE_OBSERVER] = &TelephonyStateRegistryStub::OnUnregisterStateChange;
 }
@@ -64,9 +68,10 @@ int32_t TelephonyStateRegistryStub::OnRemoteRequest(
 
 int32_t TelephonyStateRegistryStub::OnUpdateCallState(MessageParcel &data, MessageParcel &reply)
 {
+    int32_t slotId = data.ReadInt32();
     int32_t callState = data.ReadInt32();
     std::u16string phoneNumber = data.ReadString16();
-    int32_t ret = UpdateCallState(callState, phoneNumber);
+    int32_t ret = UpdateCallState(slotId, callState, phoneNumber);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCallState end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
@@ -74,23 +79,45 @@ int32_t TelephonyStateRegistryStub::OnUpdateCallState(MessageParcel &data, Messa
 
 int32_t TelephonyStateRegistryStub::OnUpdateSimState(MessageParcel &data, MessageParcel &reply)
 {
-    int32_t simId = data.ReadInt32();
+    int32_t slotId = data.ReadInt32();
+    CardType type = static_cast<CardType>(data.ReadInt32());
     SimState state = static_cast<SimState>(data.ReadInt32());
     LockReason reason = static_cast<LockReason>(data.ReadInt32());
-    int32_t ret = UpdateSimState(simId, state, reason);
+    int32_t ret = UpdateSimState(slotId, type, state, reason);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateSimState end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
 }
 
-int32_t TelephonyStateRegistryStub::OnUpdateCallStateForSimId(MessageParcel &data, MessageParcel &reply)
+int32_t TelephonyStateRegistryStub::OnUpdateCallStateForSlotId(MessageParcel &data, MessageParcel &reply)
 {
-    int32_t simId = data.ReadInt32();
+    int32_t slotId = data.ReadInt32();
     int32_t callId = data.ReadInt32();
     int32_t callState = data.ReadInt32();
     std::u16string incomingNumber = data.ReadString16();
-    int32_t ret = UpdateCallStateForSimId(simId, callId, callState, incomingNumber);
-    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCallStateForSimId end##ret=%{public}d\n", ret);
+    int32_t ret = UpdateCallStateForSlotId(slotId, callId, callState, incomingNumber);
+    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCallStateForSlotId end##ret=%{public}d\n", ret);
+    reply.WriteInt32(ret);
+    return ret;
+}
+
+int32_t TelephonyStateRegistryStub::OnUpdateCellularDataConnectState(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    int32_t dataState = data.ReadInt32();
+    int32_t networkType = data.ReadInt32();
+    int32_t ret = UpdateCellularDataConnectState(slotId, dataState, networkType);
+    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCellularDataConnectState end##ret=%{public}d\n", ret);
+    reply.WriteInt32(ret);
+    return ret;
+}
+
+int32_t TelephonyStateRegistryStub::OnUpdateCellularDataFlow(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    CellDataFlowType flowType = static_cast<CellDataFlowType>(data.ReadInt32());
+    int32_t ret = UpdateCellularDataFlow(slotId, flowType);
+    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCellularDataFlow end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
 }
@@ -98,7 +125,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateCallStateForSimId(MessageParcel &dat
 int32_t TelephonyStateRegistryStub::OnUpdateSignalInfo(MessageParcel &data, MessageParcel &reply)
 {
     int32_t ret = TELEPHONY_SUCCESS;
-    int32_t simId = data.ReadInt32();
+    int32_t slotId = data.ReadInt32();
     int32_t size = data.ReadInt32();
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateSignalInfo size=%{public}d\n", size);
     size = ((size > SignalInformation::MAX_SIGNAL_NUM) ? 0 : size);
@@ -109,7 +136,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateSignalInfo(MessageParcel &data, Mess
     }
     std::vector<sptr<SignalInformation>> result;
     parseSignalInfos(data, size, result);
-    ret = UpdateSignalInfo(simId, result);
+    ret = UpdateSignalInfo(slotId, result);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateSignalInfo end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
@@ -150,7 +177,7 @@ void TelephonyStateRegistryStub::parseSignalInfos(
                 break;
             }
             case SignalInformation::NetworkType::WCDMA: {
-                TELEPHONY_LOGI("TelephonyStateRegistryStub::parseSignalInfos NetworkType::Wcdma\n");
+                TELEPHONY_LOGI("TelephonyStateRegistryStub::UpdateSignalInfoInner NetworkType::Wcdma\n");
                 std::unique_ptr<WcdmaSignalInformation> signal = std::make_unique<WcdmaSignalInformation>();
                 if (signal != nullptr) {
                     signal->ReadFromParcel(data);
@@ -167,12 +194,13 @@ void TelephonyStateRegistryStub::parseSignalInfos(
 int32_t TelephonyStateRegistryStub::OnUpdateCellInfo(MessageParcel &data, MessageParcel &reply)
 {
     int32_t ret = TELEPHONY_SUCCESS;
-    int32_t simId = data.ReadInt32();
+    int32_t slotId = data.ReadInt32();
     int32_t size = data.ReadInt32();
-    TELEPHONY_LOGI("OnRemoteRequest OnUpdateCellInfo:size=%{public}d\n", size);
+    TELEPHONY_LOGI("TelephonyStateRegistryStub OnUpdateCellInfo:size=%{public}d\n", size);
     size = ((size > CellInformation::MAX_CELL_NUM) ? 0 : size);
     if (size <= 0) {
         ret = TELEPHONY_ERR_FAIL;
+        TELEPHONY_LOGE("TelephonyStateRegistryStub the size less than or equal to 0!\n");
         return ret;
     }
     std::vector<sptr<CellInformation>> cells;
@@ -200,7 +228,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellInfo(MessageParcel &data, Messag
                 break;
         }
     }
-    ret = UpdateCellInfo(simId, cells);
+    ret = UpdateCellInfo(slotId, cells);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCellInfo end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
@@ -209,14 +237,14 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellInfo(MessageParcel &data, Messag
 int32_t TelephonyStateRegistryStub::OnUpdateNetworkState(MessageParcel &data, MessageParcel &reply)
 {
     int32_t ret = TELEPHONY_SUCCESS;
-    int32_t simId = data.ReadInt32();
+    int32_t slotId = data.ReadInt32();
     sptr<NetworkState> result = NetworkState::Unmarshalling(data);
     if (result == nullptr) {
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateNetworkState GetNetworkStatus  is null\n");
         ret = TELEPHONY_ERR_FAIL;
         return ret;
     }
-    ret = UpdateNetworkState(simId, result);
+    ret = UpdateNetworkState(slotId, result);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateNetworkState end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
@@ -225,7 +253,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateNetworkState(MessageParcel &data, Me
 int32_t TelephonyStateRegistryStub::OnRegisterStateChange(MessageParcel &data, MessageParcel &reply)
 {
     int32_t ret = TELEPHONY_SUCCESS;
-    int32_t simId = data.ReadInt32();
+    int32_t slotId = data.ReadInt32();
     int32_t mask = data.ReadInt32();
     bool notifyNow = data.ReadBool();
     std::u16string callingPackage = data.ReadString16();
@@ -233,9 +261,10 @@ int32_t TelephonyStateRegistryStub::OnRegisterStateChange(MessageParcel &data, M
     ret = ReadData(data, reply, callback);
     if (ret != TELEPHONY_SUCCESS) {
         reply.WriteInt32(ret);
+        TELEPHONY_LOGE("TelephonyStateRegistryStub::OnRegisterStateChange ReadData failed\n");
         return ret;
     }
-    ret = RegisterStateChange(callback, simId, mask, callingPackage, notifyNow);
+    ret = RegisterStateChange(callback, slotId, mask, callingPackage, notifyNow);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnRegisterStateChange end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
@@ -243,9 +272,9 @@ int32_t TelephonyStateRegistryStub::OnRegisterStateChange(MessageParcel &data, M
 
 int32_t TelephonyStateRegistryStub::OnUnregisterStateChange(MessageParcel &data, MessageParcel &reply)
 {
-    int32_t simId = data.ReadInt32();
+    int32_t slotId = data.ReadInt32();
     int32_t mask = data.ReadInt32();
-    int32_t ret = UnregisterStateChange(simId, mask);
+    int32_t ret = UnregisterStateChange(slotId, mask);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUnregisterStateChange end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
@@ -273,14 +302,14 @@ int32_t TelephonyStateRegistryStub::ReadData(
 }
 
 int32_t TelephonyStateRegistryStub::RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver,
-    int32_t simId, uint32_t mask, const std::u16string &package, bool isUpdate)
+    int32_t slotId, uint32_t mask, const std::u16string &package, bool isUpdate)
 {
-    return RegisterStateChange(telephonyObserver, simId, mask, package, isUpdate, IPCSkeleton::GetCallingPid());
+    return RegisterStateChange(telephonyObserver, slotId, mask, package, isUpdate, IPCSkeleton::GetCallingPid());
 }
 
-int32_t TelephonyStateRegistryStub::UnregisterStateChange(int32_t simId, uint32_t mask)
+int32_t TelephonyStateRegistryStub::UnregisterStateChange(int32_t slotId, uint32_t mask)
 {
-    return UnregisterStateChange(simId, mask, IPCSkeleton::GetCallingPid());
+    return UnregisterStateChange(slotId, mask, IPCSkeleton::GetCallingPid());
 }
 } // namespace Telephony
 } // namespace OHOS

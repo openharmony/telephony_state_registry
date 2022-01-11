@@ -17,24 +17,28 @@
 #include <map>
 #include <utility>
 #include "event_listener_manager.h"
+#include "napi_parameter_util.h"
 #include "napi_telephony_observer.h"
 #include "napi_util.h"
 #include "telephony_errors.h"
+#include "telephony_log_wrapper.h"
 #include "telephony_state_manager.h"
 
 namespace OHOS {
 namespace Telephony {
 namespace {
-constexpr int32_t ARRAY_SIZE = 32;
-const std::map<std::string, TelephonyUpdateEventType> eventMap {
-    {NET_WORK_STATE_CHANGE, TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE},
-    {CALL_STATE_CHANGE, TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE},
-    {SIGNAL_STRENGTHS_CHANGE, TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE},
-    {SIM_STATE_CHANGE, TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE},
-    {CELL_INFO_CHANGE, TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE},
+constexpr int32_t ARRAY_SIZE = 64;
+const std::map<std::string_view, TelephonyUpdateEventType> eventMap {
+    {"networkStateChange", TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE},
+    {"callStateChange", TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE},
+    {"signalInfoChange", TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE},
+    {"simStateChange", TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE},
+    {"cellInfoChange", TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE},
+    {"cellularDataConnectionStateChange", TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE},
+    {"cellularDataFlowChange", TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE},
 };
 
-TelephonyUpdateEventType GetEventType(const std::string &event)
+TelephonyUpdateEventType GetEventType(std::string_view event)
 {
     auto serched = eventMap.find(event);
     return (serched != eventMap.end() ? serched->second : TelephonyUpdateEventType::NONE_EVENT_TYPE);
@@ -48,16 +52,16 @@ static void NativeOn(napi_env env, void *data)
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
+    TELEPHONY_LOGI("NativeOn eventType = %{public}d", asyncContext->eventType);
     EventListener listener {
         std::move(env),
         asyncContext->eventType,
         asyncContext->slotId,
         std::move(asyncContext->callbackRef),
-        0,
     };
-    std::pair<bool, int32_t> resultPair = EventListenerManager::AddEventListener(listener);
-    asyncContext->resolved = resultPair.first;
-    asyncContext->errorCode = resultPair.second;
+    std::optional<int32_t> result = EventListenerManager::AddEventListener(listener);
+    asyncContext->resolved = !result.has_value();
+    asyncContext->errorCode = result.value_or(ERROR_NONE);
 }
 
 static void OnCallback(napi_env env, napi_status status, void *data)
@@ -72,7 +76,6 @@ static void OnCallback(napi_env env, napi_status status, void *data)
     }
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
-    asyncContext = nullptr;
 }
 
 static napi_value On(napi_env env, napi_callback_info info)
@@ -82,28 +85,31 @@ static napi_value On(napi_env env, napi_callback_info info)
     napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
 
     std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
+    if (asyncContext == nullptr) {
+        napi_throw_error(env, nullptr, "ObserverContext is nullptr!");
+        return nullptr;
+    }
     std::array<char, ARRAY_SIZE> eventType {};
     napi_value object = NapiUtil::CreateUndefined(env);
-    vecNapiType typeVector {napi_string, napi_function};
-    bool matchResult = false;
+    std::optional<NapiError> errCode;
     if (parameterCount == std::size(parameters)) {
-        auto itor = typeVector.begin();
-        typeVector.insert(++itor, napi_object);
         auto paraTuple = std::make_tuple(std::data(eventType), &object, &asyncContext->callbackRef);
-        matchResult = MatchParameters(env, parameters, parameterCount, paraTuple, typeVector);
-        if (matchResult) {
+        errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
+        if (!errCode.has_value()) {
             napi_value slotId = NapiUtil::GetNamedProperty(env, object, "slotId");
             if (slotId) {
                 NapiValueToCppValue(env, slotId, napi_number, &asyncContext->slotId);
+                TELEPHONY_LOGI("sate registry on  slotId = %{public}d", asyncContext->slotId);
             }
         }
     } else {
         auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef);
-        matchResult = MatchParameters(env, parameters, parameterCount, paraTuple, typeVector);
+        errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
     }
 
-    if (!matchResult) {
-        napi_throw_error(env, nullptr, "type of input parameters error!");
+    if (errCode.has_value()) {
+        const std::string errMsg = "type of input parameters error : " + std::to_string(errCode.value());
+        napi_throw_error(env, nullptr, errMsg.c_str());
         return nullptr;
     }
 
@@ -123,10 +129,10 @@ static void NativeOff(napi_env env, void *data)
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
-    std::pair<bool, int32_t> resultPair =
+    std::optional<int32_t> result =
         EventListenerManager::RemoveEventListener(asyncContext->slotId, asyncContext->eventType);
-    asyncContext->resolved = resultPair.first;
-    asyncContext->errorCode = resultPair.second;
+    asyncContext->resolved = !result.has_value();
+    asyncContext->errorCode = result.value_or(ERROR_NONE);
 }
 
 static void OffCallback(napi_env env, napi_status status, void *data)
@@ -141,7 +147,6 @@ static void OffCallback(napi_env env, napi_status status, void *data)
     }
     napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
-    asyncContext = nullptr;
 }
 
 static napi_value Off(napi_env env, napi_callback_info info)
@@ -150,15 +155,17 @@ static napi_value Off(napi_env env, napi_callback_info info)
     napi_value parameters[] = {nullptr, nullptr};
     napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
 
-    vecNapiType typeVector {napi_string, napi_function};
     std::array<char, ARRAY_SIZE> eventType {};
     std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
-    auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef);
-    if (parameterCount < std::size(parameters)) {
-        typeVector.pop_back();
+    if (asyncContext == nullptr) {
+        napi_throw_error(env, nullptr, "ObserverContext is nullptr!");
+        return nullptr;
     }
-    if (!MatchParameters(env, parameters, parameterCount, paraTuple, typeVector)) {
-        napi_throw_error(env, nullptr, "type of input parameters error!");
+    auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef);
+    std::optional<NapiError> errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
+    if (errCode.has_value()) {
+        const std::string errMsg = "type of input parameters error : " + std::to_string(errCode.value());
+        napi_throw_error(env, nullptr, errMsg.c_str());
         return nullptr;
     }
 

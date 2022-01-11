@@ -14,34 +14,32 @@ import("//build/ohos.gni")
 SUBSYSTEM_DIR = "//base/telephony/state_registry"
 CORE_DIR = "//base/telephony/core_service"
 
-ohos_shared_library("tel_state_registry_api") {
+config("state_registry_notify_config") {
+  include_dirs = [
+    "$SUBSYSTEM_DIR/interfaces/innerkits/notify",
+    "$SUBSYSTEM_DIR/frameworks/native/common/include",
+    "$CORE_DIR/interfaces/innerkits/cellular_data",
+  ]
+}
+
+ohos_shared_library("tel_state_registry_notify") {
   sources = [
     "$CORE_DIR/frameworks/native/src/cell_information.cpp",
     "$CORE_DIR/frameworks/native/src/network_state.cpp",
     "$CORE_DIR/frameworks/native/src/signal_information.cpp",
-    "$CORE_DIR/interfaces/innerkits/state_registry/telephony_state_registry_proxy.cpp",
-    "src/telephony_observer.cpp",
-    "src/telephony_observer_client.cpp",
-    "src/telephony_observer_proxy.cpp",
-    "src/telephony_state_manager.cpp",
+    "$SUBSYSTEM_DIR/frameworks/native/common/src/telephony_state_registry_proxy.cpp",
+    "$SUBSYSTEM_DIR/frameworks/native/notify/src/telephony_state_registry_client.cpp",
   ]
 
   include_dirs = [
-    "$SUBSYSTEM_DIR/frameworks/native/include",
-    "//third_party/node/src",
-    "$SUBSYSTEM_DIR/service/include",
-
-    "$CORE_DIR/interfaces/innerkits/core",
+    "$SUBSYSTEM_DIR/frameworks/native/notify/include",
     "$CORE_DIR/interfaces/innerkits/state_registry",
-
-    "$CORE_DIR/frameworks/js/napi",
     "$CORE_DIR/interfaces/innerkits/core",
-    "//base/telephony/ril_adapter/interfaces/innerkits",
   ]
-  deps = [
-    "$CORE_DIR/utils:libtelephony_common",
-    "$SUBSYSTEM_DIR:tel_state_registry",
-  ]
+
+  public_configs = [ ":state_registry_notify_config" ]
+
+  deps = [ "$CORE_DIR/utils:libtelephony_common" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

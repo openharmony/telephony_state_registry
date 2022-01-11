@@ -16,11 +16,11 @@
 #ifndef EVENT_LISTENER_HANDLER_H
 #define EVENT_LISTENER_HANDLER_H
 
-#include <mutex>
 #include <list>
-#include <memory>
-#include <string>
 #include <map>
+#include <memory>
+#include <optional>
+#include <set>
 #include <uv.h>
 
 #include "event_handler.h"
@@ -30,18 +30,21 @@
 #include "network_state.h"
 #include "refbase.h"
 #include "signal_information.h"
+#include "singleton.h"
 #include "telephony_callback_event_id.h"
 #include "telephony_update_event_type.h"
 
 namespace OHOS {
 namespace Telephony {
 class EventListenerHandler : public AppExecFwk::EventHandler {
+    DECLARE_DELAYED_SINGLETON(EventListenerHandler)
 public:
-    EventListenerHandler();
-    ~EventListenerHandler() = default;
+    EventListenerHandler(const EventListenerHandler &) = delete;
+    EventListenerHandler &operator=(const EventListenerHandler &) = delete;
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
-    std::pair<bool, int32_t> AddEventListener(EventListener &eventListener);
-    std::pair<bool, int32_t> RemoveEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
+    std::optional<int32_t> AddEventListener(EventListener &eventListener);
+    std::optional<int32_t> RemoveEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
+    void SetCallbackCompleteToListener(napi_ref ref, bool flag = true);
 
 private:
     using HandleFuncType = void (EventListenerHandler::*)(const AppExecFwk::InnerEvent::Pointer &event);
@@ -49,16 +52,21 @@ private:
     std::map<TelephonyUpdateEventType, void (*)(uv_work_t *work, int status)> workFuncMap_;
     std::mutex operatorMutex_;
     std::list<EventListener> listenerList_;
+    std::map<uint32_t, std::set<TelephonyUpdateEventType>> registerStateMap_;
 
 private:
-    void InitProcessFunc();
+    void ManageRegistrants(uint32_t slotId, const TelephonyUpdateEventType eventType, bool isRegister);
+    bool IsEventTypeRegistered(uint32_t slotId, const TelephonyUpdateEventType eventType) const;
+
     static void WorkCallStateUpdated(uv_work_t *work, int status);
     static void WorkSignalUpdated(uv_work_t *work, int status);
     static void WorkNetworkStateUpdated(uv_work_t *work, int status);
     static void WorkSimStateUpdated(uv_work_t *work, int status);
     static void WorkCellInfomationUpdated(uv_work_t *work, int status);
+    static void WorkCellularDataConnectStateUpdate(uv_work_t *work, int status);
+    static void WorkCellularDataFlowUpdate(uv_work_t *work, int status);
 
-    template<typename T, typename T1, TelephonyUpdateEventType eventType>
+    template<typename T, typename D, TelephonyUpdateEventType eventType>
     void HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent::Pointer &event);
 };
 } // namespace Telephony

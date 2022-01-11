@@ -29,7 +29,7 @@
 
 #include "string_ex.h"
 
-#include "i_telephony_state_notify.h"
+#include "../../../frameworks/native/common/include/i_telephony_state_notify.h"
 #include "state_registry_errors.h"
 
 namespace OHOS {
@@ -44,14 +44,14 @@ public:
     void CreateProxy();
 
     void UpdateCallState();
-    void UpdateCallStateForSimId();
+    void UpdateCallStateForSlotId();
     void UpdateSignalInfo();
     void UpdateCellularDataConnectState();
+    void UpdateCellularDataFlow();
     void UpdateSimState();
     void UpdateNetworkState();
 
 public:
-    sptr<ITelephonyStateNotify> telephonyStateNotify_ = nullptr;
     using RequestFuncType = void (StateRegistryTest::*)();
     std::map<char, RequestFuncType> requestFuncMap_;
 };
