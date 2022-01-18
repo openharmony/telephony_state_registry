@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import("//base/telephony/core_service/telephony.gni")
 import("//build/ohos.gni")
 SOURCE_DIR = "//base/telephony/state_registry"
 CORE_DIR = "//base/telephony/core_service"
@@ -33,15 +34,12 @@ ohos_shared_library("tel_state_registry") {
   include_dirs = [
     "$SOURCE_DIR/frameworks/native/observer/include",
     "$SOURCE_DIR/frameworks/native/common/include",
-    "$SOURCE_DIR/frameworks/native/include",
     "$SOURCE_DIR/service/include",
 
-    "$CORE_DIR/interfaces/innerkits/state_registry",
-    "$CORE_DIR/interfaces/innerkits/core",
-    "$CORE_DIR/interfaces/innerkits/cellular_data",
+    "$CORE_DIR/interfaces/innerkits/include",
   ]
 
-  deps = [ "$CORE_DIR/utils:libtelephony_common" ]
+  deps = [ "$CORE_DIR/utils:libtel_common" ]
 
   external_deps = [
     "aafwk_standard:want",
@@ -53,7 +51,7 @@ ohos_shared_library("tel_state_registry") {
     "samgr_standard:samgr_proxy",
   ]
 
-  defines = [
+  defines += [
     "TELEPHONY_LOG_TAG = \"STATE_REGISTRY\"",
     "LOG_DOMAIN = 0",
   ]

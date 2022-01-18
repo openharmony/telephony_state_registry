@@ -13,26 +13,21 @@
  * limitations under the License.
  */
 
-#include "telephony_state_registry_record.h"
+#ifndef STATE_REGISTRY_ERRORS_H
+#define STATE_REGISTRY_ERRORS_H
 
-#include "telephony_permission.h"
-#include "telephony_log_wrapper.h"
+#include "telephony_errors.h"
 
 namespace OHOS {
 namespace Telephony {
-bool TelephonyStateRegistryRecord::IsCanReadCallHistory()
-{
-    if (!TelephonyPermission::CheckPermission(bundleName_, Permission::GET_CALL_HISTORY)) {
-        TELEPHONY_LOGE("Check permission failed,"
-            " you must declare ohos.permission.GET_CALL_HISTORY permission for number");
-        return false;
-    }
-    return true;
-}
-
-bool TelephonyStateRegistryRecord::IsExistStateListener(uint32_t mask) const
-{
-    return (telephonyObserver_ != nullptr) && ((mask_ & mask) != 0);
-}
+enum {
+    TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST = STATE_REGISTRY_ERR_OFFSET,
+    TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST,
+    TELEPHONY_STATE_REGISTRY_DATA_EXIST,
+    TELEPHONY_STATE_REGISTRY_NOT_IMPLEMENTED,
+    TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED,
+    TELEPHONY_STATE_REGISTRY_SLODID_ERROR
+};
 } // namespace Telephony
 } // namespace OHOS
+#endif // STATE_REGISTRY_ERRORS_H

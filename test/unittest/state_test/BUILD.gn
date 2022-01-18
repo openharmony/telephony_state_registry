@@ -22,8 +22,6 @@ ohos_unittest("tel_state_registry_test") {
   module_out_path = part_name + "/" + test_module
 
   sources = [
-    "$CORE_DIR/frameworks/native/src/network_state.cpp",
-    "$CORE_DIR/frameworks/native/src/signal_information.cpp",
     "$SOURCE_DIR/frameworks/native/common/src/telephony_state_registry_proxy.cpp",
     "$SOURCE_DIR/frameworks/native/notify/src/telephony_state_registry_client.cpp",
     "$SOURCE_DIR/test/unittest/state_test/state_registry_test.cpp",
@@ -35,18 +33,15 @@ ohos_unittest("tel_state_registry_test") {
     "$SOURCE_DIR/frameworks/native/notify/include",
     "$SOURCE_DIR/frameworks/native/common/include",
     "$SOURCE_DIR/service/include",
-    "$CORE_DIR/interfaces/innerkits/state_registry",
-    "$CORE_DIR/interfaces/innerkits/core",
-    "$CORE_DIR/interfaces/innerkits/cellular_data",
   ]
 
   deps = [
-    "$CORE_DIR/utils:libtelephony_common",
+    "$CORE_DIR/utils:libtel_common",
     "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "hiviewdfx_hilog_native:libhilog",
+    "core_service:tel_core_service_api",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
@@ -56,6 +51,12 @@ ohos_unittest("tel_state_registry_test") {
     "TELEPHONY_LOG_TAG = \"STATE_REGISTRY_TEST\"",
     "LOG_DOMAIN = 0",
   ]
+
+  if (is_standard_system) {
+    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
+  } else {
+    external_deps += [ "hilog:libhilog" ]
+  }
 }
 
 group("unittest") {

@@ -14,20 +14,24 @@
  */
 
 #include "event_listener_manager.h"
-
 #include "telephony_update_event_type.h"
 
 namespace OHOS {
 namespace Telephony {
-std::optional<int32_t> EventListenerManager::AddEventListener(EventListener &eventListener)
+std::optional<int32_t> EventListenerManager::RegisterEventListener(EventListener &eventListener)
 {
-    return DelayedSingleton<EventListenerHandler>::GetInstance()->AddEventListener(eventListener);
+    return DelayedSingleton<EventListenerHandler>::GetInstance()->RegisterEventListener(eventListener);
 }
 
-std::optional<int32_t> EventListenerManager::RemoveEventListener(
+std::optional<int32_t> EventListenerManager::UnregisterEventListener(
     int32_t slotId, const TelephonyUpdateEventType eventType)
 {
-    return DelayedSingleton<EventListenerHandler>::GetInstance()->RemoveEventListener(slotId, eventType);
+    return DelayedSingleton<EventListenerHandler>::GetInstance()->UnregisterEventListener(slotId, eventType);
+}
+
+void EventListenerManager::RemoveListener(TelephonyUpdateEventType eventType)
+{
+    DelayedSingleton<EventListenerHandler>::GetInstance()->RemoveListener(eventType);
 }
 } // namespace Telephony
 } // namespace OHOS

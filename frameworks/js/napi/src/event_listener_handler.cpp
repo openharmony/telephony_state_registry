@@ -36,32 +36,6 @@
 namespace OHOS {
 namespace Telephony {
 namespace {
-std::u16string GetBundleName(napi_env env)
-{
-    napi_value global = nullptr;
-    napi_status status = napi_get_global(env, &global);
-    if (status != napi_ok || global == nullptr) {
-        TELEPHONY_LOGE("can't get global instance for %{public}d", status);
-        return u"";
-    }
-
-    napi_value abilityObj = nullptr;
-    status = napi_get_named_property(env, global, "ability", &abilityObj);
-    if (status != napi_ok || abilityObj == nullptr) {
-        TELEPHONY_LOGE("can't get ability obj for %{public}d", status);
-        return u"";
-    }
-
-    OHOS::AppExecFwk::Ability *ability = nullptr;
-    status = napi_get_value_external(env, abilityObj, (void **)&ability);
-    if (status != napi_ok || ability == nullptr) {
-        TELEPHONY_LOGE("get ability from property failed for %{public}d", status);
-        return u"";
-    }
-
-    return NapiUtil::ToUtf16(ability->GetBundleName());
-}
-
 int32_t WrapRegState(int32_t nativeState)
 {
     RegServiceState state = static_cast<RegServiceState>(nativeState);
@@ -234,8 +208,6 @@ napi_value CellInfoConversion(napi_env env, const CellInformation &info)
 
 bool InitLoop(napi_env env, uv_loop_s **loop)
 {
-    uint32_t napiVersion = -1;
-    napi_get_version(env, &napiVersion);
 #if NAPI_VERSION >= 2
     napi_status status = napi_get_uv_event_loop(env, loop);
     if (status != napi_ok) {
@@ -305,14 +277,14 @@ void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &e
     }
 }
 
-std::optional<int32_t> EventListenerHandler::AddEventListener(EventListener &eventListener)
+std::optional<int32_t> EventListenerHandler::RegisterEventListener(EventListener &eventListener)
 {
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
     eventListener.index = listenerList_.size();
     listenerList_.push_back(eventListener);
     bool registered = IsEventTypeRegistered(eventListener.slotId, eventListener.eventType);
     if (!registered) {
-        auto telephonyObserver = std::make_unique<NapiTelephonyObserver>().release();
+        NapiTelephonyObserver *telephonyObserver = std::make_unique<NapiTelephonyObserver>().release();
         if (telephonyObserver == nullptr) {
             TELEPHONY_LOGE("error by telephonyObserver nullptr");
             return std::make_optional<int32_t>(ERROR_DEFAULT);
@@ -322,9 +294,8 @@ std::optional<int32_t> EventListenerHandler::AddEventListener(EventListener &eve
             TELEPHONY_LOGE("error by observer nullptr");
             return std::make_optional<int32_t>(ERROR_DEFAULT);
         }
-        std::u16string packageName = GetBundleName(eventListener.env);
         int32_t addResult = TelephonyStateManager::AddStateObserver(
-            observer, eventListener.slotId, ToUint32t(eventListener.eventType), packageName, false);
+            observer, eventListener.slotId, ToUint32t(eventListener.eventType), false);
         if (addResult == TELEPHONY_SUCCESS) {
             ManageRegistrants(eventListener.slotId, eventListener.eventType, true);
         } else {
@@ -335,17 +306,17 @@ std::optional<int32_t> EventListenerHandler::AddEventListener(EventListener &eve
     return std::nullopt;
 }
 
-std::optional<int32_t> EventListenerHandler::RemoveEventListener(
-    int32_t slotId, const TelephonyUpdateEventType eventType)
+std::optional<int32_t> EventListenerHandler::UnregisterEventListener(
+    int32_t slotId, TelephonyUpdateEventType eventType)
 {
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
     if (listenerList_.empty()) {
-        TELEPHONY_LOGE("EventListenerHandler::RemoveEventListener listener list is empty.");
+        TELEPHONY_LOGE("UnregisterEventListener listener list is empty.");
         return std::nullopt;
     }
     if (!IsEventTypeRegistered(slotId, eventType)) {
-        TELEPHONY_LOGE("EventListenerHandler::RemoveEventListener eventType %{public}d was not registered!",
-            static_cast<int32_t>(eventType));
+        TELEPHONY_LOGE(
+            "UnregisterEventListener eventType %{public}d was not registered!", static_cast<int32_t>(eventType));
         return std::nullopt;
     }
 
@@ -358,6 +329,13 @@ std::optional<int32_t> EventListenerHandler::RemoveEventListener(
         }
     } while (!allListenersCallbackComplete);
 
+    ManageRegistrants(slotId, eventType, false);
+    int32_t result = TelephonyStateManager::RemoveStateObserver(slotId, ToUint32t(eventType));
+    return (result == TELEPHONY_SUCCESS) ? std::nullopt : std::make_optional<int32_t>(result);
+}
+
+void EventListenerHandler::RemoveListener(TelephonyUpdateEventType eventType)
+{
     listenerList_.remove_if([eventType](EventListener listener) -> bool {
         bool matched = listener.eventType == eventType;
         if (matched) {
@@ -367,9 +345,6 @@ std::optional<int32_t> EventListenerHandler::RemoveEventListener(
         };
         return matched;
     });
-    ManageRegistrants(slotId, eventType, false);
-    int32_t result = TelephonyStateManager::RemoveStateObserver(slotId, ToUint32t(eventType));
-    return (result == TELEPHONY_SUCCESS) ? std::nullopt : std::make_optional<int32_t>(result);
 }
 
 void EventListenerHandler::SetCallbackCompleteToListener(napi_ref ref, bool flag)

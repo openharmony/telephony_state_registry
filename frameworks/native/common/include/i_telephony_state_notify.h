@@ -53,7 +53,7 @@ public:
      * @return int32_t TELEPHONY_SUCCESS on success, others on failure.
      */
     virtual int32_t UpdateCellularDataFlow(
-        int32_t slotId, CellDataFlowType dataFlowType) = 0;
+        int32_t slotId, int32_t dataFlowType) = 0;
 
     /**
      * UpdateSimState
@@ -125,12 +125,11 @@ public:
      * @param telephonyObserver api callback
      * @param slotId sim slot id
      * @param mask  listening type bitmask
-     * @param package calling Package
      * @param isUpdate Whether to update immediately
      * @return int32_t TELEPHONY_SUCCESS on success, others on failure.
      */
-    virtual int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
-        uint32_t mask, const std::u16string &package, bool isUpdate) = 0;
+    virtual int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver,
+        int32_t slotId, uint32_t mask, bool isUpdate) = 0;
 
     /**
      * UnregisterStateChange

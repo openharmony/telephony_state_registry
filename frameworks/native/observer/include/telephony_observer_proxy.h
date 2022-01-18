@@ -40,7 +40,7 @@ public:
     void OnCellularDataConnectStateUpdated(
         int32_t slotId, int32_t dataState, int32_t networkType);
     void OnCellularDataFlowUpdated(
-        int32_t slotId, CellDataFlowType dataFlowType);
+        int32_t slotId, int32_t dataFlowType);
 
 private:
     static inline BrokerDelegator<TelephonyObserverProxy> delegator_;

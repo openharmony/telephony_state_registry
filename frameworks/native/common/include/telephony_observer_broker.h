@@ -21,7 +21,6 @@
 #include "network_state.h"
 #include "signal_information.h"
 #include "sim_state_type.h"
-#include "cellular_data_types.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -52,7 +51,7 @@ public:
     virtual void OnSimStateUpdated(
         int32_t slotId, CardType type, SimState state, LockReason reason) = 0;
     virtual void OnCellularDataFlowUpdated(
-        int32_t slotId, CellDataFlowType dataFlowType) = 0;
+        int32_t slotId, int32_t dataFlowType) = 0;
 
 public:
     static const uint32_t OBSERVER_MASK_NETWORK_STATE = 0x00000001;

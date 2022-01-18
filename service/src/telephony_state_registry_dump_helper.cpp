@@ -50,7 +50,7 @@ bool TelephonyStateRegistryDumpHelper::ShowTelephonyStateRegistryInfo(
                 result.append("Unknown Subscriber: ");
             }
             result.append("\n").append("    { ");
-            result.append("package: ").append(Str16ToStr8(item.package_));
+            result.append("package: ").append(item.bundleName_);
             result.append(" pid: ").append(std::to_string(item.pid_));
             result.append(" mask: ").append(std::to_string(item.mask_));
             result.append(" slotId: ").append(std::to_string(item.slotId_));
