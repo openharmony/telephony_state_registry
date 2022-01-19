@@ -42,7 +42,7 @@ ohos_shared_library("tel_state_registry") {
   deps = [ "$CORE_DIR/utils:libtel_common" ]
 
   external_deps = [
-    "aafwk_standard:want",
+    "ability_runtime:want",
     "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
     "hiviewdfx_hilog_native:libhilog",
