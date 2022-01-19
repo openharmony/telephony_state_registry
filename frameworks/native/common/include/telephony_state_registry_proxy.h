@@ -33,7 +33,7 @@ public:
     int32_t UpdateCellularDataConnectState(
         int32_t slotId, int32_t dataState, int32_t networkState) override;
     int32_t UpdateCellularDataFlow(
-        int32_t slotId, CellDataFlowType dataFlowType) override;
+        int32_t slotId, int32_t dataFlowType) override;
     int32_t UpdateCallState(
         int32_t slotId, int32_t callStatus, const std::u16string &number) override;
     int32_t UpdateCallStateForSlotId(
@@ -47,8 +47,8 @@ public:
     int32_t UpdateSimState(
         int32_t slotId, CardType type, SimState state,  LockReason reason) override;
 
-    int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
-        uint32_t mask, const std::u16string &package, bool isUpdate) override;
+    int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver,
+        int32_t slotId, uint32_t mask, bool isUpdate) override;
     int32_t UnregisterStateChange(int32_t slotId, uint32_t mask) override;
 
 private:

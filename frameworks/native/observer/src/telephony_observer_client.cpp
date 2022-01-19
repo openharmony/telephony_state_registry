@@ -80,14 +80,14 @@ void TelephonyObserverClient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 }
 
 int32_t TelephonyObserverClient::AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
-    int32_t slotId, uint32_t mask, const std::u16string &package, bool isUpdate)
+    int32_t slotId, uint32_t mask, bool isUpdate)
 {
     auto proxy = GetProxy();
     if (proxy == nullptr) {
         TELEPHONY_LOGE("proxy is null!");
         return TELEPHONY_ERR_IPC_CONNECT_STUB_FAIL;
     }
-    return proxy->RegisterStateChange(telephonyObserver, slotId, mask, package, isUpdate);
+    return proxy->RegisterStateChange(telephonyObserver, slotId, mask, isUpdate);
 }
 
 int32_t TelephonyObserverClient::RemoveStateObserver(int32_t slotId, uint32_t mask)

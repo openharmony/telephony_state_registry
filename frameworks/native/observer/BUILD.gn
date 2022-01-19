@@ -35,14 +35,12 @@ ohos_shared_library("tel_state_registry_api") {
 
   include_dirs = [
     "$SUBSYSTEM_DIR/frameworks/native/observer/include",
-    "$CORE_DIR/interfaces/innerkits/state_registry",
-    "$CORE_DIR/interfaces/innerkits/core",
-    "$CORE_DIR/interfaces/innerkits/cellular_data",
+    "$CORE_DIR/interfaces/innerkits/include",
   ]
 
   public_configs = [ ":state_registry_observer_config" ]
 
-  deps = [ "$CORE_DIR/utils:libtelephony_common" ]
+  deps = [ "$CORE_DIR/utils:libtel_common" ]
 
   external_deps = [
     "hiviewdfx_hilog_native:libhilog",

@@ -20,13 +20,22 @@
 #include <string>
 
 #include "base_context.h"
-#include "core_manager.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
+#include "../../../native/common/include/telephony_observer_broker.h"
 #include "telephony_update_event_type.h"
 
 namespace OHOS {
 namespace Telephony {
+constexpr int32_t NONE_EVENT_TYPE = 0;
+constexpr int32_t LISTEN_NET_WORK_STATE = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
+constexpr int32_t LISTEN_CALL_STATE = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE;
+constexpr int32_t LISTEN_CELL_INFO = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
+constexpr int32_t LISTEN_SIGNAL_STRENGTHS = TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS;
+constexpr int32_t LISTEN_SIM_STATE = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
+constexpr int32_t LISTEN_DATA_CONNECTION_STATE = TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE;
+constexpr int32_t LISTEN_CELLULAR_DATA_FLOW = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
+
 enum class CallState : int32_t {
     /**
      * Indicates an invalid state, which is used when the call state fails to be
@@ -52,7 +61,7 @@ enum class CallState : int32_t {
 };
 
 struct ObserverContext : BaseContext {
-    int32_t slotId = CoreManager::DEFAULT_SLOT_ID;
+    int32_t slotId = DEFAULT_SIM_SLOT_ID;
     TelephonyUpdateEventType eventType = TelephonyUpdateEventType::NONE_EVENT_TYPE;
     int32_t errorCode = 0;
 };

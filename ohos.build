@@ -13,7 +13,7 @@
                 {
                     "type": "so",
                     "header": {
-                        "header_base" : "//base/telephony/core_service/interfaces/innerkits/core",
+                        "header_base" : "//base/telephony/core_service/interfaces/innerkits/include",
                         "header_files": [
                             "../../../../state_registry/interfaces/innerkits/notify/telephony_state_registry_client.h",
                             "../../../../state_registry/frameworks/native/common/include/i_telephony_state_notify.h",
@@ -21,8 +21,7 @@
                             "cell_information.h",
                             "network_state.h",
                             "signal_information.h",
-                            "sim_state_type.h",
-                            "../cellular_data/cellular_data_types.h"
+                            "sim_state_type.h"
                         ]
                     },
                     "name":"//base/telephony/state_registry/frameworks/native/notify:tel_state_registry_notify"
@@ -38,10 +37,9 @@
                             "cell_information.h",
                             "network_state.h",
                             "signal_information.h",
-                            "sim_state_type.h",
-                            "../cellular_data/cellular_data_types.h"
+                            "sim_state_type.h"
                         ],
-                        "header_base": "//base/telephony/core_service/interfaces/innerkits/core"
+                        "header_base": "//base/telephony/core_service/interfaces/innerkits/include"
                     }
                 }
             ],
@@ -52,4 +50,3 @@
         }
     }
 }
-

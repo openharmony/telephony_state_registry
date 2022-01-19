@@ -10,6 +10,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+import("//base/telephony/core_service/telephony.gni")
 import("//build/ohos.gni")
 SUBSYSTEM_DIR = "//base/telephony"
 ohos_shared_library("observer") {
@@ -17,17 +18,10 @@ ohos_shared_library("observer") {
     "//third_party/node/src",
     "include",
     "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer/include",
-    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/state_registry",
-    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/sim",
-    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/core",
-    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/network_search",
-    "$SUBSYSTEM_DIR/core_service/interfaces/innerkits/cellular_data",
     "$SUBSYSTEM_DIR/core_service/frameworks/js/sim/include",
     "$SUBSYSTEM_DIR/core_service/frameworks/js/network_search/include",
     "$SUBSYSTEM_DIR/core_service/frameworks/js/napi",
     "$SUBSYSTEM_DIR/call_manager/interfaces/innerkits",
-    "$SUBSYSTEM_DIR/core_service/frameworks/native/include",
-    "$SUBSYSTEM_DIR/cellular_data/interfaces/innerkits",
     "//third_party/libuv/include",
   ]
 
@@ -40,9 +34,7 @@ ohos_shared_library("observer") {
   ]
 
   deps = [
-    "$SUBSYSTEM_DIR/core_service:tel_core_service",
-    "$SUBSYSTEM_DIR/core_service/utils:libtelephony_common",
-    "$SUBSYSTEM_DIR/ril_adapter/services/hril:hril",
+    "$SUBSYSTEM_DIR/core_service/utils:libtel_common",
     "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/ace/napi:ace_napi",
     "//third_party/libuv:uv_static",
@@ -55,14 +47,16 @@ ohos_shared_library("observer") {
     "appexecfwk_standard:appexecfwk_base",
     "appexecfwk_standard:appexecfwk_core",
     "appexecfwk_standard:libeventhandler",
+    "core_service:tel_core_service_api",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "ril_adapter:hril_innerkits",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "state_registry:tel_state_registry_api",
   ]
 
-  defines = [
+  defines += [
     "TELEPHONY_LOG_TAG = \"STATE_REGISTRY_NAPI\"",
     "LOG_DOMAIN = 0",
   ]

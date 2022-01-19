@@ -20,7 +20,6 @@
 #include <string>
 #include <vector>
 
-#include "cellular_data_types.h"
 #include "signal_information.h"
 #include "telephony_observer.h"
 
@@ -34,7 +33,7 @@ public:
     void OnSimStateUpdated(int32_t slotId, CardType type, SimState state, LockReason reason) override;
     void OnCellInfoUpdated(int32_t slotId, const std::vector<sptr<CellInformation>> &vec) override;
     void OnCellularDataConnectStateUpdated(int32_t slotId, int32_t dataState, int32_t networkType) override;
-    void OnCellularDataFlowUpdated(int32_t slotId, CellDataFlowType dataFlowType) override;
+    void OnCellularDataFlowUpdated(int32_t slotId, int32_t dataFlowType) override;
 };
 } // namespace Telephony
 } // namespace OHOS

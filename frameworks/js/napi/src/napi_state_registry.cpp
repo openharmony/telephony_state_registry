@@ -54,12 +54,12 @@ static void NativeOn(napi_env env, void *data)
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     TELEPHONY_LOGI("NativeOn eventType = %{public}d", asyncContext->eventType);
     EventListener listener {
-        std::move(env),
+        env,
         asyncContext->eventType,
         asyncContext->slotId,
-        std::move(asyncContext->callbackRef),
+        asyncContext->callbackRef,
     };
-    std::optional<int32_t> result = EventListenerManager::AddEventListener(listener);
+    std::optional<int32_t> result = EventListenerManager::RegisterEventListener(listener);
     asyncContext->resolved = !result.has_value();
     asyncContext->errorCode = result.value_or(ERROR_NONE);
 }
@@ -130,7 +130,7 @@ static void NativeOff(napi_env env, void *data)
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     std::optional<int32_t> result =
-        EventListenerManager::RemoveEventListener(asyncContext->slotId, asyncContext->eventType);
+        EventListenerManager::UnregisterEventListener(asyncContext->slotId, asyncContext->eventType);
     asyncContext->resolved = !result.has_value();
     asyncContext->errorCode = result.value_or(ERROR_NONE);
 }
@@ -142,6 +142,7 @@ static void OffCallback(napi_env env, napi_status status, void *data)
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
+    EventListenerManager::RemoveListener(asyncContext->eventType);
     if (!asyncContext->resolved) {
         TELEPHONY_LOGE("OffCallback error by remove observer failed");
     }
