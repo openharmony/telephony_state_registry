@@ -20,7 +20,7 @@
 #include <iremote_object.h>
 #include <singleton.h>
 
-#include "../../../frameworks/native/common/include/i_telephony_state_notify.h"
+#include "i_telephony_state_notify.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -36,7 +36,7 @@ public:
     int32_t UpdateCellInfo(int32_t slotId, const std::vector<sptr<CellInformation>> &vec);
     int32_t UpdateNetworkState(int32_t slotId, const sptr<NetworkState> &networkState);
     int32_t UpdateSimState(int32_t slotId, CardType type, SimState state, LockReason reason);
-    int32_t UpdateCellularDataFlow(int32_t slotId, CellDataFlowType flowType);
+    int32_t UpdateCellularDataFlow(int32_t slotId, int32_t flowType);
     sptr<ITelephonyStateNotify> GetProxy();
 
 private:

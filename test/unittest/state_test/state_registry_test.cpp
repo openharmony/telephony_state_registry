@@ -94,7 +94,7 @@ void StateRegistryTest::UpdateCellularDataConnectState()
 void StateRegistryTest::UpdateCellularDataFlow()
 {
     int32_t slotId = 0;
-    CellDataFlowType dataFlowType = CellDataFlowType::DATA_FLOW_TYPE_DOWN;
+    int32_t dataFlowType = 0;
     DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
         UpdateCellularDataFlow(slotId, dataFlowType);
 }

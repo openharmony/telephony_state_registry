@@ -174,14 +174,14 @@ void TelephonyObserverProxy::OnCellularDataConnectStateUpdated(
 }
 
 void TelephonyObserverProxy::OnCellularDataFlowUpdated(
-    int32_t slotId, CellDataFlowType dataFlowType)
+    int32_t slotId, int32_t dataFlowType)
 {
     MessageOption option;
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     option.SetFlags(MessageOption::TF_ASYNC);
     dataParcel.WriteInt32(slotId);
-    dataParcel.WriteInt32(static_cast<int32_t>(dataFlowType));
+    dataParcel.WriteInt32(dataFlowType);
     sptr<IRemoteObject> remote = Remote();
     if (remote == nullptr) {
         TELEPHONY_LOGE("TelephonyObserverProxy::OnCellularDataFlow remote is null!");

@@ -54,7 +54,8 @@ void NapiTelephonyObserver::OnNetworkStateUpdated(int32_t slotId, const sptr<Net
         ToUint32t(TelephonyCallbackEventId::EVENT_ON_NETWORK_STATE_UPDATE), networkStateUpdateInfo);
 }
 
-void NapiTelephonyObserver::OnSimStateUpdated(int32_t slotId, CardType type, SimState state, LockReason reason)
+void NapiTelephonyObserver::OnSimStateUpdated(
+    int32_t slotId, CardType type, SimState state, LockReason reason)
 {
     TELEPHONY_LOGI("OnSimStateUpdated slotId = %{public}d, simState =  %{public}d", slotId, state);
     std::unique_ptr<SimStateUpdateInfo> simStateUpdateInfo =
@@ -92,12 +93,12 @@ void NapiTelephonyObserver::OnCellularDataConnectStateUpdated(
         ToUint32t(TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_CONNECTION_UPDATE), cellularDataConnectState);
 }
 
-void NapiTelephonyObserver::OnCellularDataFlowUpdated(int32_t slotId, CellDataFlowType dataFlowType)
+void NapiTelephonyObserver::OnCellularDataFlowUpdated(int32_t slotId, int32_t dataFlowType)
 {
     TELEPHONY_LOGI(
         "OnCellularDataFlowUpdated slotId = %{public}d, dataFlowType =  %{public}d", slotId, dataFlowType);
     std::unique_ptr<CellularDataFlowUpdate> cellularDataFlowUpdateInfo =
-        std::make_unique<CellularDataFlowUpdate>(slotId, static_cast<int32_t>(dataFlowType));
+        std::make_unique<CellularDataFlowUpdate>(slotId, dataFlowType);
     if (cellularDataFlowUpdateInfo == nullptr) {
         TELEPHONY_LOGE("CellularDataFlowUpdate is nullptr!");
     }

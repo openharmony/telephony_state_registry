@@ -32,8 +32,9 @@ public:
     {
         return DelayedSingleton<EventListenerHandler>::GetInstance()->SendEvent(innerEventId, object, delayTime);
     }
-    static std::optional<int32_t> AddEventListener(EventListener &eventListener);
-    static std::optional<int32_t> RemoveEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
+    static std::optional<int32_t> RegisterEventListener(EventListener &eventListener);
+    static std::optional<int32_t> UnregisterEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
+    static void RemoveListener(TelephonyUpdateEventType eventType);
 };
 } // namespace Telephony
 } // namespace OHOS

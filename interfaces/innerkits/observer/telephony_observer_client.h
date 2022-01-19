@@ -28,8 +28,8 @@ class TelephonyObserverClient : public DelayedRefSingleton<TelephonyObserverClie
     DECLARE_DELAYED_REF_SINGLETON(TelephonyObserverClient);
 
 public:
-    int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
-        uint32_t mask, const std::u16string &package, bool isUpdate);
+    int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
+        int32_t slotId, uint32_t mask, bool isUpdate);
     int32_t RemoveStateObserver(int32_t slotId, uint32_t mask);
     sptr<ITelephonyStateNotify> GetProxy();
 

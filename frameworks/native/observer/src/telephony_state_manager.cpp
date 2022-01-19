@@ -20,10 +20,10 @@
 namespace OHOS {
 namespace Telephony {
 int32_t TelephonyStateManager::AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
-    int32_t slotId, uint32_t mask, const std::u16string &callingPackage, bool notifyNow)
+    int32_t slotId, uint32_t mask, bool notifyNow)
 {
     return DelayedRefSingleton<TelephonyObserverClient>::GetInstance().AddStateObserver(
-        telephonyObserver, slotId, mask, callingPackage, notifyNow);
+        telephonyObserver, slotId, mask, notifyNow);
 }
 
 int32_t TelephonyStateManager::RemoveStateObserver(int32_t slotId, uint32_t mask)

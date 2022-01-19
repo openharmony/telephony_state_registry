@@ -90,7 +90,7 @@ int32_t TelephonyStateRegistryClient::UpdateCellularDataConnectState(
     return proxy->UpdateCellularDataConnectState(slotId, dataState, networkState);
 }
 
-int32_t TelephonyStateRegistryClient::UpdateCellularDataFlow(int32_t slotId, CellDataFlowType dataFlowType)
+int32_t TelephonyStateRegistryClient::UpdateCellularDataFlow(int32_t slotId, int32_t dataFlowType)
 {
     auto proxy = GetProxy();
     if (proxy == nullptr) {

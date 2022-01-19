@@ -43,7 +43,7 @@ public:
     virtual void OnCellularDataConnectStateUpdated(
         int32_t slotId, int32_t dataState, int32_t networkType) override;
     virtual void OnCellularDataFlowUpdated(
-        int32_t slotId, CellDataFlowType dataFlowType) override;
+        int32_t slotId, int32_t dataFlowType) override;
     int32_t OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
