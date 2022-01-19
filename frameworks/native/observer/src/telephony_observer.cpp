@@ -37,7 +37,7 @@ void TelephonyObserver::OnCellularDataConnectStateUpdated(
     int32_t slotId, int32_t dataState, int32_t networkType) {}
 
 void TelephonyObserver::OnCellularDataFlowUpdated(
-    int32_t slotId, CellDataFlowType dataFlowType) {}
+    int32_t slotId, int32_t dataFlowType) {}
 
 int32_t TelephonyObserver::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
@@ -137,7 +137,7 @@ void TelephonyObserver::OnCellularDataFlowUpdatedInner(
     MessageParcel &data, MessageParcel &reply)
 {
     int32_t slotId = data.ReadInt32();
-    CellDataFlowType flowType = static_cast<CellDataFlowType>(data.ReadInt32());
+    int32_t flowType = data.ReadInt32();
     OnCellularDataFlowUpdated(slotId, flowType);
 }
 

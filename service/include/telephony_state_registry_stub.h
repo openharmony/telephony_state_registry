@@ -34,17 +34,17 @@ public:
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
     virtual int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
-        uint32_t mask, const std::u16string &package, bool notifyNow, pid_t pid) = 0;
+        uint32_t mask, const std::string &bundleName, bool notifyNow, pid_t pid) = 0;
 
     virtual int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid) = 0;
 
 private:
     int32_t ReadData(MessageParcel &data, MessageParcel &reply, sptr<TelephonyObserverBroker> &callback);
-    int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
-        uint32_t mask, const std::u16string &package, bool isUpdate) override;
+    int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver,
+        int32_t slotId, uint32_t mask, bool isUpdate) override;
     int32_t UnregisterStateChange(int32_t slotId, uint32_t mask) override;
     void parseSignalInfos(
-            MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result);
+        MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result);
 
 private:
     using TelephonyStateFunc = int32_t (TelephonyStateRegistryStub::*)(MessageParcel &data, MessageParcel &reply);

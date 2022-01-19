@@ -32,14 +32,6 @@
 namespace OHOS {
 namespace Telephony {
 enum class ServiceRunningState { STATE_STOPPED, STATE_RUNNING };
-class StateSubscriber : public EventFwk::CommonEventSubscriber {
-public:
-    StateSubscriber(const EventFwk::CommonEventSubscribeInfo &subscriberInfo)
-        : CommonEventSubscriber(subscriberInfo)
-    {}
-    ~StateSubscriber() = default;
-    void OnReceiveEvent(const EventFwk::CommonEventData &data);
-};
 class TelephonyStateRegistryService : public SystemAbility,
                                       public TelephonyStateRegistryStub,
                                       public std::enable_shared_from_this<TelephonyStateRegistryService> {
@@ -54,7 +46,7 @@ public:
     std::string GetBindEndTime();
     std::string GetBindSpendTime();
     int32_t UpdateCellularDataConnectState(int32_t slotId, int32_t dataState, int32_t networkType) override;
-    int32_t UpdateCellularDataFlow(int32_t slotId, CellDataFlowType dataFlowType) override;
+    int32_t UpdateCellularDataFlow(int32_t slotId, int32_t dataFlowType) override;
     int32_t UpdateCallState(int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
     int32_t UpdateCallStateForSlotId(
         int32_t slotId, int32_t callId, int32_t callState, const std::u16string &incomingNumber) override;
@@ -63,7 +55,7 @@ public:
     int32_t UpdateSimState(int32_t slotId, CardType type, SimState state, LockReason reason) override;
     int32_t UpdateCellInfo(int32_t slotId, const std::vector<sptr<CellInformation>> &vec) override;
     int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
-        uint32_t mask, const std::u16string &callingPackage, bool notifyNow, pid_t pid) override;
+        uint32_t mask, const std::string &bundleName, bool notifyNow, pid_t pid) override;
     int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid) override;
 
 private:
@@ -75,20 +67,18 @@ private:
     bool VerifySlotId(int32_t slotId);
     std::u16string GetCallIncomingNumberForSlotId(TelephonyStateRegistryRecord record, int32_t slotId);
     bool PublishCommonEvent(const AAFwk::Want &want, int32_t eventCode, const std::string &eventData);
-    void RegisterSubscriber();
-    void UnregisterSubscriber();
     void SendCallStateChanged(int32_t slotId, int32_t state, const std::u16string &number);
     void SendSignalInfoChanged(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec);
     void SendNetworkStateChanged(int32_t slotId, const sptr<NetworkState> &networkState);
     void SendSimStateChanged(int32_t slotId, CardType type, SimState state, LockReason reason);
     void SendCellInfoChanged(int32_t slotId, const std::vector<sptr<CellInformation>> &vec);
     void SendCellularDataConnectStateChanged(int32_t slotId, int32_t dataState, int32_t networkType);
-    void SendCellularDataFlowChanged(int32_t slotId, CellDataFlowType dataFlowType);
+    void SendCellularDataFlowChanged(int32_t slotId, int32_t dataFlowType);
 
 private:
     ServiceRunningState state_ = ServiceRunningState::STATE_STOPPED;
     std::mutex lock_;
-    int32_t slotSize_;
+    int32_t slotSize_ = 0;
     int64_t bindStartTime_ = 0L;
     int64_t bindEndTime_ = 0L;
     int64_t bindSpendTime_ = 0L;
@@ -98,9 +88,8 @@ private:
     std::map<int32_t, std::vector<sptr<CellInformation>>> cellInfos_;
     std::map<int32_t, sptr<NetworkState>> searchNetworkState_;
     std::vector<TelephonyStateRegistryRecord> stateRecords_;
-    std::shared_ptr<StateSubscriber> stateSubscriber_;
-    std::map<int32_t, CardType> cardType_;
     std::map<int32_t, SimState> simState_;
+    std::map<int32_t, CardType> cardType_;
     std::map<int32_t, LockReason> simReason_;
     std::map<int32_t, int32_t> cellularDataConnectionState_;
     std::map<int32_t, int32_t> cellularDataConnectionNetworkType_;

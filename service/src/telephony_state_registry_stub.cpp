@@ -19,8 +19,8 @@
 #include "string_ex.h"
 
 #include "sim_state_type.h"
-#include "cellular_data_types.h"
 #include "state_registry_errors.h"
+#include "telephony_permission.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -115,8 +115,8 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellularDataConnectState(MessageParc
 int32_t TelephonyStateRegistryStub::OnUpdateCellularDataFlow(MessageParcel &data, MessageParcel &reply)
 {
     int32_t slotId = data.ReadInt32();
-    CellDataFlowType flowType = static_cast<CellDataFlowType>(data.ReadInt32());
-    int32_t ret = UpdateCellularDataFlow(slotId, flowType);
+    int32_t flowData = data.ReadInt32();
+    int32_t ret = UpdateCellularDataFlow(slotId, flowData);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCellularDataFlow end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
@@ -256,7 +256,6 @@ int32_t TelephonyStateRegistryStub::OnRegisterStateChange(MessageParcel &data, M
     int32_t slotId = data.ReadInt32();
     int32_t mask = data.ReadInt32();
     bool notifyNow = data.ReadBool();
-    std::u16string callingPackage = data.ReadString16();
     sptr<TelephonyObserverBroker> callback = nullptr;
     ret = ReadData(data, reply, callback);
     if (ret != TELEPHONY_SUCCESS) {
@@ -264,7 +263,7 @@ int32_t TelephonyStateRegistryStub::OnRegisterStateChange(MessageParcel &data, M
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnRegisterStateChange ReadData failed\n");
         return ret;
     }
-    ret = RegisterStateChange(callback, slotId, mask, callingPackage, notifyNow);
+    ret = RegisterStateChange(callback, slotId, mask, notifyNow);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnRegisterStateChange end##ret=%{public}d\n", ret);
     reply.WriteInt32(ret);
     return ret;
@@ -302,9 +301,12 @@ int32_t TelephonyStateRegistryStub::ReadData(
 }
 
 int32_t TelephonyStateRegistryStub::RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver,
-    int32_t slotId, uint32_t mask, const std::u16string &package, bool isUpdate)
+    int32_t slotId, uint32_t mask, bool isUpdate)
 {
-    return RegisterStateChange(telephonyObserver, slotId, mask, package, isUpdate, IPCSkeleton::GetCallingPid());
+    int32_t uid = IPCSkeleton::GetCallingUid();
+    std::string bundleName = "";
+    TelephonyPermission::GetBundleNameByUid(uid, bundleName);
+    return RegisterStateChange(telephonyObserver, slotId, mask, bundleName, isUpdate, IPCSkeleton::GetCallingPid());
 }
 
 int32_t TelephonyStateRegistryStub::UnregisterStateChange(int32_t slotId, uint32_t mask)

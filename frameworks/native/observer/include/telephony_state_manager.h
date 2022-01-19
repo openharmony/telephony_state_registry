@@ -22,8 +22,8 @@ namespace OHOS {
 namespace Telephony {
 class TelephonyStateManager {
 public:
-    static int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
-        uint32_t mask, const std::u16string &callingPackage, bool notifyNow);
+    static int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
+        int32_t slotId, uint32_t mask, bool notifyNow);
     static int32_t RemoveStateObserver(int32_t slotId, uint32_t mask);
 };
 } // namespace Telephony

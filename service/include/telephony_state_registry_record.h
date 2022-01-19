@@ -34,7 +34,7 @@ public:
     bool IsExistStateListener(uint32_t mask) const;
 
 public:
-    std::u16string package_;
+    std::string bundleName_ = "";
     pid_t pid_ = 0;
     unsigned int mask_ = 0;
     int slotId_ = 0;

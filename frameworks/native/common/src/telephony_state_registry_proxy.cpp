@@ -49,7 +49,7 @@ int32_t TelephonyStateRegistryProxy::UpdateCellularDataConnectState(
 }
 
 int32_t TelephonyStateRegistryProxy::UpdateCellularDataFlow(
-    int32_t slotId, CellDataFlowType dataFlowType)
+    int32_t slotId, int32_t dataFlowType)
 {
     MessageOption option;
     MessageParcel in, out;
@@ -59,7 +59,7 @@ int32_t TelephonyStateRegistryProxy::UpdateCellularDataFlow(
     if (!in.WriteInt32(slotId)) {
         return TELEPHONY_ERR_FAIL;
     }
-    if (!in.WriteInt32(static_cast<int32_t>(dataFlowType))) {
+    if (!in.WriteInt32(dataFlowType)) {
         return TELEPHONY_ERR_FAIL;
     }
     sptr<IRemoteObject> remote = Remote();
@@ -266,8 +266,8 @@ int32_t TelephonyStateRegistryProxy::UpdateSimState(
     return TELEPHONY_SUCCESS;
 }
 
-int32_t TelephonyStateRegistryProxy::RegisterStateChange(const sptr<TelephonyObserverBroker> &callback,
-    int32_t slotId, uint32_t mask, const std::u16string &package, bool isUpdate)
+int32_t TelephonyStateRegistryProxy::RegisterStateChange(
+    const sptr<TelephonyObserverBroker> &callback, int32_t slotId, uint32_t mask, bool isUpdate)
 {
     MessageOption option;
     MessageParcel in, out;
@@ -281,9 +281,6 @@ int32_t TelephonyStateRegistryProxy::RegisterStateChange(const sptr<TelephonyObs
         return TELEPHONY_ERR_FAIL;
     }
     if (!in.WriteBool(isUpdate)) {
-        return TELEPHONY_ERR_FAIL;
-    }
-    if (!in.WriteString16(package)) {
         return TELEPHONY_ERR_FAIL;
     }
     if (!in.WriteRemoteObject(callback->AsObject().GetRefPtr())) {
