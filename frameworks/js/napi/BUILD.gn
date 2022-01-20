@@ -33,28 +33,26 @@ ohos_shared_library("observer") {
     "src/napi_telephony_observer.cpp",
   ]
 
-  deps = [
-    "$SUBSYSTEM_DIR/core_service/utils:libtel_common",
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
-    "//foundation/ace/napi:ace_napi",
-    "//third_party/libuv:uv_static",
-    "//utils/native/base:utils",
-  ]
+  deps = [ "//third_party/libuv:uv_static" ]
 
   external_deps = [
     "ability_runtime:ability_manager",
+    "ability_runtime:abilitykit_native",
     "ability_runtime:app_manager",
     "ability_runtime:want",
     "appexecfwk_standard:appexecfwk_base",
     "appexecfwk_standard:appexecfwk_core",
     "appexecfwk_standard:libeventhandler",
+    "core_service:libtel_common",
     "core_service:tel_core_service_api",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "ril_adapter:hril_innerkits",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "state_registry:tel_state_registry_api",
+    "utils_base:utils",
   ]
 
   defines += [

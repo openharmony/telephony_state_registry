@@ -35,16 +35,14 @@ ohos_shared_library("tel_state_registry") {
     "$SOURCE_DIR/frameworks/native/observer/include",
     "$SOURCE_DIR/frameworks/native/common/include",
     "$SOURCE_DIR/service/include",
-
-    "$CORE_DIR/interfaces/innerkits/include",
   ]
-
-  deps = [ "$CORE_DIR/utils:libtel_common" ]
 
   external_deps = [
     "ability_runtime:want",
     "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
+    "core_service:libtel_common",
+    "core_service:tel_core_service_api",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
