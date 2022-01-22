@@ -21,9 +21,6 @@ ohos_shared_library("tel_state_registry") {
   subsystem_name = "telephony"
 
   sources = [
-    "$CORE_DIR/frameworks/native/src/cell_information.cpp",
-    "$CORE_DIR/frameworks/native/src/network_state.cpp",
-    "$CORE_DIR/frameworks/native/src/signal_information.cpp",
     "$SOURCE_DIR/frameworks/native/observer/src/telephony_observer_proxy.cpp",
     "$SOURCE_DIR/service/src/telephony_state_registry_dump_helper.cpp",
     "$SOURCE_DIR/service/src/telephony_state_registry_record.cpp",
@@ -37,11 +34,14 @@ ohos_shared_library("tel_state_registry") {
     "$SOURCE_DIR/service/include",
   ]
 
+  configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
+
+  deps = [ "$CORE_DIR/utils:libtel_common" ]
+
   external_deps = [
     "ability_runtime:want",
     "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
-    "core_service:libtel_common",
     "core_service:tel_core_service_api",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",

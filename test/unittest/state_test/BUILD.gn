@@ -13,7 +13,6 @@
 
 import("//build/test.gni")
 SOURCE_DIR = "//base/telephony/state_registry"
-CORE_DIR = "//base/telephony/core_service"
 
 ohos_unittest("tel_state_registry_test") {
   part_name = "state_registry"
@@ -35,10 +34,9 @@ ohos_unittest("tel_state_registry_test") {
     "$SOURCE_DIR/service/include",
   ]
 
-  deps = [
-    "$CORE_DIR/utils:libtel_common",
-    "//utils/native/base:utils",
-  ]
+  configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
+
+  deps = [ "//utils/native/base:utils" ]
 
   external_deps = [
     "core_service:tel_core_service_api",

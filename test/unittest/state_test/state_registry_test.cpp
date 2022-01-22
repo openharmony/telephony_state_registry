@@ -120,6 +120,22 @@ void StateRegistryTest::UpdateNetworkState()
         UpdateNetworkState(slotId, networkState.release());
 }
 
+HWTEST_F(StateRegistryTest, StateRegistry_001, TestSize.Level0)
+{
+    auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (systemAbilityMgr == nullptr) {
+        TELEPHONY_LOGE("StateRegistryService Get ISystemAbilityManager failed.");
+        return;
+    }
+    auto remote = systemAbilityMgr->CheckSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
+    if (remote == nullptr) {
+        TELEPHONY_LOGE("StateRegistryService Remote service not exists.");
+        return;
+    }
+    auto stateRegistryService = iface_cast<ITelephonyStateNotify>(remote);
+    TELEPHONY_LOGI("HWTEST_F StateRegistry_001");
+}
+
 HWTEST_F(StateRegistryTest, UpdateCallState_001, TestSize.Level1)
 {
     UpdateCallState();
