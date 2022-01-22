@@ -35,11 +35,14 @@ ohos_shared_library("tel_state_registry_notify") {
     "$CORE_DIR/interfaces/innerkits/include",
   ]
 
+  configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
+
   public_configs = [ ":state_registry_notify_config" ]
 
   deps = [ "$CORE_DIR/utils:libtel_common" ]
 
   external_deps = [
+    "core_service:tel_core_service_api",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
