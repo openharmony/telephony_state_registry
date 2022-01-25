@@ -40,9 +40,9 @@ ohos_shared_library("tel_state_registry") {
 
   external_deps = [
     "ability_runtime:want",
-    "appexecfwk_standard:libeventhandler",
     "ces_standard:cesfwk_innerkits",
     "core_service:tel_core_service_api",
+    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
