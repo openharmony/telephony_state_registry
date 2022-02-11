@@ -39,7 +39,7 @@ ohos_shared_library("tel_state_registry") {
   deps = [ "$CORE_DIR/utils:libtel_common" ]
 
   external_deps = [
-    "ability_runtime:want",
+    "ability_base:want",
     "ces_standard:cesfwk_innerkits",
     "core_service:tel_core_service_api",
     "eventhandler:libeventhandler",
