@@ -30,7 +30,8 @@
         "ram": "1MB",
         "deps": {
             "components": [
-                "ability_runtime:want",
+                "ability_base",
+                "ability_runtime",
                 "appexecfwk_standard",
                 "ces_standard",
                 "core_service",
