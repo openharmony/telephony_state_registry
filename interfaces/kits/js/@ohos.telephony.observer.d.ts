@@ -24,8 +24,7 @@ import sim from "./@ohos.telephony.sim";
  * signal strength, call state, the data link connection state and others.
  *
  * @since 7
- * @sysCap SystemCapability.Telephony.Telephony
- * @devices phone, tablet, wearable
+ * @sysCap SystemCapability.Telephony.StateRegistry
  */
 declare namespace observer {
   type NetworkState = radio.NetworkState;
