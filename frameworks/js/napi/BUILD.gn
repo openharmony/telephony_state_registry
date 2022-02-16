@@ -45,8 +45,6 @@ ohos_shared_library("observer") {
   external_deps = [
     "ability_base:want",
     "ability_runtime:ability_manager",
-    "bundle_framework:appexecfwk_base",
-    "bundle_framework:appexecfwk_core",
     "core_service:tel_core_service_api",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
