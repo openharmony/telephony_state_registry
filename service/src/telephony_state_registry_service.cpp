@@ -23,6 +23,7 @@
 #include "telephony_state_registry_dump_helper.h"
 #include "state_registry_errors.h"
 #include "telephony_permission.h"
+#include "telephony_types.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -327,13 +328,6 @@ int32_t TelephonyStateRegistryService::UnregisterStateChange(
 
 bool TelephonyStateRegistryService::CheckPermission(uint32_t mask)
 {
-    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) != 0) {
-        if (!TelephonyPermission::CheckPermission(Permission::GET_CALL_STATE)) {
-            TELEPHONY_LOGE("Check permission failed,"
-                " you must declare ohos.permission.GET_SIM_STATE permission for sim state");
-            return false;
-        }
-    }
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) != 0) {
         if (!TelephonyPermission::CheckPermission(Permission::GET_TELEPHONY_STATE)) {
             TELEPHONY_LOGE("Check permission failed,"
@@ -352,13 +346,6 @@ bool TelephonyStateRegistryService::CheckPermission(uint32_t mask)
         if (!TelephonyPermission::CheckPermission(Permission::GET_TELEPHONY_STATE)) {
             TELEPHONY_LOGE("Check permission failed,"
                 " you must declare ohos.permission.GET_TELEPHONY_STATE permission for cell info");
-            return false;
-        }
-    }
-    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE) != 0) {
-        if (!TelephonyPermission::CheckPermission(Permission::GET_SIM_STATE)) {
-            TELEPHONY_LOGE("Check permission failed,"
-                " you must declare ohos.permission.GET_SIM_STATE permission for sim state");
             return false;
         }
     }
