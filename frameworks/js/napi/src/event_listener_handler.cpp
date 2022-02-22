@@ -183,7 +183,7 @@ napi_value CellInfoConversion(napi_env env, const CellInformation &info)
     CellInformation::CellType networkType = info.GetNetworkType();
     SetPropertyToNapiObject(env, val, "networkType", static_cast<int32_t>(networkType));
     SetPropertyToNapiObject(env, val, "isCamped", info.GetIsCamped());
-    SetPropertyToNapiObject(env, val, "timeStamp", info.GetTimeStamp());
+    SetPropertyToNapiObject(env, val, "timeStamp", static_cast<int64_t>(info.GetTimeStamp()));
     SetPropertyToNapiObject(env, val, "signalInfomation",
         SignalInfoConversion(env, static_cast<int32_t>(networkType), info.GetSignalLevel()));
 

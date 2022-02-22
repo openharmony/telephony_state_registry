@@ -36,7 +36,10 @@ ohos_shared_library("tel_state_registry") {
 
   configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
 
-  deps = [ "$CORE_DIR/utils:libtel_common" ]
+  deps = [
+    "$CORE_DIR/utils:libtel_common",
+    "//base/startup/syspara_lite/interfaces/innerkits/native/syspara:syspara",
+  ]
 
   external_deps = [
     "ability_base:want",

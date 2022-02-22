@@ -100,11 +100,15 @@ declare namespace observer {
 
   /**
    * @deprecated Advised to use the on/off method instead of the once method.
+   * @systemapi Hide this for inner system use.
    */
   function once(type: 'cellInfoChange', callback: Callback<Array<CellInformation>>): void;
   function once(type: 'cellInfoChange', options: { slotId: number },
     callback: Callback<Array<CellInformation>>): void;
 
+  /**
+   * @systemapi Hide this for inner system use.
+   */
   function off(type: 'cellInfoChange', callback?: Callback<Array<CellInformation>>): void;
 
   /**
