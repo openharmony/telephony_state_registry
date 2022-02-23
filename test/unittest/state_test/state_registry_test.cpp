@@ -120,6 +120,11 @@ void StateRegistryTest::UpdateNetworkState()
         UpdateNetworkState(slotId, networkState.release());
 }
 
+/**
+ * @tc.number   StateRegistry_001
+ * @tc.name     Get System Services
+ * @tc.desc     Function test
+ */
 HWTEST_F(StateRegistryTest, StateRegistry_001, TestSize.Level0)
 {
     auto systemAbilityMgr = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
@@ -136,36 +141,71 @@ HWTEST_F(StateRegistryTest, StateRegistry_001, TestSize.Level0)
     TELEPHONY_LOGI("HWTEST_F StateRegistry_001");
 }
 
+/**
+ * @tc.number   UpdateCallState_001
+ * @tc.name     update call state
+ * @tc.desc     Function test
+ */
 HWTEST_F(StateRegistryTest, UpdateCallState_001, TestSize.Level1)
 {
     UpdateCallState();
 }
 
+/**
+ * @tc.number   UpdateCallState_001
+ * @tc.name     update call state by slotId
+ * @tc.desc     Function test
+ */
 HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_001, TestSize.Level1)
 {
     UpdateCallStateForSlotId();
 }
 
+/**
+ * @tc.number   UpdateSignalInfo_001
+ * @tc.name     update signal info
+ * @tc.desc     Function test
+ */
 HWTEST_F(StateRegistryTest, UpdateSignalInfo_001, TestSize.Level1)
 {
     UpdateSignalInfo();
 }
 
+/**
+ * @tc.number   UpdateCellularDataConnectState_001
+ * @tc.name     update cellular data connect state
+ * @tc.desc     Function test
+ */
 HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_001, TestSize.Level1)
 {
     UpdateCellularDataConnectState();
 }
 
+/**
+ * @tc.number   UpdateCellularDataFlow_001
+ * @tc.name     update cellular flow data
+ * @tc.desc     Function test
+ */
 HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_001, TestSize.Level1)
 {
     UpdateCellularDataFlow();
 }
 
+/**
+ * @tc.number   UpdateSimState_001
+ * @tc.name     update sim state
+ * @tc.desc     Function test
+ */
 HWTEST_F(StateRegistryTest, UpdateSimState_001, TestSize.Level1)
 {
     UpdateSimState();
 }
 
+/**
+ * @tc.number   UpdateNetworkState_001
+ * @tc.name     update network state
+ * @tc.desc     Function test
+ */
 HWTEST_F(StateRegistryTest, UpdateNetworkState_001, TestSize.Level1)
 {
     UpdateNetworkState();
