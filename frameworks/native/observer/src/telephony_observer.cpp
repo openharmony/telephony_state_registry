@@ -43,6 +43,10 @@ int32_t TelephonyObserver::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
     TELEPHONY_LOGI("TelephonyObserver::OnRemoteRequest code = %{public}u......\n", code);
+    if (data.ReadInterfaceToken() != GetDescriptor()) {
+        TELEPHONY_LOGE("TelephonyObserver::OnRemoteRequest verify token failed!");
+        return OHOS::TRANSACTION_ERR;
+    }
     switch (static_cast<ObserverBrokerCode>(code)) {
         case ObserverBrokerCode::ON_CALL_STATE_UPDATED: {
             OnCallStateUpdatedInner(data, reply);
