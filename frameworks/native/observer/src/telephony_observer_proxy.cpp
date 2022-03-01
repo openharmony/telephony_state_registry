@@ -31,6 +31,10 @@ void TelephonyObserverProxy::OnCallStateUpdated(
     MessageParcel replyParcel;
     MessageOption option;
     option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCallStateUpdated WriteInterfaceToken failed!");
+        return;
+    }
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteInt32(callState);
     dataParcel.WriteString16(phoneNumber);
@@ -52,6 +56,10 @@ void TelephonyObserverProxy::OnSimStateUpdated(
     MessageParcel replyParcel;
     MessageOption option;
     option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnSimStateUpdated WriteInterfaceToken failed!");
+        return;
+    }
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteInt32(static_cast<int32_t>(type));
     dataParcel.WriteInt32(static_cast<int32_t>(state));
@@ -74,6 +82,10 @@ void TelephonyObserverProxy::OnSignalInfoUpdated(
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnSignalInfoUpdated WriteInterfaceToken failed!");
+        return;
+    }
     int32_t size = vec.size();
     if (size <= 0 || size > SignalInformation::MAX_SIGNAL_NUM) {
         TELEPHONY_LOGE("TelephonyObserverProxy::OnSignalInfoUpdated size error!");
@@ -102,6 +114,10 @@ void TelephonyObserverProxy::OnCellInfoUpdated(
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCellInfoUpdated WriteInterfaceToken failed!");
+        return;
+    }
     dataParcel.WriteInt32(slotId);
     int32_t size = vec.size();
     if (size <= 0) {
@@ -137,6 +153,10 @@ void TelephonyObserverProxy::OnNetworkStateUpdated(
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnNetworkStateUpdated WriteInterfaceToken failed!");
+        return;
+    }
     dataParcel.WriteInt32(slotId);
     if (networkState != nullptr) {
         networkState->Marshalling(dataParcel);
@@ -159,6 +179,10 @@ void TelephonyObserverProxy::OnCellularDataConnectStateUpdated(
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCellularDataConnectStateUpdated WriteInterfaceToken failed!");
+        return;
+    }
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteInt32(dataState);
     dataParcel.WriteInt32(networkType);
@@ -180,6 +204,10 @@ void TelephonyObserverProxy::OnCellularDataFlowUpdated(
     MessageParcel dataParcel;
     MessageParcel replyParcel;
     option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCellularDataFlowUpdated WriteInterfaceToken failed!");
+        return;
+    }
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteInt32(dataFlowType);
     sptr<IRemoteObject> remote = Remote();
