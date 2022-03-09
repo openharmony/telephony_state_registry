@@ -52,7 +52,6 @@
             "sub_component": [
                 "//base/telephony/state_registry:tel_state_registry",
                 "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api",
-                "//base/telephony/state_registry/frameworks/native/notify:tel_state_registry_notify",
                 "//base/telephony/state_registry/frameworks/js/napi:observer",
                 "//base/telephony/state_registry/sa_profile:state_registry_sa_profile"
             ],
@@ -60,26 +59,10 @@
                 {
                     "type": "so",
                     "header": {
-                        "header_base" : "//base/telephony/core_service/interfaces/innerkits/include",
-                        "header_files": [
-                            "../../../../state_registry/interfaces/innerkits/notify/telephony_state_registry_client.h",
-                            "../../../../state_registry/frameworks/native/common/include/i_telephony_state_notify.h",
-                            "../../../../state_registry/frameworks/native/common/include/telephony_observer_broker.h",
-                            "cell_information.h",
-                            "network_state.h",
-                            "signal_information.h",
-                            "sim_state_type.h"
-                        ]
-                    },
-                    "name":"//base/telephony/state_registry/frameworks/native/notify:tel_state_registry_notify"
-                },
-                {
-                    "type": "so",
-                    "header": {
                         "header_files": [
                             "../../../../state_registry/interfaces/innerkits/observer/telephony_observer_client.h",
-                            "../../../../state_registry/frameworks/native/common/include/i_telephony_state_notify.h",
-                            "../../../../state_registry/frameworks/native/common/include/telephony_observer_broker.h",
+                            "i_telephony_state_notify.h",
+                            "telephony_observer_broker.h",
                             "cell_information.h",
                             "network_state.h",
                             "signal_information.h",

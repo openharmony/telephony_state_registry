@@ -16,7 +16,7 @@
 #ifndef TELEPHONY_UPDATE_EVENT_TYPE_H
 #define TELEPHONY_UPDATE_EVENT_TYPE_H
 
-#include "../../../native/common/include/telephony_observer_broker.h"
+#include "telephony_observer_broker.h"
 
 namespace OHOS {
 namespace Telephony {
