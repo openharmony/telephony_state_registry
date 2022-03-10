@@ -21,7 +21,7 @@
 #include "iremote_stub.h"
 
 #include "telephony_log_wrapper.h"
-#include "../../frameworks/native/common/include/i_telephony_state_notify.h"
+#include "i_telephony_state_notify.h"
 
 namespace OHOS {
 namespace Telephony {

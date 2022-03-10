@@ -18,7 +18,7 @@
 
 #include <string>
 
-#include "../../frameworks/native/common/include/telephony_observer_broker.h"
+#include "telephony_observer_broker.h"
 
 namespace OHOS {
 namespace Telephony {

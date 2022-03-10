@@ -21,15 +21,14 @@ ohos_unittest("tel_state_registry_test") {
   module_out_path = part_name + "/" + test_module
 
   sources = [
-    "$SOURCE_DIR/frameworks/native/common/src/telephony_state_registry_proxy.cpp",
-    "$SOURCE_DIR/frameworks/native/notify/src/telephony_state_registry_client.cpp",
     "$SOURCE_DIR/test/unittest/state_test/state_registry_test.cpp",
+    "//base/telephony/core_service/frameworks/native/src/telephony_state_registry_client.cpp",
+    "//base/telephony/core_service/frameworks/native/src/telephony_state_registry_proxy.cpp",
   ]
 
   include_dirs = [
     "$SOURCE_DIR/interfaces/innerkits/notify",
     "$SOURCE_DIR/frameworks/native/observer/include",
-    "$SOURCE_DIR/frameworks/native/notify/include",
     "$SOURCE_DIR/frameworks/native/common/include",
     "$SOURCE_DIR/service/include",
   ]

@@ -22,7 +22,7 @@
 #include "base_context.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
-#include "../../../native/common/include/telephony_observer_broker.h"
+#include "telephony_observer_broker.h"
 #include "telephony_update_event_type.h"
 #include "telephony_types.h"
 

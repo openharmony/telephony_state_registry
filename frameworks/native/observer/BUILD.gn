@@ -26,7 +26,7 @@ ohos_shared_library("tel_state_registry_api") {
     "$CORE_DIR/frameworks/native/src/cell_information.cpp",
     "$CORE_DIR/frameworks/native/src/network_state.cpp",
     "$CORE_DIR/frameworks/native/src/signal_information.cpp",
-    "$SUBSYSTEM_DIR/frameworks/native/common/src/telephony_state_registry_proxy.cpp",
+    "$CORE_DIR/frameworks/native/src/telephony_state_registry_proxy.cpp",
     "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_observer.cpp",
     "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_observer_client.cpp",
     "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_observer_proxy.cpp",

@@ -29,7 +29,7 @@
 
 #include "string_ex.h"
 
-#include "../../../frameworks/native/common/include/i_telephony_state_notify.h"
+#include "i_telephony_state_notify.h"
 #include "state_registry_errors.h"
 
 namespace OHOS {
