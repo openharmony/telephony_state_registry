@@ -149,6 +149,7 @@ void TelephonyObserver::ConvertSignalInfoList(
     MessageParcel &data, std::vector<sptr<SignalInformation>> &result)
 {
     int32_t size = data.ReadInt32();
+    size = (size > SIGNAL_NUM_MAX) ? SIGNAL_NUM_MAX : size;
     SignalInformation::NetworkType type;
     for (int i = 0; i < size; ++i) {
         type = static_cast<SignalInformation::NetworkType>(data.ReadInt32());
@@ -195,6 +196,7 @@ void TelephonyObserver::ConvertCellInfoList(
     MessageParcel &data, std::vector<sptr<CellInformation>> &cells)
 {
     int32_t size = data.ReadInt32();
+    size = (size > CELL_NUM_MAX) ? CELL_NUM_MAX : size;
     CellInformation::CellType type;
     for (int i = 0; i < size; ++i) {
         type = static_cast<CellInformation::CellType>(data.ReadInt32());
