@@ -57,6 +57,8 @@ private:
     void OnSimStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnCellularDataConnectStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnCellularDataFlowUpdatedInner(MessageParcel &data, MessageParcel &reply);
+    static constexpr int32_t CELL_NUM_MAX = 100;
+    static constexpr int32_t SIGNAL_NUM_MAX = 100;
 };
 } // namespace Telephony
 } // namespace OHOS
