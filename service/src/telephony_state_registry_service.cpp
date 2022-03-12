@@ -328,38 +328,17 @@ int32_t TelephonyStateRegistryService::UnregisterStateChange(
 
 bool TelephonyStateRegistryService::CheckPermission(uint32_t mask)
 {
-    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) != 0) {
-        if (!TelephonyPermission::CheckPermission(Permission::GET_TELEPHONY_STATE)) {
-            TELEPHONY_LOGE("Check permission failed,"
-                " you must declare ohos.permission.GET_TELEPHONY_STATE permission for signal strengths");
-            return false;
-        }
-    }
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) != 0) {
-        if (!TelephonyPermission::CheckPermission(Permission::GET_TELEPHONY_STATE)) {
+        if (!TelephonyPermission::CheckPermission(Permission::GET_NETWORK_INFO)) {
             TELEPHONY_LOGE("Check permission failed,"
-                " you must declare ohos.permission.GET_TELEPHONY_STATE permission for network state");
+                " you must declare ohos.permission.GET_NETWORK_INFO permission for network state");
             return false;
         }
     }
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO) != 0) {
-        if (!TelephonyPermission::CheckPermission(Permission::GET_TELEPHONY_STATE)) {
+        if (!TelephonyPermission::CheckPermission(Permission::CELL_LOCATION)) {
             TELEPHONY_LOGE("Check permission failed,"
-                " you must declare ohos.permission.GET_TELEPHONY_STATE permission for cell info");
-            return false;
-        }
-    }
-    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE) != 0) {
-        if (!TelephonyPermission::CheckPermission(Permission::GET_TELEPHONY_STATE)) {
-            TELEPHONY_LOGE("Check permission failed,"
-                " you must declare ohos.permission.GET_TELEPHONY_STATE permission for connect state");
-            return false;
-        }
-    }
-    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW) != 0) {
-        if (!TelephonyPermission::CheckPermission(Permission::GET_TELEPHONY_STATE)) {
-            TELEPHONY_LOGE("Check permission failed,"
-                " you must declare ohos.permission.GET_TELEPHONY_STATE permission for flow data");
+                " you must declare ohos.permission.LOCATION permission for cell info");
             return false;
         }
     }
