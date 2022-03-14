@@ -22,7 +22,7 @@ namespace OHOS {
 namespace Telephony {
 bool TelephonyStateRegistryRecord::IsCanReadCallHistory()
 {
-    if (!TelephonyPermission::CheckPermission(bundleName_, Permission::READ_CALL_LOG)) {
+    if (!TelephonyPermission::CheckPermission(Permission::READ_CALL_LOG)) {
         TELEPHONY_LOGE("Check permission failed,"
             " you must declare ohos.permission.READ_CALL_LOG permission for number");
         return false;
