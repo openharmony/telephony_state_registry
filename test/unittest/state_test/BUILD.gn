@@ -49,6 +49,9 @@ ohos_unittest("tel_state_registry_test") {
     "TELEPHONY_LOG_TAG = \"STATE_REGISTRY_TEST\"",
     "LOG_DOMAIN = 0",
   ]
+  if ("${product_name}" == "rk3568" || "${product_name}" == "DAYU") {
+    defines += [ "TEL_TEST_UNSUPPORT" ]
+  }
 
   if (is_standard_system) {
     external_deps += [ "hiviewdfx_hilog_native:libhilog" ]

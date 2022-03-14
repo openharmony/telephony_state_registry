@@ -120,6 +120,7 @@ void StateRegistryTest::UpdateNetworkState()
         UpdateNetworkState(slotId, networkState.release());
 }
 
+#ifndef TEL_TEST_UNSUPPORT
 /**
  * @tc.number   StateRegistry_001
  * @tc.name     Get System Services
@@ -210,5 +211,17 @@ HWTEST_F(StateRegistryTest, UpdateNetworkState_001, TestSize.Level1)
 {
     UpdateNetworkState();
 }
+
+#else // TEL_TEST_UNSUPPORT
+/**
+ * @tc.number   State_MockTest_001
+ * @tc.name     Mock test for unsupport platform
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, State_MockTest_001, TestSize.Level1)
+{
+    EXPECT_TRUE(true);
+}
+#endif // TEL_TEST_UNSUPPORT
 } // namespace Telephony
 } // namespace OHOS
