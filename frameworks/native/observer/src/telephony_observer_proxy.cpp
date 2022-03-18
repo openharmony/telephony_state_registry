@@ -86,7 +86,7 @@ void TelephonyObserverProxy::OnSignalInfoUpdated(
         TELEPHONY_LOGE("TelephonyObserverProxy::OnSignalInfoUpdated WriteInterfaceToken failed!");
         return;
     }
-    int32_t size = vec.size();
+    int32_t size = static_cast<int32_t>(vec.size());
     if (size <= 0 || size > SignalInformation::MAX_SIGNAL_NUM) {
         TELEPHONY_LOGE("TelephonyObserverProxy::OnSignalInfoUpdated size error!");
         return;
@@ -119,7 +119,7 @@ void TelephonyObserverProxy::OnCellInfoUpdated(
         return;
     }
     dataParcel.WriteInt32(slotId);
-    int32_t size = vec.size();
+    int32_t size = static_cast<int32_t>(vec.size());
     if (size <= 0) {
         TELEPHONY_LOGE("Cellinformation array length is less than or equal to 0!");
         return;
