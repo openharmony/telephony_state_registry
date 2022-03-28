@@ -197,8 +197,8 @@ static napi_module _stateRegistryModule = {
     .nm_filename = nullptr,
     .nm_register_func = InitNapiStateRegistry,
     .nm_modname = "telephony.observer",
-    .nm_priv = ((void *)0),
-    .reserved = {(void *)0},
+    .nm_priv = nullptr,
+    .reserved = {nullptr},
 };
 
 extern "C" __attribute__((constructor)) void RegisterTelephonyObserverModule(void)

@@ -28,8 +28,8 @@ namespace OHOS {
 namespace Telephony {
 class TelephonyObserver : public IRemoteStub<TelephonyObserverBroker> {
 public:
-    TelephonyObserver() {};
-    ~TelephonyObserver() {};
+    TelephonyObserver() {}
+    ~TelephonyObserver() {}
     virtual void OnCallStateUpdated(
         int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
     virtual void OnSignalInfoUpdated(

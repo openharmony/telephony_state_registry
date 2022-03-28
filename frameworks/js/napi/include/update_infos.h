@@ -30,7 +30,7 @@ namespace OHOS {
 namespace Telephony {
 struct UpdateInfo {
     int32_t slotId_ = 0;
-    UpdateInfo(int32_t slotId) : slotId_(slotId) {}
+    explicit UpdateInfo(int32_t slotId) : slotId_(slotId) {}
 };
 
 struct CallStateUpdateInfo : public UpdateInfo {

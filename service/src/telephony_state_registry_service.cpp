@@ -283,7 +283,6 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     std::lock_guard<std::mutex> guard(lock_);
-    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     bool isExist = false;
     TelephonyStateRegistryRecord record;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
@@ -301,7 +300,6 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
         record.bundleName_ = bundleName;
         record.telephonyObserver_ = telephonyObserver;
         stateRecords_.push_back(record);
-        result = TELEPHONY_SUCCESS;
     }
 
     if (isUpdate && VerifySlotId(slotId)) {
