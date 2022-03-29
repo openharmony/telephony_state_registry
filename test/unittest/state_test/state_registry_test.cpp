@@ -76,6 +76,7 @@ void StateRegistryTest::UpdateSignalInfo()
     std::unique_ptr<SignalInformation> signal = std::make_unique<GsmSignalInformation>();
     if (signal == nullptr) {
         TELEPHONY_LOGE("SignalInformation is nullptr\n");
+        return;
     }
     vec.push_back(signal.release());
     DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
@@ -115,6 +116,7 @@ void StateRegistryTest::UpdateNetworkState()
     std::unique_ptr<NetworkState> networkState = std::make_unique<NetworkState>();
     if (networkState == nullptr) {
         TELEPHONY_LOGE("NetworkState is nullptr\n");
+        return;
     }
     DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().
         UpdateNetworkState(slotId, networkState.release());

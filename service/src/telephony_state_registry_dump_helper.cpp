@@ -58,17 +58,23 @@ bool TelephonyStateRegistryDumpHelper::ShowTelephonyStateRegistryInfo(
             result.append("\n");
         }
     }
+    std::shared_ptr<TelephonyStateRegistryService> service =
+        DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("Get state registry service failed");
+        return false;
+    }
     result.append("BindStartTime: ");
     result.append(
-        DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->GetBindStartTime());
+        service->GetBindStartTime());
     result.append("\n");
     result.append("BindEndTime: ");
     result.append(
-        DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->GetBindEndTime());
+        service->GetBindEndTime());
     result.append("\n");
     result.append("BindSpendTime: ");
     result.append(
-        DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->GetBindSpendTime());
+        service->GetBindSpendTime());
     result.append("\n");
     return true;
 }

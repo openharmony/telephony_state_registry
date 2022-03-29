@@ -122,7 +122,12 @@ napi_status NapiReturnToJS(napi_env env, napi_ref callbackRef, napi_value callba
     if (status != napi_ok) {
         TELEPHONY_LOGE("NapiReturnToJS napi_call_function return error : %{public}d", status);
     }
-    DelayedSingleton<EventListenerHandler>::GetInstance()->SetCallbackCompleteToListener(callbackRef);
+    auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
+    if (handler == nullptr) {
+        TELEPHONY_LOGE("Get event handler failed");
+        return status;
+    }
+    handler->SetCallbackCompleteToListener(callbackRef);
     return status;
 }
 
@@ -342,7 +347,7 @@ void EventListenerHandler::RemoveListener(TelephonyUpdateEventType eventType)
             if (listener.env != nullptr && listener.callbackRef != nullptr) {
                 napi_delete_reference(listener.env, listener.callbackRef);
             }
-        };
+        }
         return matched;
     });
 }

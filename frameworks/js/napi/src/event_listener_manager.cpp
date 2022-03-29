@@ -20,18 +20,32 @@ namespace OHOS {
 namespace Telephony {
 std::optional<int32_t> EventListenerManager::RegisterEventListener(EventListener &eventListener)
 {
-    return DelayedSingleton<EventListenerHandler>::GetInstance()->RegisterEventListener(eventListener);
+    auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
+    if (handler == nullptr) {
+        TELEPHONY_LOGE("Get event handler failed");
+        return std::nullopt;
+    }
+    return handler->RegisterEventListener(eventListener);
 }
 
 std::optional<int32_t> EventListenerManager::UnregisterEventListener(
     int32_t slotId, const TelephonyUpdateEventType eventType)
 {
-    return DelayedSingleton<EventListenerHandler>::GetInstance()->UnregisterEventListener(slotId, eventType);
+    auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
+    if (handler == nullptr) {
+        TELEPHONY_LOGE("Get event handler failed");
+        return std::nullopt;
+    }
+    return handler->UnregisterEventListener(slotId, eventType);
 }
 
 void EventListenerManager::RemoveListener(TelephonyUpdateEventType eventType)
 {
-    DelayedSingleton<EventListenerHandler>::GetInstance()->RemoveListener(eventType);
+    auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
+    if (handler == nullptr) {
+        TELEPHONY_LOGE("Get event handler failed");
+    }
+    handler->RemoveListener(eventType);
 }
 } // namespace Telephony
 } // namespace OHOS

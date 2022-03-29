@@ -22,6 +22,7 @@
 #include "event_listener.h"
 #include "event_listener_handler.h"
 #include "telephony_update_event_type.h"
+#include "telephony_log_wrapper.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -30,7 +31,12 @@ public:
     template<typename T, typename D>
     inline static bool SendEvent(uint32_t innerEventId, std::unique_ptr<T, D> &object, int64_t delayTime = 0)
     {
-        return DelayedSingleton<EventListenerHandler>::GetInstance()->SendEvent(innerEventId, object, delayTime);
+        auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
+        if (handler == nullptr) {
+            TELEPHONY_LOGE("Get handler failed");
+            return false;
+        }
+        return handler->SendEvent(innerEventId, object, delayTime);
     }
     static std::optional<int32_t> RegisterEventListener(EventListener &eventListener);
     static std::optional<int32_t> UnregisterEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
