@@ -51,7 +51,6 @@ ohos_shared_library("observer") {
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
     "state_registry:tel_state_registry_api",
-    "resmgr_standard:global_resmgr",
   ]
 
   defines += [
