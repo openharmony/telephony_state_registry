@@ -36,15 +36,12 @@ ohos_shared_library("observer") {
   configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
 
   deps = [
-    "//foundation/aafwk/standard/frameworks/kits/ability/native:abilitykit_native",
     "//foundation/arkui/napi:ace_napi",
     "//third_party/libuv:uv_static",
     "//utils/native/base:utils",
   ]
 
   external_deps = [
-    "ability_base:want",
-    "ability_runtime:ability_manager",
     "core_service:tel_core_service_api",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
@@ -54,6 +51,7 @@ ohos_shared_library("observer") {
     "samgr_standard:samgr_proxy",
     "startup_l2:syspara",
     "state_registry:tel_state_registry_api",
+    "resmgr_standard:global_resmgr",
   ]
 
   defines += [
