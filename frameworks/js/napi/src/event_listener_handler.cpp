@@ -17,7 +17,6 @@
 
 #include <cinttypes>
 
-#include "ability.h"
 #include "call_manager_inner_type.h"
 #include "event_listener_manager.h"
 #include "inner_event.h"
