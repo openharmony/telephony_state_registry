@@ -47,7 +47,7 @@ ohos_shared_library("tel_state_registry") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
-    "startup_l2:syspara",
+    "init:libbegetutil",
   ]
 
   defines += [
