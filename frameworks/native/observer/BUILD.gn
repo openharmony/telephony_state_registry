@@ -56,7 +56,8 @@ ohos_shared_library("tel_state_registry_api") {
     "TELEPHONY_LOG_TAG = \"STATE_REGISTRY\"",
     "LOG_DOMAIN = 0",
   ]
-
+  install_images = [ system_base_dir ]
+  relative_install_dir = "platformsdk"
   part_name = "state_registry"
   subsystem_name = "telephony"
 }
