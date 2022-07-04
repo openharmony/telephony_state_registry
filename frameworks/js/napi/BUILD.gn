@@ -43,11 +43,11 @@ ohos_shared_library("observer") {
 
   external_deps = [
     "core_service:tel_core_service_api",
+    "drivers_interface_ril:hril_innerkits",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
-    "ril_device_driver_interface:hril_innerkits",
     "safwk:system_ability_fwk",
     "samgr_standard:samgr_proxy",
     "state_registry:tel_state_registry_api",
