@@ -51,7 +51,7 @@ ohos_shared_library("tel_state_registry") {
   ]
 
   defines += [
-    "TELEPHONY_LOG_TAG = \"STATE_REGISTRY\"",
-    "LOG_DOMAIN = 0",
+    "TELEPHONY_LOG_TAG = \"StateRegistry\"",
+    "LOG_DOMAIN = 0xD001F07",
   ]
 }
