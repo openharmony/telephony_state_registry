@@ -54,8 +54,8 @@ ohos_shared_library("observer") {
   ]
 
   defines += [
-    "TELEPHONY_LOG_TAG = \"STATE_REGISTRY_NAPI\"",
-    "LOG_DOMAIN = 0",
+    "TELEPHONY_LOG_TAG = \"StateRegistryJsApi\"",
+    "LOG_DOMAIN = 0xD001F07",
   ]
 
   relative_install_dir = "module/telephony"
