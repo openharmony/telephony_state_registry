@@ -35,9 +35,8 @@ ohos_unittest("tel_state_registry_test") {
 
   configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
 
-  deps = [ "//utils/native/base:utils" ]
-
   external_deps = [
+    "c_utils:utils",
     "core_service:tel_core_service_api",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
