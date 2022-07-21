@@ -41,7 +41,7 @@ ohos_unittest("tel_state_registry_test") {
     "core_service:tel_core_service_api",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr_standard:samgr_proxy",
+    "samgr:samgr_proxy",
   ]
 
   defines = [

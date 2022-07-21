@@ -40,7 +40,7 @@
                 "napi",
                 "ril_adapter",
                 "safwk",
-                "samgr_standard",
+                "samgr",
                 "utils_base"
             ],
             "third_party": [
