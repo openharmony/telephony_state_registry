@@ -71,9 +71,7 @@ private:
     void SendSignalInfoChanged(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec);
     void SendNetworkStateChanged(int32_t slotId, const sptr<NetworkState> &networkState);
     void SendSimStateChanged(int32_t slotId, CardType type, SimState state, LockReason reason);
-    void SendCellInfoChanged(int32_t slotId, const std::vector<sptr<CellInformation>> &vec);
     void SendCellularDataConnectStateChanged(int32_t slotId, int32_t dataState, int32_t networkType);
-    void SendCellularDataFlowChanged(int32_t slotId, int32_t dataFlowType);
 
 private:
     ServiceRunningState state_ = ServiceRunningState::STATE_STOPPED;
@@ -94,15 +92,6 @@ private:
     std::map<int32_t, int32_t> cellularDataConnectionState_;
     std::map<int32_t, int32_t> cellularDataConnectionNetworkType_;
     std::map<int32_t, int32_t> cellularDataFlow_;
-
-private:
-    const std::string CELL_INFO_CHANGE_ACTION = "com.hos.action.CELL_INFO_CHANGE";
-    const std::string CALL_STATE_CHANGE_ACTION = "com.hos.action.CALL_STATE_CHANGE";
-    const std::string SEARCH_NET_WORK_STATE_CHANGE_ACTION = "com.hos.action.SEARCH_NET_WORK_STATE_CHANGE";
-    const std::string SEARCH_SIGNAL_INFO_CHANGE_ACTION = "com.hos.action.SEARCH_SIGNAL_INFO_CHANGE";
-    const std::string CELLULAR_DATA_STATE_CHANGE_ACTION = "com.hos.action.CELLULAR_DATA_STATE_CHANGE";
-    const std::string CELLULAR_DATA_FLOW_ACTION = "com.hos.action.CELLULAR_DATA_FLOW_CHANGE";
-    const std::string SIM_STATE_CHANGE_ACTION = "com.hos.action.SIM_STATE_CHANGE";
 };
 } // namespace Telephony
 } // namespace OHOS
