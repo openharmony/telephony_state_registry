@@ -17,16 +17,18 @@
 
 #include <sstream>
 
+#include "common_event_manager.h"
+#include "common_event_support.h"
+#include "state_registry_errors.h"
 #include "string_ex.h"
 #include "system_ability_definition.h"
-
-#include "telephony_state_registry_dump_helper.h"
-#include "state_registry_errors.h"
 #include "telephony_permission.h"
+#include "telephony_state_registry_dump_helper.h"
 #include "telephony_types.h"
 
 namespace OHOS {
 namespace Telephony {
+using namespace OHOS::EventFwk;
 bool g_registerResult =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<TelephonyStateRegistryService>::GetInstance().get());
 
@@ -122,7 +124,6 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataFlow(
             result = TELEPHONY_SUCCESS;
         }
     }
-    SendCellularDataFlowChanged(slotId, flowData);
     return result;
 }
 
@@ -247,7 +248,6 @@ int32_t TelephonyStateRegistryService::UpdateCellInfo(
             result = TELEPHONY_SUCCESS;
         }
     }
-    SendCellInfoChanged(slotId, vec);
     return result;
 }
 
@@ -402,7 +402,6 @@ void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecor
 bool TelephonyStateRegistryService::PublishCommonEvent(
     const AAFwk::Want &want, int eventCode, const std::string &eventData)
 {
-#ifdef ABILITY_PUBLISH_COMMON_EVENT_NOT_SUPPORT
     EventFwk::CommonEventData data;
     data.SetWant(want);
     data.SetCode(eventCode);
@@ -411,8 +410,7 @@ bool TelephonyStateRegistryService::PublishCommonEvent(
     publishInfo.SetOrdered(true);
     bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
     TELEPHONY_LOGI("PublishCommonEvent end###publishResult = %{public}d\n", publishResult);
-#endif
-    return true;
+    return publishResult;
 }
 
 void TelephonyStateRegistryService::SendCallStateChanged(
@@ -422,10 +420,17 @@ void TelephonyStateRegistryService::SendCallStateChanged(
     want.SetParam("slotId", slotId);
     want.SetParam("state", state);
     want.SetParam("number", Str16ToStr8(number));
-    want.SetAction(CALL_STATE_CHANGE_ACTION);
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_CALL_STATE_CHANGED);
     int32_t eventCode = 1;
     std::string eventData("callStateChanged");
-    PublishCommonEvent(want, eventCode, eventData);
+    EventFwk::CommonEventPublishInfo publishInfo;
+    publishInfo.SetOrdered(true);
+    std::vector<std::string> callPermissions;
+    callPermissions.emplace_back(Permission::GET_TELEPHONY_STATE);
+    publishInfo.SetSubscriberPermissions(callPermissions);
+    if (!PublishCommonEvent(want, eventCode, eventData)) {
+        TELEPHONY_LOGE("SendCallStateChanged PublishBroadcastEvent result fail");
+    }
 }
 
 void TelephonyStateRegistryService::SendCellularDataConnectStateChanged(
@@ -435,21 +440,9 @@ void TelephonyStateRegistryService::SendCellularDataConnectStateChanged(
     want.SetParam("slotId", slotId);
     want.SetParam("dataState", dataState);
     want.SetParam("networkType", networkType);
-    want.SetAction(CELLULAR_DATA_STATE_CHANGE_ACTION);
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_CELLULAR_DATA_STATE_CHANGED);
     int32_t eventCode = 1;
     std::string eventData("connectStateChanged");
-    PublishCommonEvent(want, eventCode, eventData);
-}
-
-void TelephonyStateRegistryService::SendCellularDataFlowChanged(
-    int32_t slotId, int32_t dataFlowType)
-{
-    AAFwk::Want want;
-    want.SetParam("slotId", slotId);
-    want.SetParam("dataFlowType", dataFlowType);
-    want.SetAction(CELLULAR_DATA_FLOW_ACTION);
-    int32_t eventCode = 1;
-    std::string eventData("dataFlowChanged");
     PublishCommonEvent(want, eventCode, eventData);
 }
 
@@ -461,7 +454,7 @@ void TelephonyStateRegistryService::SendSimStateChanged(
     want.SetParam("cardType", static_cast<int32_t>(type));
     want.SetParam("reason", static_cast<int32_t>(reason));
     want.SetParam("state", static_cast<int32_t>(state));
-    want.SetAction(SIM_STATE_CHANGE_ACTION);
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_SIM_STATE_CHANGED);
     int32_t eventCode = 1;
     std::string eventData("simStateChanged");
     PublishCommonEvent(want, eventCode, eventData);
@@ -472,7 +465,7 @@ void TelephonyStateRegistryService::SendSignalInfoChanged(
 {
     AAFwk::Want want;
     want.SetParam("slotId", slotId);
-    want.SetAction(SEARCH_SIGNAL_INFO_CHANGE_ACTION);
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_SIGNAL_INFO_CHANGED);
     std::vector<std::string> contentStr;
     for (size_t i = 0; i < vec.size(); i++) {
         sptr<SignalInformation> signal = vec[i];
@@ -486,28 +479,12 @@ void TelephonyStateRegistryService::SendSignalInfoChanged(
     PublishCommonEvent(want, eventCode, eventData);
 }
 
-void TelephonyStateRegistryService::SendCellInfoChanged(
-    int32_t slotId, const std::vector<sptr<CellInformation>> &vec)
-{
-    AAFwk::Want want;
-    want.SetParam("slotId", slotId);
-    want.SetAction(CELL_INFO_CHANGE_ACTION);
-    std::vector<std::string> contentStr;
-    for (size_t i = 0; i < vec.size(); i++) {
-        sptr<CellInformation> cellInfo = vec[i];
-        contentStr.push_back(cellInfo->ToString());
-    }
-    want.SetParam("cellInfos", contentStr);
-    int32_t eventCode = 1;
-    std::string eventData("cellInfoChanged");
-    PublishCommonEvent(want, eventCode, eventData);
-}
-
 void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t slotId, const sptr<NetworkState> &networkState)
 {
     AAFwk::Want want;
     want.SetParam("slotId", slotId);
-    want.SetAction(SEARCH_NET_WORK_STATE_CHANGE_ACTION);
+    want.SetAction(
+        EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED);
     int32_t eventCode = 1;
     if (networkState != nullptr) {
         want.SetParam("networkState", networkState->ToString());
