@@ -108,6 +108,39 @@ int32_t WrapNetworkType(SignalInformation::NetworkType nativeNetworkType)
     return static_cast<int32_t>(jsNetworkType);
 }
 
+int32_t WrapRadioTech(int32_t radioTechType)
+{
+    RadioTech techType = static_cast<RadioTech>(radioTechType);
+    switch (techType) {
+        case RadioTech::RADIO_TECHNOLOGY_GSM:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_GSM);
+        case RadioTech::RADIO_TECHNOLOGY_LTE:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_LTE);
+        case RadioTech::RADIO_TECHNOLOGY_WCDMA:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_WCDMA);
+        case RadioTech::RADIO_TECHNOLOGY_1XRTT:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_1XRTT);
+        case RadioTech::RADIO_TECHNOLOGY_HSPA:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_HSPA);
+        case RadioTech::RADIO_TECHNOLOGY_HSPAP:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_HSPAP);
+        case RadioTech::RADIO_TECHNOLOGY_TD_SCDMA:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_TD_SCDMA);
+        case RadioTech::RADIO_TECHNOLOGY_EVDO:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_EVDO);
+        case RadioTech::RADIO_TECHNOLOGY_EHRPD:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_EHRPD);
+        case RadioTech::RADIO_TECHNOLOGY_LTE_CA:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_LTE_CA);
+        case RadioTech::RADIO_TECHNOLOGY_IWLAN:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_IWLAN);
+        case RadioTech::RADIO_TECHNOLOGY_NR:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_NR);
+        default:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_UNKNOWN);
+    }
+}
+
 napi_status NapiReturnToJS(napi_env env, napi_ref callbackRef, napi_value callbackVal)
 {
     napi_value callbackFunc = nullptr;
@@ -479,12 +512,17 @@ void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work, int status)
     bool isRoaming = networkState->IsRoaming();
     int32_t regStatus = static_cast<int32_t>(networkState->GetRegStatus());
     bool isEmergency = networkState->IsEmergency();
+    int32_t cfgTech = static_cast<int32_t>(networkState->GetCfgTech());
+    int32_t nsaState = static_cast<int32_t>(networkState->GetNrState());
     SetPropertyToNapiObject(env, callbackValue, "longOperatorName", longOperatorName);
     SetPropertyToNapiObject(env, callbackValue, "shortOperatorName", shortOperatorName);
     SetPropertyToNapiObject(env, callbackValue, "plmnNumeric", plmnNumeric);
     SetPropertyToNapiObject(env, callbackValue, "isRoaming", isRoaming);
-    SetPropertyToNapiObject(env, callbackValue, "regStatus", WrapRegState(regStatus));
+    SetPropertyToNapiObject(env, callbackValue, "regState", WrapRegState(regStatus));
     SetPropertyToNapiObject(env, callbackValue, "isEmergency", isEmergency);
+    SetPropertyToNapiObject(env, callbackValue, "cfgTech", WrapRadioTech(cfgTech));
+    SetPropertyToNapiObject(env, callbackValue, "nsaState", nsaState);
+    SetPropertyToNapiObject(env, callbackValue, "isCaActive", false);
     NapiReturnToJS(env, networkStateUpdateInfo->callbackRef, callbackValue);
 }
 
