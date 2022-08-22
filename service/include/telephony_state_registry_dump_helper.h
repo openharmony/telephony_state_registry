@@ -34,6 +34,8 @@ public:
 private:
     bool ShowTelephonyStateRegistryInfo(
         std::vector<TelephonyStateRegistryRecord> &stateRecords, std::string &result) const;
+    void ShowTelephonyChangeState(std::string &result) const;
+    bool WhetherHasSimCard(const int32_t slotId) const;
 };
 } // namespace Telephony
 } // namespace OHOS

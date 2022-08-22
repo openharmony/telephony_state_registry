@@ -57,6 +57,14 @@ public:
     int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
         uint32_t mask, const std::string &bundleName, bool notifyNow, pid_t pid) override;
     int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid) override;
+    int32_t GetServiceRunningState();
+    int32_t GetSimState(int32_t slotId);
+    int32_t GetCallState(int32_t slotId);
+    int32_t GetCardType(int32_t slotId);
+    int32_t GetCellularDataConnectionState(int32_t slotId);
+    int32_t GetCellularDataFlow(int32_t slotId);
+    int32_t GetCellularDataConnectionNetworkType(int32_t slotId);
+    int32_t GetLockReason(int32_t slotId);
 
 private:
     void Finalize();
