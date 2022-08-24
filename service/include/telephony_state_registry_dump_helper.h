@@ -24,6 +24,33 @@
 
 namespace OHOS {
 namespace Telephony {
+enum class DataConnectionStatus : int32_t {
+    DATA_STATE_DISCONNECTED = 11,
+    DATA_STATE_CONNECTING = 12,
+    DATA_STATE_CONNECTED = 13,
+    DATA_STATE_SUSPENDED = 14
+};
+
+enum class TelCallState {
+    CALL_STATUS_ACTIVE = 0,
+    CALL_STATUS_HOLDING,
+    CALL_STATUS_DIALING,
+    CALL_STATUS_ALERTING,
+    CALL_STATUS_INCOMING,
+    CALL_STATUS_WAITING,
+    CALL_STATUS_DISCONNECTED,
+    CALL_STATUS_DISCONNECTING,
+    CALL_STATUS_IDLE,
+};
+
+enum class CellDataFlowType : int32_t {
+    DATA_FLOW_TYPE_NONE = 0,
+    DATA_FLOW_TYPE_DOWN = 1,
+    DATA_FLOW_TYPE_UP = 2,
+    DATA_FLOW_TYPE_UP_DOWN = 3,
+    DATA_FLOW_TYPE_DORMANT = 4
+};
+
 class TelephonyStateRegistryDumpHelper {
 public:
     explicit TelephonyStateRegistryDumpHelper();
@@ -36,6 +63,13 @@ private:
         std::vector<TelephonyStateRegistryRecord> &stateRecords, std::string &result) const;
     void ShowTelephonyChangeState(std::string &result) const;
     bool WhetherHasSimCard(const int32_t slotId) const;
+    std::string SimStateTransition(int32_t state) const;
+    std::string CallStateTransition(int32_t state) const;
+    std::string CardTypeTransition(int32_t type) const;
+    std::string DataConnectionStateTransition(int32_t state) const;
+    std::string CellularDataFlowTransition(int32_t flowData) const;
+    std::string NetworkTypeTransition(int32_t type) const;
+    std::string LockReasonTransition(int32_t reason) const;
 };
 } // namespace Telephony
 } // namespace OHOS
