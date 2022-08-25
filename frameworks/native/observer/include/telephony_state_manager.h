@@ -16,10 +16,13 @@
 #ifndef TELEPHONY_STATE_MANAGER_H
 #define TELEPHONY_STATE_MANAGER_H
 
-#include "telephony_observer.h"
+#include <stdint.h>
 
 namespace OHOS {
+template<typename T>
+class sptr;
 namespace Telephony {
+class TelephonyObserverBroker;
 class TelephonyStateManager {
 public:
     static int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
