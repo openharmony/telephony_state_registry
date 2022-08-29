@@ -538,5 +538,104 @@ std::string TelephonyStateRegistryService::GetBindSpendTime()
     oss << (bindEndTime_ - bindStartTime_);
     return oss.str();
 }
+
+int32_t TelephonyStateRegistryService::GetServiceRunningState()
+{
+    return static_cast<int32_t>(state_);
+}
+
+int32_t TelephonyStateRegistryService::GetSimState(int32_t slotId)
+{
+    std::map<int32_t, SimState>::iterator it;
+    int32_t result = TELEPHONY_ERROR;
+    simState_.find(slotId);
+    for (it = simState_.begin(); it != simState_.end(); ++it) {
+        if (it->first == slotId) {
+            result = static_cast<int32_t>(it->second);
+            TELEPHONY_LOGI("CallState = %{public}d", result);
+            break;
+        }
+    }
+    TELEPHONY_LOGE("SimState is not exist");
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::GetCallState(int32_t slotId)
+{
+    std::map<int32_t, int32_t>::iterator it;
+    int32_t result = TELEPHONY_ERROR;
+    for (it = callState_.begin(); it != callState_.end(); ++it) {
+        if (it->first == slotId) {
+            result = it->second;
+            break;
+        }
+    }
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::GetCardType(int32_t slotId)
+{
+    std::map<int32_t, CardType>::iterator it;
+    int32_t result = TELEPHONY_ERROR;
+    for (it = cardType_.begin(); it != cardType_.end(); ++it) {
+        if (it->first == slotId) {
+            result = static_cast<int32_t>(it->second);
+            break;
+        }
+    }
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::GetCellularDataConnectionState(int32_t slotId)
+{
+    std::map<int32_t, int32_t>::iterator it;
+    int32_t result = TELEPHONY_ERROR;
+    for (it = cellularDataConnectionState_.begin(); it != cellularDataConnectionState_.end(); ++it) {
+        if (it->first == slotId) {
+            result = it->second;
+            break;
+        }
+    }
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::GetCellularDataFlow(int32_t slotId)
+{
+    std::map<int32_t, int32_t>::iterator it;
+    int32_t result = TELEPHONY_ERROR;
+    for (it = cellularDataFlow_.begin(); it != cellularDataFlow_.end(); ++it) {
+        if (it->first == slotId) {
+            result = it->second;
+            break;
+        }
+    }
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::GetCellularDataConnectionNetworkType(int32_t slotId)
+{
+    std::map<int32_t, int32_t>::iterator it;
+    int32_t result = TELEPHONY_ERROR;
+    for (it = cellularDataConnectionNetworkType_.begin(); it != cellularDataConnectionNetworkType_.end(); ++it) {
+        if (it->first == slotId) {
+            result = it->second;
+            break;
+        }
+    }
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::GetLockReason(int32_t slotId)
+{
+    std::map<int32_t, LockReason>::iterator it;
+    int32_t result = TELEPHONY_ERROR;
+    for (it = simReason_.begin(); it != simReason_.end(); ++it) {
+        if (it->first == slotId) {
+            result = static_cast<int32_t>(it->second);
+            break;
+        }
+    }
+    return result;
+}
 } // namespace Telephony
 } // namespace OHOS
