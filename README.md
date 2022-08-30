@@ -17,7 +17,7 @@
 The state registry module provides APIs to register and deregister an observer that listens for various callback events of the telephony subsystem. Such events include but are not limited to the following: network status change, signal strength change, cell information change, cellular data connection status change, and call status change.
 
 **Figure  1**  Architecture of the state registry module<a name="fig13267152558"></a>
-![](figures/en-us-architecture-of-the-state-registry-module.png)
+![](figures/state-registry-module.architecture.png)
 
 ## Directory Structure<a name="section124mcpsimp"></a>
 

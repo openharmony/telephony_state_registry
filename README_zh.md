@@ -17,22 +17,24 @@
 状态注册主要负责提供电话服务子系统各种消息事件的订阅以及取消订阅的API。事件类型包括网络状态变化、信号强度变化、小区信息变化、蜂窝数据连接状态变化、通话状态变化等等。
 
 **图 1**  状态注册架构图<a name="fig13267152558"></a>
-![](figures/zh-cn-architecture-of-the-state-registry-module.png)
+![](figures/状态注册-架构图.png)
 
 ## 目录<a name="section124mcpsimp"></a>
 
 ```
 /base/telephony/state_registry      # 状态注册转发服务
-├─ BUILD.gn                         # 编译gn脚本
-├─ README.md                        # Readme文档
-├─ frameworks                       # js,native文件
-├─ interfaces                       # API,innerkits文件
-├─ service
-│  ├─ include                       # 头文件
-│  └─ src                           # 源文件
-├─ sa_profile                       # sa文件
-├─ ohos.build                       # 编译build
+├─ figures                          # Readme资源文件
+├─ frameworks                       # 框架层目录
+│  ├─ js                            # js相关代码
+│  └─ native                        # native相关代码
+├─ interfaces                       # 接口目录
+│  ├─ innerkits                     # 部件间的内部接口
+│  └─ kits                          # 对应用提供的接口（例如JS接口）
+├─ sa_profile                       # 启动配置文件
+├─ service                          # 服务内部代码
 └─ test                             # 测试相关
+   ├─ mock                          # 模拟测试相关代码
+   └─ unittest                      # 单元测试相关代码
 ```
 
 ## 约束<a name="section128mcpsimp"></a>
