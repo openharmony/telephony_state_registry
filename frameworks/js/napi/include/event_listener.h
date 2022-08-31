@@ -28,7 +28,7 @@ struct EventListener {
     TelephonyUpdateEventType eventType;
     int32_t slotId;
     napi_ref callbackRef;
-    bool callbackComplete = false;
+    bool callbackComplete = true;
     size_t index = 0;
 };
 } // namespace Telephony
