@@ -1,16 +1,5 @@
 # State Registry<a name="EN-US_TOPIC_0000001152064139"></a>
 
--   [Introduction](#section117mcpsimp)
--   [Directory Structure](#section124mcpsimp)
--   [Constraints](#section128mcpsimp)
--   [Usage](#section134mcpsimp)
-    -   [Available APIs](#section136mcpsimp)
-
--   [Usage Guidelines](#section163mcpsimp)
-    -   [Parameters of C APIs](#section1099113151207)
-    -   [Sample Code](#section1558565082915)
-
--   [Repositories Involved](#section206mcpsimp)
 
 ## Introduction<a name="section117mcpsimp"></a>
 
@@ -22,16 +11,19 @@ The state registry module provides APIs to register and deregister an observer t
 ## Directory Structure<a name="section124mcpsimp"></a>
 
 ```
-/base/telephony/state_registry      # State registry service
-├─ BUILD.gn                         # Build script (gn)
-├─ README.md                        # Readme
-├─ interfaces                       # JS APIs
-├─ service
-│  ├─ include                       # Header files
-│  └─ src                           # Source files
+/base/telephony/state_registry        # State registry service
+├─ figures                          # Figures of readme files
+├─ frameworks                       # Framework layer
+│  ├─ js                            # JS code
+│  └─ native                        # Native code
+├─ interfaces                       # APIs
+│  ├─ innerkits                     # Internal APIs
+│  └─ kits                          # External APIs \(such as JS APIs\)
 ├─ sa_profile                       # SA profile
-├─ ohos.build                       # Build code
+├─ service                          # Service code
 └─ test                             # Test code
+   ├─ mock                          # Simulation test
+   └─ unittest                      # Unit test
 ```
 
 ## Constraints<a name="section128mcpsimp"></a>
