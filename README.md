@@ -14,11 +14,11 @@ The state registry module provides APIs to register and deregister an observer t
 /base/telephony/state_registry        # State registry service
 ├─ figures                          # Figures of readme files
 ├─ frameworks                       # Framework layer
-│  ├─ js                           # JS code
-│  └─ native                       # Native code
+│  ├─ js                            # JS code
+│  └─ native                        # Native code
 ├─ interfaces                       # APIs
-│  ├─ innerkits                    # Internal APIs
-│  └─ kits                         # External APIs \(such as JS APIs\)
+│  ├─ innerkits                     # Internal APIs
+│  └─ kits                          # External APIs \(such as JS APIs\)
 ├─ sa_profile                       # SA profile
 ├─ service                          # Service code
 └─ test                             # Test code
