@@ -44,7 +44,7 @@ public:
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
     std::optional<int32_t> RegisterEventListener(EventListener &eventListener);
     std::optional<int32_t> UnregisterEventListener(int32_t slotId, TelephonyUpdateEventType eventType);
-    void RemoveListener(TelephonyUpdateEventType eventType);
+    void RemoveListener(TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList);
     void SetCallbackCompleteToListener(napi_ref ref, bool flag = true);
 
 private:

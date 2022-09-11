@@ -18,8 +18,10 @@
 
 #include <initializer_list>
 #include <string>
+#include <list>
 
 #include "base_context.h"
+#include "event_listener.h"
 #include "napi/native_api.h"
 #include "napi/native_node_api.h"
 #include "telephony_observer_broker.h"
@@ -65,6 +67,7 @@ struct ObserverContext : BaseContext {
     int32_t slotId = DEFAULT_SIM_SLOT_ID;
     TelephonyUpdateEventType eventType = TelephonyUpdateEventType::NONE_EVENT_TYPE;
     int32_t errorCode = 0;
+    std::list<EventListener> removeListenerList;
 };
 } // namespace Telephony
 } // namespace OHOS

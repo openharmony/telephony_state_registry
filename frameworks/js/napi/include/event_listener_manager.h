@@ -40,7 +40,7 @@ public:
     }
     static std::optional<int32_t> RegisterEventListener(EventListener &eventListener);
     static std::optional<int32_t> UnregisterEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
-    static void RemoveListener(TelephonyUpdateEventType eventType);
+    static void RemoveListener(TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList);
 };
 } // namespace Telephony
 } // namespace OHOS
