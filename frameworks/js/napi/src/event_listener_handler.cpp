@@ -371,14 +371,13 @@ std::optional<int32_t> EventListenerHandler::UnregisterEventListener(
     return (result == TELEPHONY_SUCCESS) ? std::nullopt : std::make_optional<int32_t>(result);
 }
 
-void EventListenerHandler::RemoveListener(TelephonyUpdateEventType eventType)
+void EventListenerHandler::RemoveListener(TelephonyUpdateEventType eventType,
+    std::list<EventListener> &removeListenerList)
 {
-    listenerList_.remove_if([eventType](EventListener listener) -> bool {
+    listenerList_.remove_if([eventType, &removeListenerList](EventListener listener) -> bool {
         bool matched = listener.eventType == eventType;
         if (matched) {
-            if (listener.env != nullptr && listener.callbackRef != nullptr) {
-                napi_delete_reference(listener.env, listener.callbackRef);
-            }
+            removeListenerList.push_back(listener);
         }
         return matched;
     });
