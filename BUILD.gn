@@ -42,12 +42,10 @@ ohos_shared_library("tel_state_registry") {
     "ability_base:want",
     "common_event_service:cesfwk_innerkits",
     "core_service:tel_core_service_api",
-    "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
-    "samgr:samgr_proxy",
   ]
 
   defines += [
