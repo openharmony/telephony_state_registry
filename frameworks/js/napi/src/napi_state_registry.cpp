@@ -133,6 +133,7 @@ static void NativeOff(napi_env env, void *data)
         EventListenerManager::UnregisterEventListener(asyncContext->slotId, asyncContext->eventType);
     asyncContext->resolved = !result.has_value();
     asyncContext->errorCode = result.value_or(ERROR_NONE);
+    EventListenerManager::RemoveListener(asyncContext->eventType, asyncContext->removeListenerList);
 }
 
 static void OffCallback(napi_env env, napi_status status, void *data)
@@ -142,7 +143,12 @@ static void OffCallback(napi_env env, napi_status status, void *data)
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
-    EventListenerManager::RemoveListener(asyncContext->eventType);
+    for (auto listener : asyncContext->removeListenerList) {
+        if (listener.env != nullptr && listener.callbackRef != nullptr) {
+            napi_delete_reference(listener.env, listener.callbackRef);
+        }
+    }
+    asyncContext->removeListenerList.clear();
     if (!asyncContext->resolved) {
         TELEPHONY_LOGE("OffCallback error by remove observer failed");
     }

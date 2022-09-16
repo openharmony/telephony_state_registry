@@ -39,13 +39,14 @@ std::optional<int32_t> EventListenerManager::UnregisterEventListener(
     return handler->UnregisterEventListener(slotId, eventType);
 }
 
-void EventListenerManager::RemoveListener(TelephonyUpdateEventType eventType)
+void EventListenerManager::RemoveListener(TelephonyUpdateEventType eventType,
+    std::list<EventListener> &removeListenerList)
 {
     auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
     if (handler == nullptr) {
         TELEPHONY_LOGE("Get event handler failed");
     }
-    handler->RemoveListener(eventType);
+    handler->RemoveListener(eventType, removeListenerList);
 }
 } // namespace Telephony
 } // namespace OHOS
