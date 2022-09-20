@@ -31,20 +31,18 @@
         "deps": {
             "components": [
                 "ability_base",
-                "ability_runtime",
-                "appexecfwk_standard",
+                "c_utils",
                 "common_event_service",
                 "core_service",
+                "eventhandler",
                 "hiviewdfx_hilog_native",
+                "init",
                 "ipc",
                 "napi",
-                "ril_adapter",
                 "safwk",
-                "samgr",
-                "utils_base"
+                "samgr"
             ],
             "third_party": [
-                "node",
                 "libuv"
             ]
         },
