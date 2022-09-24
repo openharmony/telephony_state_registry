@@ -421,14 +421,16 @@ void TelephonyStateRegistryService::SendCallStateChanged(
     want.SetParam("state", state);
     want.SetParam("number", Str16ToStr8(number));
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_CALL_STATE_CHANGED);
-    int32_t eventCode = 1;
-    std::string eventData("callStateChanged");
+
+    EventFwk::CommonEventData data;
+    data.SetWant(want);
     EventFwk::CommonEventPublishInfo publishInfo;
     publishInfo.SetOrdered(true);
     std::vector<std::string> callPermissions;
     callPermissions.emplace_back(Permission::GET_TELEPHONY_STATE);
     publishInfo.SetSubscriberPermissions(callPermissions);
-    if (!PublishCommonEvent(want, eventCode, eventData)) {
+    bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
+    if (!publishResult) {
         TELEPHONY_LOGE("SendCallStateChanged PublishBroadcastEvent result fail");
     }
 }
