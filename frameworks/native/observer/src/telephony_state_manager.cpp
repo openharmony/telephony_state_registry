@@ -16,14 +16,13 @@
 #include "telephony_state_manager.h"
 
 #include "new"
+#include "refbase.h"
 #include "singleton.h"
+#include "telephony_observer_broker.h"
 #include "telephony_observer_client.h"
 
 namespace OHOS {
-template<typename T>
-class sptr;
 namespace Telephony {
-class TelephonyObserverBroker;
 int32_t TelephonyStateManager::AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
     int32_t slotId, uint32_t mask, bool notifyNow)
 {
