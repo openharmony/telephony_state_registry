@@ -550,7 +550,6 @@ int32_t TelephonyStateRegistryService::GetSimState(int32_t slotId)
 {
     std::map<int32_t, SimState>::iterator it;
     int32_t result = TELEPHONY_ERROR;
-    simState_.find(slotId);
     for (it = simState_.begin(); it != simState_.end(); ++it) {
         if (it->first == slotId) {
             result = static_cast<int32_t>(it->second);
@@ -558,7 +557,6 @@ int32_t TelephonyStateRegistryService::GetSimState(int32_t slotId)
             break;
         }
     }
-    TELEPHONY_LOGE("SimState is not exist");
     return result;
 }
 

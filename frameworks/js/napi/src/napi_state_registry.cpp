@@ -99,7 +99,7 @@ static napi_value On(napi_env env, napi_callback_info info)
             napi_value slotId = NapiUtil::GetNamedProperty(env, object, "slotId");
             if (slotId) {
                 NapiValueToCppValue(env, slotId, napi_number, &asyncContext->slotId);
-                TELEPHONY_LOGI("sate registry on  slotId = %{public}d", asyncContext->slotId);
+                TELEPHONY_LOGI("state registry on slotId = %{public}d", asyncContext->slotId);
             }
         }
     } else {
