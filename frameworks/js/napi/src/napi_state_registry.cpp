@@ -144,7 +144,7 @@ static void OffCallback(napi_env env, napi_status status, void *data)
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     for (auto listener : asyncContext->removeListenerList) {
-        if (listener.env != nullptr && listener.callbackRef != nullptr) {
+        if (env == listener.env && listener.env != nullptr && listener.callbackRef != nullptr) {
             napi_delete_reference(listener.env, listener.callbackRef);
         }
     }
