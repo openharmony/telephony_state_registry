@@ -17,6 +17,7 @@
 
 #include <sstream>
 
+#include "call_manager_inner_type.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "state_registry_errors.h"
@@ -37,6 +38,10 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
 {
     TELEPHONY_LOGI("TelephonyStateRegistryService SystemAbility create");
     slotSize_ = SIM_SLOT_COUNT;
+    for (int32_t i = 0; i < slotSize_; i++) {
+        TELEPHONY_LOGI("TelephonyStateRegistryService send disconnected call state.");
+        SendCallStateChanged(i, (int32_t)TelCallState::CALL_STATUS_DISCONNECTED, u"");
+    }
 }
 
 TelephonyStateRegistryService::~TelephonyStateRegistryService()
