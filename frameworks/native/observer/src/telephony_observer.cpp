@@ -14,6 +14,8 @@
  */
 
 #include "telephony_observer.h"
+
+#include "telephony_errors.h"
 #include "telephony_log_wrapper.h"
 
 namespace OHOS {
@@ -45,7 +47,7 @@ int32_t TelephonyObserver::OnRemoteRequest(
     TELEPHONY_LOGI("TelephonyObserver::OnRemoteRequest code = %{public}u......\n", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         TELEPHONY_LOGE("TelephonyObserver::OnRemoteRequest verify token failed!");
-        return OHOS::TRANSACTION_ERR;
+        return TELEPHONY_ERR_DESCRIPTOR_MISMATCH;
     }
     switch (static_cast<ObserverBrokerCode>(code)) {
         case ObserverBrokerCode::ON_CALL_STATE_UPDATED: {
