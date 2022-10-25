@@ -52,7 +52,7 @@ int32_t TelephonyStateRegistryStub::OnRemoteRequest(
     std::u16string remoteToken = data.ReadInterfaceToken();
     if (myToken != remoteToken) {
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnRemoteRequest end##descriptor checked fail");
-        return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
+        return TELEPHONY_ERR_DESCRIPTOR_MISMATCH;
     }
     auto itFunc = memberFuncMap_.find(static_cast<StateNotifyCode>(code));
     if (itFunc != memberFuncMap_.end()) {
