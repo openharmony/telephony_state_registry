@@ -249,6 +249,10 @@ int32_t TelephonyStateRegistryService::UpdateCellInfo(
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO) &&
             record.slotId_ == slotId) {
+            if (record.telephonyObserver_ == nullptr) {
+                TELEPHONY_LOGE("record.telephonyObserver_ is nullptr");
+                return TELEPHONY_ERR_LOCAL_PTR_NULL;
+            }
             record.telephonyObserver_->OnCellInfoUpdated(slotId, vec);
             result = TELEPHONY_SUCCESS;
         }
@@ -365,6 +369,10 @@ std::u16string TelephonyStateRegistryService::GetCallIncomingNumberForSlotId(
 
 void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecord &record)
 {
+    if (record.telephonyObserver_ == nullptr) {
+        TELEPHONY_LOGE("record.telephonyObserver_ is nullptr");
+        return;
+    }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) != 0) {
         std::u16string phoneNumber = GetCallIncomingNumberForSlotId(record, record.slotId_);
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE");
