@@ -30,19 +30,19 @@ class TelephonyObserver : public IRemoteStub<TelephonyObserverBroker> {
 public:
     TelephonyObserver() {}
     ~TelephonyObserver() {}
-    virtual void OnCallStateUpdated(
+    void OnCallStateUpdated(
         int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
-    virtual void OnSignalInfoUpdated(
+    void OnSignalInfoUpdated(
         int32_t slotId, const std::vector<sptr<SignalInformation>> &vec) override;
-    virtual void OnNetworkStateUpdated(
+    void OnNetworkStateUpdated(
         int32_t slotId, const sptr<NetworkState> &networkState) override;
-    virtual void OnCellInfoUpdated(
+    void OnCellInfoUpdated(
         int32_t slotId, const std::vector<sptr<CellInformation>> &vec) override;
-    virtual void OnSimStateUpdated(
+    void OnSimStateUpdated(
         int32_t slotId, CardType type, SimState state, LockReason reason) override;
-    virtual void OnCellularDataConnectStateUpdated(
+    void OnCellularDataConnectStateUpdated(
         int32_t slotId, int32_t dataState, int32_t networkType) override;
-    virtual void OnCellularDataFlowUpdated(
+    void OnCellularDataFlowUpdated(
         int32_t slotId, int32_t dataFlowType) override;
     int32_t OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
