@@ -11,7 +11,7 @@ The state registry module provides APIs to register and deregister an observer t
 ## Directory Structure<a name="section124mcpsimp"></a>
 
 ```
-/base/telephony/state_registry        # State registry service
+/base/telephony/state_registry      # State registry service
 ├─ figures                          # Figures of readme files
 ├─ frameworks                       # Framework layer
 │  ├─ js                            # JS code
@@ -41,11 +41,10 @@ The state registry module provides APIs to register and deregister an observer t
 
 <a name="table165976561598"></a>
 
-| API                                                          | Description                    |
-| ------------------------------------------------------------ | ------------------------------ |
-| function on(type: String, options: { slotId?: number }, callback: AsyncCallback\<T\>): void; | Registers an observer.         |
-| function off(type: String, callback?: AsyncCallback\<T\>): void; | Deregisters an observer.       |
-| function once(type: String, options: { slotId?: number }, callback: AsyncCallback\<T\>): void; | Registers a one-time observer. |
+| API                                                          | Description              |
+| ------------------------------------------------------------ | ------------------------ |
+| function on(type: String, options: { slotId?: number }, callback: AsyncCallback\<T\>): void; | Registers an observer.   |
+| function off(type: String, callback?: AsyncCallback\<T\>): void; | Deregisters an observer. |
 
 ## Usage Guidelines<a name="section163mcpsimp"></a>
 
@@ -69,14 +68,14 @@ Different subscription events are distinguished by the  **type**  parameter. The
 
 The function of registering an observer for call status change events is used as an example. The process is as follows:
 
-1.  Call the  **on**  method or  **once**  method with the  **type**  parameter specified to register an observer for different types of events.
-2.  Check whether the registration is successful. If  **err**  is empty in the received callback, the registration is successful. If  **err**  is not empty, the registration has failed. Obtain the required data from  **value**  if the registration is successful. 
+1.  Call the  **on**  method with the  **type**  parameter specified to register an observer for different types of events.
+2.  Check whether the registration is successful. If  **err**  is empty in the received callback, the registration is successful. If  **err**  is not empty, the registration has failed. Obtain the required data from  **value**  if the registration is successful.
 3.  Call the  **off**  method to deregister the observer. After the observer is deregistered, no callback will be received.
 
     ```
     // Import the observer package.
     import observer from '@ohos.telephony.observer';
-    
+
     // Registers an observer.
     observer.on('callStateChange', {slotId: 1}, (err, value) => {
       if (err) {
@@ -87,18 +86,7 @@ The function of registering an observer for call status change events is used as
       // If the API call succeeded, err is empty.
       console.log(`success on. number is ` + value.number + ", state is " + value.state);
     });
-    
-    // Register a one-time observer.
-    observer.once('callStateChange', {slotId: 1}, (err, value) => {
-      if (err) {
-        // If the API call failed, err is not empty.
-        console.error(`failed, because ${err.message}`);
-        return;
-      }
-      // If the API call succeeded, err is empty.
-      console.log(`success once. number is ` + value.number + ", state is " + value.state);
-    });
-    
+
     // Deregister the observer.
     observer.off('callStateChange', (err, value) => {
       if (err) {

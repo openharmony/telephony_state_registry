@@ -56,7 +56,6 @@
 | ------------------------------------------------------------ | ------------ |
 | function on(type: String, options: { slotId?: number }, callback: AsyncCallback\<T\>): void; | 开启订阅     |
 | function off(type: String, callback?: AsyncCallback\<T\>): void; | 关闭订阅     |
-| function once(type: String, options: { slotId?: number }, callback: AsyncCallback\<T\>): void; | 一次性订阅   |
 
 ## 使用说明<a name="section163mcpsimp"></a>
 
@@ -81,14 +80,14 @@
 
 以订阅通话状态变化事件为例，主要步骤和代码如下：
 
-1.  不同的事件指定不同的type，传入参数，调用on方法（开启订阅）或once方法（一次性订阅）。
+1.  不同的事件指定不同的type，传入参数，调用on方法开启订阅。
 2.  收到回调后，若err为空，则订阅成功，否则订阅失败。订阅成功则可以从value中获取数据。
 3.  可以通过off方法取消订阅。取消订阅之后，不会再收到任何回调。
 
     ```
     // 引入包名
     import observer from '@ohos.telephony.observer';
-    
+
     // 开启订阅
     observer.on('callStateChange', {slotId: 1}, (err, value) => {
       if (err) {
@@ -99,18 +98,7 @@
       // 接口调用成功，err为空
       console.log(`success on. number is ` + value.number + ", state is " + value.state);
     });
-    
-    // 只订阅一次
-    observer.once('callStateChange', {slotId: 1}, (err, value) => {
-      if (err) {
-        // 接口调用失败，err非空
-        console.error(`failed, because ${err.message}`);
-        return;
-      }
-      // 接口调用成功，err为空
-      console.log(`success once. number is ` + value.number + ", state is " + value.state);
-    });
-    
+
     // 关闭订阅
     observer.off('callStateChange', (err, value) => {
       if (err) {

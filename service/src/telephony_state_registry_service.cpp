@@ -40,7 +40,7 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
     slotSize_ = SIM_SLOT_COUNT;
     for (int32_t i = 0; i < slotSize_; i++) {
         TELEPHONY_LOGI("TelephonyStateRegistryService send disconnected call state.");
-        SendCallStateChanged(i, (int32_t)TelCallState::CALL_STATUS_DISCONNECTED, u"");
+        SendCallStateChanged(i, static_cast<int32_t>(TelCallState::CALL_STATUS_DISCONNECTED), u"");
     }
 }
 
@@ -140,6 +140,10 @@ int32_t TelephonyStateRegistryService::UpdateCallState(
             "UpdateCallState##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     std::lock_guard<std::mutex> guard(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
@@ -168,6 +172,10 @@ int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
         TELEPHONY_LOGE(
             "UpdateCallStateForSlotId##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     callState_[slotId] = callState;
     callIncomingNumber_[slotId] = incomingNumber;
@@ -241,6 +249,11 @@ int32_t TelephonyStateRegistryService::UpdateCellInfo(
         TELEPHONY_LOGE(
             "UpdateCellInfo##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE) ||
+        !TelephonyPermission::CheckPermission(Permission::CELL_LOCATION)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     cellInfos_[slotId] = vec;
     std::lock_guard<std::mutex> guard(lock_);
