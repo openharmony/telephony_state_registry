@@ -40,7 +40,7 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
     slotSize_ = SIM_SLOT_COUNT;
     for (int32_t i = 0; i < slotSize_; i++) {
         TELEPHONY_LOGI("TelephonyStateRegistryService send disconnected call state.");
-        SendCallStateChanged(i, (int32_t)TelCallState::CALL_STATUS_DISCONNECTED, u"");
+        SendCallStateChanged(i, static_cast<int32_t>(TelCallState::CALL_STATUS_DISCONNECTED), u"");
     }
 }
 

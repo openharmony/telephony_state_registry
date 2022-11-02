@@ -45,6 +45,7 @@ void EventListenerManager::RemoveListener(TelephonyUpdateEventType eventType,
     auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
     if (handler == nullptr) {
         TELEPHONY_LOGE("Get event handler failed");
+        return;
     }
     handler->RemoveListener(eventType, removeListenerList);
 }
