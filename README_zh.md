@@ -31,7 +31,7 @@
 │  ├─ innerkits                     # 部件间的内部接口
 │  └─ kits                          # 对应用提供的接口（例如JS接口）
 ├─ sa_profile                       # 启动配置文件
-├─ service                          # 服务内部代码
+├─ services                         # 服务内部代码
 └─ test                             # 测试相关
    ├─ mock                          # 模拟测试相关代码
    └─ unittest                      # 单元测试相关代码
@@ -71,10 +71,11 @@
 | --------------------------------- | ----------------------------------------------------- | -------------------------------- |
 | networkStateChange                | 网络状态变化事件                                      | ohos.permission.GET_NETWORK_INFO |
 | signalInfoChange                  | 信号变化事件                                          | 无                               |
-| cellularDataConnectionStateChange | 蜂窝数据连接状态事件                                  | 无                               |
+| cellInfoChange                    | 小区信息变化事件                                      | ohos.permission.LOCATION         |
+| cellularDataConnectionStateChange | 蜂窝数据连接状态变化事件                              | 无                               |
 | cellularDataFlowChange            | 蜂窝数据流变化事件                                    | 无                               |
 | callStateChange                   | 通话状态变化事件                                      | ohos.permission.READ_CALL_LOG    |
-| simStateChange                    | SIM卡状态变化事件                                    | ohos.permission.READ_SIM_STATE    |
+| simStateChange                    | SIM卡状态变化事件                                     | 无                               |
 
 ### 接口调用代码示例<a name="section1558565082915"></a>
 
@@ -119,6 +120,8 @@
 **telephony_state_registry**
 
 [telephony_core_service](https://gitee.com/openharmony/telephony_core_service/blob/master/README_zh.md)
+
+[telephony_cellular_data](https://gitee.com/openharmony/telephony_cellular_data/blob/master/README_zh.md)
 
 [telephony_cellular_call](https://gitee.com/openharmony/telephony_cellular_call/blob/master/README_zh.md)
 

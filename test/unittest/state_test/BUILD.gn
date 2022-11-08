@@ -30,7 +30,7 @@ ohos_unittest("tel_state_registry_test") {
     "$SOURCE_DIR/interfaces/innerkits/notify",
     "$SOURCE_DIR/frameworks/native/observer/include",
     "$SOURCE_DIR/frameworks/native/common/include",
-    "$SOURCE_DIR/service/include",
+    "$SOURCE_DIR/services/include",
   ]
 
   configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
