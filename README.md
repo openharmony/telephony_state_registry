@@ -20,7 +20,7 @@ The state registry module provides APIs to register and deregister an observer t
 │  ├─ innerkits                     # Internal APIs
 │  └─ kits                          # External APIs \(such as JS APIs\)
 ├─ sa_profile                       # SA profile
-├─ service                          # Service code
+├─ services                         # Service code
 └─ test                             # Test code
    ├─ mock                          # Simulation test
    └─ unittest                      # Unit test
@@ -60,9 +60,11 @@ Different subscription events are distinguished by the  **type**  parameter. The
 | --------------------------------- | ------------------------------------------------------------ | -------------------------------- |
 | networkStateChange                | Network status change event                                  | ohos.permission.GET_NETWORK_INFO |
 | signalInfoChange                  | Signal change event                                          | None                             |
+| cellInfoChange                    | Cell information change event                                | ohos.permission.LOCATION         |
 | cellularDataConnectionStateChange | Cellular data connection status change event                 | None                             |
 | cellularDataFlowChange            | Cellular data flow change event                              | None                             |
 | callStateChange                   | Call status change event, in which the value of **phoneNumber** is empty if the user does not have the required permission. | ohos.permission.READ_CALL_LOG    |
+| simStateChange                    | SIM card status change event                                 | None                             |
 
 ### Sample Code<a name="section1558565082915"></a>
 
@@ -107,6 +109,8 @@ The function of registering an observer for call status change events is used as
 **telephony_state_registry**
 
 [telephony_core_service](https://gitee.com/openharmony/telephony_core_service/blob/master/README.md)
+
+[telephony_cellular_data](https://gitee.com/openharmony/telephony_cellular_data/blob/master/README.md)
 
 [telephony_cellular_call](https://gitee.com/openharmony/telephony_cellular_call/blob/master/README.md)
 
