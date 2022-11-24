@@ -425,9 +425,17 @@ void TelephonyStateRegistryService::SendCallStateChanged(
     want.SetParam("state", state);
     want.SetParam("number", Str16ToStr8(number));
     want.SetAction(CALL_STATE_CHANGE_ACTION);
-    int32_t eventCode = 1;
-    std::string eventData("callStateChanged");
-    PublishCommonEvent(want, eventCode, eventData);
+    EventFwk::CommonEventData data;
+    data.SetWant(want);
+    EventFwk::CommonEventPublishInfo publishInfo;
+    publishInfo.SetOrdered(true);
+    std::vector<std::string> callPermissions;
+    callPermissions.emplace_back(Permission::GET_TELEPHONY_STATE);
+    publishInfo.SetSubscriberPermissions(callPermissions);
+    bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
+    if (!publishResult) {
+        TELEPHONY_LOGE("SendCallStateChanged PublishBroadcastEvent result fail");
+    }
 }
 
 void TelephonyStateRegistryService::SendCellularDataConnectStateChanged(
