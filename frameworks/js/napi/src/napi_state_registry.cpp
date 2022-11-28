@@ -185,6 +185,29 @@ static napi_value Off(napi_env env, napi_callback_info info)
     }
 }
 
+napi_status InitEnumLockReason(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_NONE", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_NONE))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PIN", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PIN))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PUK", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PUK))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PN_PIN", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PN_PIN))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PN_PUK", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PN_PUK))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PU_PIN", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PU_PIN))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PU_PUK", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PU_PUK))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PP_PIN", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PP_PIN))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PP_PUK", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PP_PUK))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PC_PIN", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PC_PIN))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_PC_PUK", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_PC_PUK))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_SIM_PIN", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_SIM_PIN))),
+        DECLARE_NAPI_STATIC_PROPERTY("SIM_SIM_PUK", GetNapiValue(env, static_cast<int32_t>(LockReason::SIM_SIM_PUK))),
+    };
+
+    constexpr size_t arrSize = sizeof(desc) / sizeof(desc[0]);
+    NapiUtil::DefineEnumClassByName(env, exports, "LockReason", arrSize, desc);
+    return napi_define_properties(env, exports, arrSize, desc);
+}
+
 EXTERN_C_START
 napi_value InitNapiStateRegistry(napi_env env, napi_value exports)
 {
@@ -193,6 +216,7 @@ napi_value InitNapiStateRegistry(napi_env env, napi_value exports)
         DECLARE_NAPI_FUNCTION("off", Off),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
+    NAPI_CALL(env, InitEnumLockReason(env, exports));
     return exports;
 }
 EXTERN_C_END
