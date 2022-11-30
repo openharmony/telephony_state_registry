@@ -177,6 +177,7 @@ private:
 private:
     static sptr<StateRegistryObserver> telephonyObserver0_;
     static sptr<StateRegistryObserver> telephonyObserver1_;
+    TelephonyObserver telephonyObserver;
 };
 } // namespace Telephony
 } // namespace OHOS
