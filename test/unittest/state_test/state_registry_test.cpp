@@ -13,12 +13,16 @@
  * limitations under the License.
  */
 
+#define private public
+#define protected public
 #include "state_registry_test.h"
 
 #include "core_service_client.h"
 #include "sim_state_type.h"
 #include "telephony_log_wrapper.h"
 #include "telephony_observer_client.h"
+#include "telephony_observer_proxy.h"
+#include "telephony_state_manager.h"
 #include "telephony_state_registry_client.h"
 
 namespace OHOS {
@@ -389,6 +393,284 @@ HWTEST_F(StateRegistryTest, UpdateNetworkState_002, Function | MediumTest | Leve
     UpdateNetworkState(SIM_SLOT_ID_1);
 }
 
+/**
+ * @tc.number   TelephonyStateManagerTest_001
+ * @tc.name     telephony state ,anager test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateManagerTest_001, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyStateManagerTest_001 start!");
+    TelephonyStateManager::AddStateObserver(
+        telephonyObserver0_, DEFAULT_SIM_SLOT_ID, TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE, true);
+    wptr<IRemoteObject> wptrDeath = nullptr;
+    int32_t ret = TelephonyStateManager::RemoveStateObserver(
+        DEFAULT_SIM_SLOT_ID, Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_001
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_001, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyObserverTest_001 start!");
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    MessageOption option;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    std::u16string testStr = u"test";
+    if (!dataParcel.WriteInterfaceToken(testStr)) {
+        TELEPHONY_LOGE("TelephonyObserverTest_001 WriteInterfaceToken failed!");
+        return;
+    }
+    int32_t ret = telephonyObserver.OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CALL_STATE_UPDATED), dataParcel, reply,
+        option);
+    EXPECT_EQ(TELEPHONY_ERR_DESCRIPTOR_MISMATCH, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_002
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_002, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyObserverTest_002 start!");
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    MessageOption option;
+    std::u16string phoneNumber = u"123456";
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverTest_002 WriteInterfaceToken failed!");
+        return;
+    }
+    int32_t callState = 0;
+    dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
+    dataParcel.WriteInt32(callState);
+    dataParcel.WriteString16(phoneNumber);
+    int32_t ret = telephonyObserver.OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CALL_STATE_UPDATED), dataParcel, reply,
+        option);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_003
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_003, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyObserverTest_003 start!");
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverTest_003 WriteInterfaceToken failed!");
+        return;
+    }
+    std::vector<sptr<SignalInformation>> vec;
+    std::unique_ptr<SignalInformation> gsmSignal = std::make_unique<GsmSignalInformation>();
+    ASSERT_TRUE(gsmSignal != nullptr);
+    vec.push_back(gsmSignal.release());
+    std::unique_ptr<WcdmaSignalInformation> wcdmaSignal = std::make_unique<WcdmaSignalInformation>();
+    ASSERT_TRUE(wcdmaSignal != nullptr);
+    vec.push_back(wcdmaSignal.release());
+    std::unique_ptr<TdScdmaSignalInformation> tdScdmaSignal = std::make_unique<TdScdmaSignalInformation>();
+    ASSERT_TRUE(tdScdmaSignal != nullptr);
+    vec.push_back(tdScdmaSignal.release());
+    std::unique_ptr<CdmaSignalInformation> cdmaSignal = std::make_unique<CdmaSignalInformation>();
+    ASSERT_TRUE(cdmaSignal != nullptr);
+    vec.push_back(cdmaSignal.release());
+    std::unique_ptr<LteSignalInformation> lteSignal = std::make_unique<LteSignalInformation>();
+    ASSERT_TRUE(lteSignal != nullptr);
+    vec.push_back(lteSignal.release());
+    int32_t size = static_cast<int32_t>(vec.size());
+    dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
+    dataParcel.WriteInt32(size);
+    for (const auto &v : vec) {
+        v->Marshalling(dataParcel);
+    }
+    int32_t ret = telephonyObserver.OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_SIGNAL_INFO_UPDATED), dataParcel, reply,
+        option);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_004
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_004, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyObserverTest_004 start!");
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverTest_004 WriteInterfaceToken failed!");
+        return;
+    }
+    std::vector<sptr<CellInformation>> vec;
+    std::unique_ptr<GsmCellInformation> gsmCell = std::make_unique<GsmCellInformation>();
+    ASSERT_TRUE(gsmCell != nullptr);
+    vec.push_back(gsmCell.release());
+    std::unique_ptr<LteCellInformation> lteCell = std::make_unique<LteCellInformation>();
+    ASSERT_TRUE(lteCell != nullptr);
+    vec.push_back(lteCell.release());
+    std::unique_ptr<WcdmaCellInformation> wcdmaCell = std::make_unique<WcdmaCellInformation>();
+    ASSERT_TRUE(wcdmaCell != nullptr);
+    vec.push_back(wcdmaCell.release());
+    int32_t size = static_cast<int32_t>(vec.size());
+    dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
+    if (!dataParcel.WriteInt32(size)) {
+        TELEPHONY_LOGE("Failed to write Cellinformation array size!");
+        return;
+    }
+    for (const auto &v : vec) {
+        v->Marshalling(dataParcel);
+    }
+    int32_t ret = telephonyObserver.OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CELL_INFO_UPDATED), dataParcel, reply,
+        option);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_005
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_005, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyObserverTest_005 start!");
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverTest_005 WriteInterfaceToken failed!");
+        return;
+    }
+    dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
+    std::unique_ptr<NetworkState> networkState = std::make_unique<NetworkState>();
+    ASSERT_TRUE(networkState != nullptr);
+    (networkState.release())->Marshalling(dataParcel);
+    int32_t ret = telephonyObserver.OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_NETWORK_STATE_UPDATED), dataParcel, reply,
+        option);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_006
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_006, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyObserverTest_006 start!");
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverTest_006 WriteInterfaceToken failed!");
+        return;
+    }
+    int32_t type = 10;
+    int32_t state = 1;
+    int32_t reason = 1;
+    dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
+    dataParcel.WriteInt32(type);
+    dataParcel.WriteInt32(state);
+    dataParcel.WriteInt32(reason);
+    int32_t ret = telephonyObserver.OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_SIM_STATE_UPDATED), dataParcel, reply,
+        option);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_007
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_007, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyObserverTest_007 start!");
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverTest_007 WriteInterfaceToken failed!");
+        return;
+    }
+    int32_t dataState = 1;
+    int32_t networkType = 1;
+    dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
+    dataParcel.WriteInt32(dataState);
+    dataParcel.WriteInt32(networkType);
+    int32_t ret = telephonyObserver.OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CELLULAR_DATA_CONNECT_STATE_UPDATED),
+        dataParcel, reply, option);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_008
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_008, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyObserverTest_008 start!");
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverTest_008 WriteInterfaceToken failed!");
+        return;
+    }
+    int32_t dataFlowType = 1;
+    dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
+    dataParcel.WriteInt32(dataFlowType);
+    int32_t ret = telephonyObserver.OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED), dataParcel,
+        reply, option);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_009
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_009, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyObserverTest_009 start!");
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverTest_009 WriteInterfaceToken failed!");
+        return;
+    }
+    uint32_t testId = 123;
+    int32_t ret = telephonyObserver.OnRemoteRequest(testId, dataParcel, reply, option);
+    EXPECT_NE(TELEPHONY_ERR_SUCCESS, ret);
+}
 #else // TEL_TEST_UNSUPPORT
 /**
  * @tc.number   State_MockTest_001
