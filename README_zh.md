@@ -71,7 +71,7 @@
 | --------------------------------- | ----------------------------------------------------- | -------------------------------- |
 | networkStateChange                | 网络状态变化事件                                      | ohos.permission.GET_NETWORK_INFO |
 | signalInfoChange                  | 信号变化事件                                          | 无                               |
-| cellInfoChange                    | 小区信息变化事件                                      | ohos.permission.LOCATION         |
+| cellInfoChange                    | 小区信息变化事件                                      | ohos.permission.LOCATION 和 ohos.permission.APPROXIMATELY_LOCATION         |
 | cellularDataConnectionStateChange | 蜂窝数据连接状态变化事件                              | 无                               |
 | cellularDataFlowChange            | 蜂窝数据流变化事件                                    | 无                               |
 | callStateChange                   | 通话状态变化事件                                      | ohos.permission.READ_CALL_LOG    |
