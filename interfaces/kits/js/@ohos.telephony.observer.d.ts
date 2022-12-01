@@ -29,6 +29,9 @@ import sim from "./@ohos.telephony.sim";
 declare namespace observer {
   type NetworkState = radio.NetworkState;
   type SignalInformation = radio.SignalInformation;
+  /**
+   * @systemapi Hide this for inner system use.
+   */
   type CellInformation = radio.CellInformation;
   type DataConnectState = data.DataConnectState;
   type RatType = radio.RadioTechnology;
@@ -39,9 +42,6 @@ declare namespace observer {
 
   /**
    * Called when the network state corresponding to a monitored {@code slotId} updates.
-   *
-   * <p>Applications must have the {@code ohos.permission.GET_NETWORK_INFO} permission
-   * to register this event.
    *
    * @param type networkStateChange
    * @param options including slotId Indicates the ID of the target card slot.
@@ -71,14 +71,11 @@ declare namespace observer {
   /**
    * Called back when the cell information corresponding to a monitored {@code slotId} updates.
    *
-   * <p>Applications must have the {@code ohos.permission.LOCATION} permission
-   * to register this event.
-   *
    * @param type cellInfoChange
    * @param options including slotId Indicates the ID of the target card slot.
    *   The value {@code 0} indicates card 1, and the value {@code 1} indicates card 2.
    * @param callback including an array of instances of the classes derived from {@link CellInformation}.
-   * @permission ohos.permission.LOCATION
+   * @permission ohos.permission.LOCATION and ohos.permission.APPROXIMATELY_LOCATION
    * @systemapi Hide this for inner system use.
    * @since 8
    */
@@ -107,6 +104,9 @@ declare namespace observer {
   function on(type: 'cellularDataConnectionStateChange', options: { slotId: number },
     callback: Callback<{ state: DataConnectState, network: RatType }>): void;
 
+  /**
+   * @since 7
+   */
   function off(type: 'cellularDataConnectionStateChange',
     callback?: Callback<{ state: DataConnectState, network: RatType }>): void;
 
@@ -123,6 +123,9 @@ declare namespace observer {
   function on(type: 'cellularDataFlowChange', options: { slotId: number },
     callback: Callback<DataFlowType>): void;
 
+  /**
+   * @since 7
+   */
   function off(type: 'cellularDataFlowChange', callback?: Callback<DataFlowType>): void;
 
   /**
@@ -134,7 +137,7 @@ declare namespace observer {
    *   The value {@code 0} indicates card 1, and the value {@code 1} indicates card 2.
    * @param callback including state Indicates the call state, and number Indicates the called number.
    *   The value of number is an empty string if the application does not have
-   *     the {@code ohos.permission#READ_CALL_LOG READ_CALL_LOG} permission.
+   *     the ohos.permission.READ_CALL_LOG permission.
    */
   function on(type: 'callStateChange', callback: Callback<{ state: CallState, number: string }>): void;
   function on(type: 'callStateChange', options: { slotId: number },
@@ -156,6 +159,9 @@ declare namespace observer {
   function on(type: 'simStateChange', callback: Callback<SimStateData>): void;
   function on(type: 'simStateChange', options: { slotId: number }, callback: Callback<SimStateData>): void;
 
+  /**
+   * @since 7
+   */
   function off(type: 'simStateChange', callback?: Callback<SimStateData>): void;
 
   /**
@@ -179,13 +185,13 @@ declare namespace observer {
     SIM_PUK,
     SIM_PN_PIN, //Network Personalization (refer 3GPP TS 22.022 [33])
     SIM_PN_PUK,
-    SIM_PU_PIN, //network sUbset Personalization (refer 3GPP TS 22.022 [33])
+    SIM_PU_PIN, //Network Subset Personalization (refer 3GPP TS 22.022 [33])
     SIM_PU_PUK,
-    SIM_PP_PIN, //service Provider Personalization (refer 3GPP TS 22.022 [33])
+    SIM_PP_PIN, //Service Provider Personalization (refer 3GPP TS 22.022 [33])
     SIM_PP_PUK,
     SIM_PC_PIN, //Corporate Personalization (refer 3GPP TS 22.022 [33])
     SIM_PC_PUK,
-    SIM_SIM_PIN, //SIM/USIM personalisation (refer 3GPP TS 22.022 [33])
+    SIM_SIM_PIN, //SIM/USIM Personalization (refer 3GPP TS 22.022 [33])
     SIM_SIM_PUK,
   }
 }
