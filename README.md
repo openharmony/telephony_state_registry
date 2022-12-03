@@ -60,6 +60,7 @@ Different subscription events are distinguished by the  **type**  parameter. The
 | --------------------------------- | ------------------------------------------------------------ | -------------------------------- |
 | networkStateChange                | Network status change event                                  | ohos.permission.GET_NETWORK_INFO |
 | signalInfoChange                  | Signal change event                                          | None                             |
+| cellInfoChange                    | Cell information change event                                | ohos.permission.LOCATION and ohos.permission.APPROXIMATELY_LOCATION         |
 | cellularDataConnectionStateChange | Cellular data connection status change event                 | None                             |
 | cellularDataFlowChange            | Cellular data flow change event                              | None                             |
 | callStateChange                   | Call status change event, in which the value of **phoneNumber** is empty if the user does not have the required permission. | ohos.permission.READ_CALL_LOG    |
