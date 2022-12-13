@@ -31,6 +31,13 @@ using namespace testing::ext;
 sptr<StateRegistryObserver> StateRegistryTest::telephonyObserver0_ = nullptr;
 sptr<StateRegistryObserver> StateRegistryTest::telephonyObserver1_ = nullptr;
 static constexpr int32_t SIM_SLOT_ID_1 = DEFAULT_SIM_SLOT_ID + 1;
+static constexpr int32_t CALL_STATUS_ACTIVE = 0;
+static constexpr int32_t SINGLE_MODE_SIM_CARD = 10;
+static constexpr int32_t SIM_STATE_NOT_PRESENT = 1;
+static constexpr int32_t SIM_PIN = 1;
+static constexpr int32_t DATA_STATE_CONNECTING = 1;
+static constexpr int32_t NETWORK_TYPE_GSM = 1;
+static constexpr int32_t DATA_FLOW_TYPE_DOWN = 1;
 
 void StateRegistryTest::SetUpTestCase(void)
 {
@@ -449,9 +456,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_002, Function | MediumTest | L
         TELEPHONY_LOGE("TelephonyObserverTest_002 WriteInterfaceToken failed!");
         return;
     }
-    int32_t callState = 0;
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
-    dataParcel.WriteInt32(callState);
+    dataParcel.WriteInt32(CALL_STATUS_ACTIVE);
     dataParcel.WriteString16(phoneNumber);
     int32_t ret = telephonyObserver.OnRemoteRequest(
         static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CALL_STATE_UPDATED), dataParcel, reply,
@@ -586,13 +592,10 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_006, Function | MediumTest | L
         TELEPHONY_LOGE("TelephonyObserverTest_006 WriteInterfaceToken failed!");
         return;
     }
-    int32_t type = 10;
-    int32_t state = 1;
-    int32_t reason = 1;
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
-    dataParcel.WriteInt32(type);
-    dataParcel.WriteInt32(state);
-    dataParcel.WriteInt32(reason);
+    dataParcel.WriteInt32(SINGLE_MODE_SIM_CARD);
+    dataParcel.WriteInt32(SIM_STATE_NOT_PRESENT);
+    dataParcel.WriteInt32(SIM_PIN);
     int32_t ret = telephonyObserver.OnRemoteRequest(
         static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_SIM_STATE_UPDATED), dataParcel, reply,
         option);
@@ -615,11 +618,9 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_007, Function | MediumTest | L
         TELEPHONY_LOGE("TelephonyObserverTest_007 WriteInterfaceToken failed!");
         return;
     }
-    int32_t dataState = 1;
-    int32_t networkType = 1;
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
-    dataParcel.WriteInt32(dataState);
-    dataParcel.WriteInt32(networkType);
+    dataParcel.WriteInt32(DATA_STATE_CONNECTING);
+    dataParcel.WriteInt32(NETWORK_TYPE_GSM);
     int32_t ret = telephonyObserver.OnRemoteRequest(
         static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CELLULAR_DATA_CONNECT_STATE_UPDATED),
         dataParcel, reply, option);
@@ -642,9 +643,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_008, Function | MediumTest | L
         TELEPHONY_LOGE("TelephonyObserverTest_008 WriteInterfaceToken failed!");
         return;
     }
-    int32_t dataFlowType = 1;
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
-    dataParcel.WriteInt32(dataFlowType);
+    dataParcel.WriteInt32(DATA_FLOW_TYPE_DOWN);
     int32_t ret = telephonyObserver.OnRemoteRequest(
         static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED), dataParcel,
         reply, option);
