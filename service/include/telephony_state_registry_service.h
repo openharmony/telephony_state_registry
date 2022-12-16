@@ -80,6 +80,7 @@ private:
     void SendNetworkStateChanged(int32_t slotId, const sptr<NetworkState> &networkState);
     void SendSimStateChanged(int32_t slotId, CardType type, SimState state, LockReason reason);
     void SendCellularDataConnectStateChanged(int32_t slotId, int32_t dataState, int32_t networkType);
+    bool IsCommonEventServiceAbilityExist();
 
 private:
     ServiceRunningState state_ = ServiceRunningState::STATE_STOPPED;
