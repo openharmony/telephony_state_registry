@@ -20,8 +20,10 @@
 #include "call_manager_inner_type.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
+#include "iservice_registry.h"
 #include "state_registry_errors.h"
 #include "string_ex.h"
+#include "system_ability.h"
 #include "system_ability_definition.h"
 #include "telephony_permission.h"
 #include "telephony_state_registry_dump_helper.h"
@@ -38,10 +40,6 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
 {
     TELEPHONY_LOGI("TelephonyStateRegistryService SystemAbility create");
     slotSize_ = SIM_SLOT_COUNT;
-    for (int32_t i = 0; i < slotSize_; i++) {
-        TELEPHONY_LOGI("TelephonyStateRegistryService send disconnected call state.");
-        SendCallStateChanged(i, static_cast<int32_t>(TelCallState::CALL_STATUS_DISCONNECTED), u"");
-    }
 }
 
 TelephonyStateRegistryService::~TelephonyStateRegistryService()
@@ -70,6 +68,12 @@ void TelephonyStateRegistryService::OnStart()
     TELEPHONY_LOGI("TelephonyStateRegistryService start success.");
     bindEndTime_ = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::system_clock::now().time_since_epoch()).count();
+    if (IsCommonEventServiceAbilityExist()) {
+        for (int32_t i = 0; i < slotSize_; i++) {
+            TELEPHONY_LOGI("TelephonyStateRegistryService send disconnected call state.");
+            SendCallStateChanged(i, static_cast<int32_t>(TelCallState::CALL_STATUS_DISCONNECTED), u"");
+        }
+    }
 }
 
 void TelephonyStateRegistryService::OnStop()
@@ -662,6 +666,21 @@ int32_t TelephonyStateRegistryService::GetLockReason(int32_t slotId)
         }
     }
     return result;
+}
+
+bool TelephonyStateRegistryService::IsCommonEventServiceAbilityExist()
+{
+    sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    if (sm == nullptr) {
+        TELEPHONY_LOGE("IsCommonEventServiceAbilityExist Get ISystemAbilityManager failed, no SystemAbilityManager");
+        return false;
+    }
+    sptr<IRemoteObject> remote = sm->CheckSystemAbility(COMMON_EVENT_SERVICE_ID);
+    if (remote == nullptr) {
+        TELEPHONY_LOGE("No CesServiceAbility");
+        return false;
+    }
+    return true;
 }
 } // namespace Telephony
 } // namespace OHOS
