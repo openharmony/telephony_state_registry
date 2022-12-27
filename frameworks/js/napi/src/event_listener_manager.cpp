@@ -29,25 +29,35 @@ std::optional<int32_t> EventListenerManager::RegisterEventListener(EventListener
 }
 
 std::optional<int32_t> EventListenerManager::UnregisterEventListener(
-    int32_t slotId, const TelephonyUpdateEventType eventType)
+    napi_env env, const TelephonyUpdateEventType eventType, napi_ref ref, std::list<EventListener> &removeListenerList)
 {
     auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
     if (handler == nullptr) {
         TELEPHONY_LOGE("Get event handler failed");
         return std::nullopt;
     }
-    return handler->UnregisterEventListener(slotId, eventType);
+    return handler->UnregisterEventListener(env, eventType, ref, removeListenerList);
 }
 
-void EventListenerManager::RemoveListener(TelephonyUpdateEventType eventType,
-    std::list<EventListener> &removeListenerList)
+std::optional<int32_t> EventListenerManager::UnregisterEventListener(
+    napi_env env, TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList)
+{
+    auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
+    if (handler == nullptr) {
+        TELEPHONY_LOGE("Get event handler failed");
+        return std::nullopt;
+    }
+    return handler->UnregisterEventListener(env, eventType, removeListenerList);
+}
+
+void EventListenerManager::UnRegisterAllListener(napi_env env)
 {
     auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
     if (handler == nullptr) {
         TELEPHONY_LOGE("Get event handler failed");
         return;
     }
-    handler->RemoveListener(eventType, removeListenerList);
+    handler->UnRegisterAllListener(env);
 }
 } // namespace Telephony
 } // namespace OHOS

@@ -21,8 +21,8 @@
 
 #include "event_listener.h"
 #include "event_listener_handler.h"
-#include "telephony_update_event_type.h"
 #include "telephony_log_wrapper.h"
+#include "telephony_update_event_type.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -39,8 +39,11 @@ public:
         return handler->SendEvent(innerEventId, object, delayTime);
     }
     static std::optional<int32_t> RegisterEventListener(EventListener &eventListener);
-    static std::optional<int32_t> UnregisterEventListener(int32_t slotId, const TelephonyUpdateEventType eventType);
-    static void RemoveListener(TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList);
+    static std::optional<int32_t> UnregisterEventListener(napi_env env, const TelephonyUpdateEventType eventType,
+        napi_ref ref, std::list<EventListener> &removeListenerList);
+    static std::optional<int32_t> UnregisterEventListener(
+        napi_env env, TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList);
+    static void UnRegisterAllListener(napi_env env);
 };
 } // namespace Telephony
 } // namespace OHOS

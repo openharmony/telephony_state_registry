@@ -45,6 +45,11 @@ TelephonyUpdateEventType GetEventType(std::string_view event)
 }
 } // namespace
 
+static inline bool IsValidSlotId(int32_t slotId)
+{
+    return ((slotId >= DEFAULT_SIM_SLOT_ID) && (slotId < SIM_SLOT_COUNT));
+}
+
 static void NativeOn(napi_env env, void *data)
 {
     if (data == nullptr) {
@@ -52,19 +57,26 @@ static void NativeOn(napi_env env, void *data)
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
+    if (!IsValidSlotId(asyncContext->slotId)) {
+        TELEPHONY_LOGE("NativeOn slotId is invalid");
+        asyncContext->errorCode = ERROR_SLOT_ID_INVALID;
+        return;
+    }
     TELEPHONY_LOGI("NativeOn eventType = %{public}d", asyncContext->eventType);
+    std::shared_ptr<bool> isDeleting = std::make_shared<bool>(false);
     EventListener listener {
         env,
         asyncContext->eventType,
         asyncContext->slotId,
         asyncContext->callbackRef,
+        isDeleting,
     };
     std::optional<int32_t> result = EventListenerManager::RegisterEventListener(listener);
     asyncContext->resolved = !result.has_value();
     asyncContext->errorCode = result.value_or(ERROR_NONE);
 }
 
-static void OnCallback(napi_env env, napi_status status, void *data)
+static void OnCallback(napi_env env, void *data)
 {
     if (data == nullptr) {
         TELEPHONY_LOGE("OnCallback data is nullptr");
@@ -74,7 +86,6 @@ static void OnCallback(napi_env env, napi_status status, void *data)
     if (!asyncContext->resolved) {
         TELEPHONY_LOGE("OnCallback error by add observer failed");
     }
-    napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
 }
 
@@ -115,7 +126,9 @@ static napi_value On(napi_env env, napi_callback_info info)
 
     asyncContext->eventType = GetEventType(eventType.data());
     if (asyncContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
-        return NapiUtil::HandleAsyncWork(env, asyncContext.release(), "On", NativeOn, OnCallback);
+        ObserverContext *observerContext = asyncContext.release();
+        NativeOn(env, observerContext);
+        OnCallback(env, observerContext);
     } else {
         napi_throw_error(env, "1", "first parameter \"type\" mismatch with the observer.d.ts");
     }
@@ -128,15 +141,22 @@ static void NativeOff(napi_env env, void *data)
         TELEPHONY_LOGE("NativeOff data is nullptr");
         return;
     }
+
+    std::optional<int32_t> result = std::nullopt;
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
-    std::optional<int32_t> result =
-        EventListenerManager::UnregisterEventListener(asyncContext->slotId, asyncContext->eventType);
+    if (asyncContext->callbackRef == nullptr) {
+        result = EventListenerManager::UnregisterEventListener(
+            env, asyncContext->eventType, asyncContext->removeListenerList);
+    } else {
+        result = EventListenerManager::UnregisterEventListener(
+            env, asyncContext->eventType, asyncContext->callbackRef, asyncContext->removeListenerList);
+    }
+
     asyncContext->resolved = !result.has_value();
     asyncContext->errorCode = result.value_or(ERROR_NONE);
-    EventListenerManager::RemoveListener(asyncContext->eventType, asyncContext->removeListenerList);
 }
 
-static void OffCallback(napi_env env, napi_status status, void *data)
+static void OffCallback(napi_env env, void *data)
 {
     if (data == nullptr) {
         TELEPHONY_LOGE("OffCallback data is nullptr");
@@ -152,7 +172,6 @@ static void OffCallback(napi_env env, napi_status status, void *data)
     if (!asyncContext->resolved) {
         TELEPHONY_LOGE("OffCallback error by remove observer failed");
     }
-    napi_delete_async_work(env, asyncContext->work);
     delete asyncContext;
 }
 
@@ -178,11 +197,13 @@ static napi_value Off(napi_env env, napi_callback_info info)
 
     asyncContext->eventType = GetEventType(eventType.data());
     if (asyncContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
-        return NapiUtil::HandleAsyncWork(env, asyncContext.release(), "Off", NativeOff, OffCallback);
+        ObserverContext *observerContext = asyncContext.release();
+        NativeOff(env, observerContext);
+        OffCallback(env, observerContext);
     } else {
         napi_throw_error(env, "1", "first parameter \"type\" mismatch with the @ohos.telephony.observer.d.ts");
-        return NapiUtil::CreateUndefined(env);
     }
+    return NapiUtil::CreateUndefined(env);
 }
 
 napi_status InitEnumLockReason(napi_env env, napi_value exports)
@@ -217,6 +238,11 @@ napi_value InitNapiStateRegistry(napi_env env, napi_value exports)
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     NAPI_CALL(env, InitEnumLockReason(env, exports));
+    const char *nativeStr = "InitNapiStateRegistry";
+    napi_wrap(
+        env, exports, (void *)nativeStr,
+        [](napi_env env, void *data, void *hint) { EventListenerManager::UnRegisterAllListener(env); }, nullptr,
+        nullptr);
     return exports;
 }
 EXTERN_C_END
