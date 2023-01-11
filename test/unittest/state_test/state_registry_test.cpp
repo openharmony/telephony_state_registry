@@ -120,6 +120,13 @@ void StateRegistryTest::TearDown(void)
     // step 3: input testcase teardown step
 }
 
+bool StateRegistryTest::HasSimCard(int32_t slotId)
+{
+    bool hasSimCard = false;
+    CoreServiceClient::GetInstance().HasSimCard(slotId, hasSimCard);
+    return hasSimCard;
+}
+
 void StateRegistryTest::UpdateCallState(int32_t slotId)
 {
     AccessToken token;
@@ -225,7 +232,7 @@ HWTEST_F(StateRegistryTest, StateRegistry_001, Function | MediumTest | Level0)
  */
 HWTEST_F(StateRegistryTest, UpdateCallState_001, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         return;
     }
     UpdateCallState(DEFAULT_SIM_SLOT_ID);
@@ -238,7 +245,7 @@ HWTEST_F(StateRegistryTest, UpdateCallState_001, Function | MediumTest | Level1)
  */
 HWTEST_F(StateRegistryTest, UpdateCallState_002, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(SIM_SLOT_ID_1)) {
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         return;
     }
     UpdateCallState(SIM_SLOT_ID_1);
@@ -251,7 +258,7 @@ HWTEST_F(StateRegistryTest, UpdateCallState_002, Function | MediumTest | Level1)
  */
 HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_001, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         return;
     }
     UpdateCallStateForSlotId(DEFAULT_SIM_SLOT_ID);
@@ -264,7 +271,7 @@ HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_001, Function | MediumTest 
  */
 HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_002, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(SIM_SLOT_ID_1)) {
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         return;
     }
     UpdateCallStateForSlotId(SIM_SLOT_ID_1);
@@ -277,7 +284,7 @@ HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_002, Function | MediumTest 
  */
 HWTEST_F(StateRegistryTest, UpdateSignalInfo_001, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         return;
     }
     UpdateSignalInfo(DEFAULT_SIM_SLOT_ID);
@@ -290,7 +297,7 @@ HWTEST_F(StateRegistryTest, UpdateSignalInfo_001, Function | MediumTest | Level1
  */
 HWTEST_F(StateRegistryTest, UpdateSignalInfo_002, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(SIM_SLOT_ID_1)) {
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         return;
     }
     UpdateSignalInfo(SIM_SLOT_ID_1);
@@ -303,7 +310,7 @@ HWTEST_F(StateRegistryTest, UpdateSignalInfo_002, Function | MediumTest | Level1
  */
 HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_001, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         return;
     }
     UpdateCellularDataConnectState(DEFAULT_SIM_SLOT_ID);
@@ -316,7 +323,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_001, Function | Mediu
  */
 HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_002, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(SIM_SLOT_ID_1)) {
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         return;
     }
     UpdateCellularDataConnectState(SIM_SLOT_ID_1);
@@ -329,7 +336,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_002, Function | Mediu
  */
 HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_001, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         return;
     }
     UpdateCellularDataFlow(DEFAULT_SIM_SLOT_ID);
@@ -342,7 +349,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_001, Function | MediumTest | 
  */
 HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_002, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(SIM_SLOT_ID_1)) {
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         return;
     }
     UpdateCellularDataFlow(SIM_SLOT_ID_1);
@@ -355,7 +362,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_002, Function | MediumTest | 
  */
 HWTEST_F(StateRegistryTest, UpdateSimState_001, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         return;
     }
     UpdateSimState(DEFAULT_SIM_SLOT_ID);
@@ -368,7 +375,7 @@ HWTEST_F(StateRegistryTest, UpdateSimState_001, Function | MediumTest | Level1)
  */
 HWTEST_F(StateRegistryTest, UpdateSimState_002, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(SIM_SLOT_ID_1)) {
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         return;
     }
     UpdateSimState(SIM_SLOT_ID_1);
@@ -381,7 +388,7 @@ HWTEST_F(StateRegistryTest, UpdateSimState_002, Function | MediumTest | Level1)
  */
 HWTEST_F(StateRegistryTest, UpdateNetworkState_001, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         return;
     }
     UpdateNetworkState(DEFAULT_SIM_SLOT_ID);
@@ -394,7 +401,7 @@ HWTEST_F(StateRegistryTest, UpdateNetworkState_001, Function | MediumTest | Leve
  */
 HWTEST_F(StateRegistryTest, UpdateNetworkState_002, Function | MediumTest | Level1)
 {
-    if (!CoreServiceClient::GetInstance().HasSimCard(SIM_SLOT_ID_1)) {
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         return;
     }
     UpdateNetworkState(SIM_SLOT_ID_1);
