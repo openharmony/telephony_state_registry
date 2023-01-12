@@ -149,7 +149,7 @@ napi_status NapiReturnToJS(napi_env env, napi_ref callbackRef, napi_value callba
     }
     napi_value callbackFunc = nullptr;
     napi_get_reference_value(env, callbackRef, &callbackFunc);
-    napi_value callbackValues[] = {callbackVal};
+    napi_value callbackValues[] = { callbackVal };
     napi_value recv = nullptr;
     napi_get_undefined(env, &recv);
     napi_value callbackResult = nullptr;
@@ -282,13 +282,10 @@ EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecF
             TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE>;
 
     workFuncMap_[TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE] = &EventListenerHandler::WorkCallStateUpdated;
-    workFuncMap_[TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE] =
-        &EventListenerHandler::WorkSignalUpdated;
-    workFuncMap_[TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE] =
-        &EventListenerHandler::WorkNetworkStateUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE] = &EventListenerHandler::WorkSignalUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE] = &EventListenerHandler::WorkNetworkStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE] = &EventListenerHandler::WorkSimStateUpdated;
-    workFuncMap_[TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE] =
-        &EventListenerHandler::WorkCellInfomationUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE] = &EventListenerHandler::WorkCellInfomationUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE] =
         &EventListenerHandler::WorkCellularDataConnectStateUpdate;
     workFuncMap_[TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE] =
@@ -331,35 +328,35 @@ int32_t EventListenerHandler::CheckEventListenerRegister(EventListener &eventLis
     return flag;
 }
 
-std::optional<int32_t> EventListenerHandler::RegisterEventListener(EventListener &eventListener)
+int32_t EventListenerHandler::RegisterEventListener(EventListener &eventListener)
 {
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
     int32_t registerStatus = CheckEventListenerRegister(eventListener);
     if (registerStatus == EVENT_LISTENER_SAME) {
-        return std::nullopt;
+        return TELEPHONY_SUCCESS;
     }
     if (registerStatus != EVENT_LISTENER_SLOTID_AND_EVENTTYPE_SAME) {
         NapiTelephonyObserver *telephonyObserver = std::make_unique<NapiTelephonyObserver>().release();
         if (telephonyObserver == nullptr) {
             TELEPHONY_LOGE("error by telephonyObserver nullptr");
-            return std::make_optional<int32_t>(ERROR_DEFAULT);
+            return TELEPHONY_ERR_LOCAL_PTR_NULL;
         }
         sptr<TelephonyObserverBroker> observer(telephonyObserver);
         if (observer == nullptr) {
             TELEPHONY_LOGE("error by observer nullptr");
-            return std::make_optional<int32_t>(ERROR_DEFAULT);
+            return TELEPHONY_ERR_LOCAL_PTR_NULL;
         }
         int32_t addResult = TelephonyStateManager::AddStateObserver(
             observer, eventListener.slotId, ToUint32t(eventListener.eventType), false);
         if (addResult != TELEPHONY_SUCCESS) {
             TELEPHONY_LOGE("AddStateObserver failed, ret=%{public}d!", addResult);
-            return std::make_optional<int32_t>(addResult);
+            return addResult;
         }
     }
     listenerList_.push_back(eventListener);
     TELEPHONY_LOGI("EventListenerHandler::RegisterEventListener listenerList_ size=%{public}d",
         static_cast<int32_t>(listenerList_.size()));
-    return std::nullopt;
+    return TELEPHONY_SUCCESS;
 }
 
 void EventListenerHandler::SetEventListenerDeleting(std::shared_ptr<bool> isDeleting)
@@ -425,13 +422,13 @@ void EventListenerHandler::CheckRemoveStateObserver(TelephonyUpdateEventType eve
     }
 }
 
-std::optional<int32_t> EventListenerHandler::UnregisterEventListener(
+int32_t EventListenerHandler::UnregisterEventListener(
     napi_env env, TelephonyUpdateEventType eventType, napi_ref ref, std::list<EventListener> &removeListenerList)
 {
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
     if (listenerList_.empty()) {
         TELEPHONY_LOGI("UnregisterEventListener listener list is empty.");
-        return std::nullopt;
+        return TELEPHONY_SUCCESS;
     }
 
     std::set<int32_t> soltIdSet;
@@ -442,16 +439,16 @@ std::optional<int32_t> EventListenerHandler::UnregisterEventListener(
     }
     TELEPHONY_LOGI("EventListenerHandler::UnregisterEventListener listenerList_ size=%{public}d",
         static_cast<int32_t>(listenerList_.size()));
-    return (result == TELEPHONY_SUCCESS) ? std::nullopt : std::make_optional<int32_t>(result);
+    return result;
 }
 
-std::optional<int32_t> EventListenerHandler::UnregisterEventListener(
+int32_t EventListenerHandler::UnregisterEventListener(
     napi_env env, TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList)
 {
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
     if (listenerList_.empty()) {
         TELEPHONY_LOGI("UnregisterEventListener listener list is empty.");
-        return std::nullopt;
+        return TELEPHONY_SUCCESS;
     }
 
     std::set<int32_t> soltIdSet;
@@ -462,7 +459,7 @@ std::optional<int32_t> EventListenerHandler::UnregisterEventListener(
     }
     TELEPHONY_LOGI("EventListenerHandler::UnregisterEventListener listenerList_ size=%{public}d",
         static_cast<int32_t>(listenerList_.size()));
-    return (result == TELEPHONY_SUCCESS) ? std::nullopt : std::make_optional<int32_t>(result);
+    return result;
 }
 
 void EventListenerHandler::UnRegisterAllListener(napi_env env)
