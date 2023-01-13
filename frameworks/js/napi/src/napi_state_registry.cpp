@@ -14,12 +14,15 @@
  */
 
 #include "napi_state_registry.h"
+
 #include <map>
 #include <utility>
+
 #include "event_listener_manager.h"
 #include "napi_parameter_util.h"
 #include "napi_telephony_observer.h"
 #include "napi_util.h"
+#include "state_registry_errors.h"
 #include "telephony_errors.h"
 #include "telephony_log_wrapper.h"
 #include "telephony_state_manager.h"
@@ -27,7 +30,11 @@
 namespace OHOS {
 namespace Telephony {
 namespace {
+constexpr const char *OBSERVER_JS_PERMISSION_ERROR_STRING =
+    "Permission denied. An attempt was made to Observer "
+    "On forbidden by permission : ohos.permission.GET_NETWORK_INFO or ohos.permission.LOCATION ";
 constexpr int32_t ARRAY_SIZE = 64;
+
 const std::map<std::string_view, TelephonyUpdateEventType> eventMap {
     {"networkStateChange", TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE},
     {"callStateChange", TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE},
@@ -54,6 +61,7 @@ static void NativeOn(napi_env env, void *data)
 {
     if (data == nullptr) {
         TELEPHONY_LOGE("NativeOn data is nullptr");
+        NapiUtil::ThrowParameterError(env);
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
@@ -71,20 +79,28 @@ static void NativeOn(napi_env env, void *data)
         asyncContext->callbackRef,
         isDeleting,
     };
-    std::optional<int32_t> result = EventListenerManager::RegisterEventListener(listener);
-    asyncContext->resolved = !result.has_value();
-    asyncContext->errorCode = result.value_or(ERROR_NONE);
+    asyncContext->errorCode = EventListenerManager::RegisterEventListener(listener);
+    if (asyncContext->errorCode == TELEPHONY_SUCCESS) {
+        asyncContext->resolved = true;
+    }
 }
 
 static void OnCallback(napi_env env, void *data)
 {
     if (data == nullptr) {
         TELEPHONY_LOGE("OnCallback data is nullptr");
+        NapiUtil::ThrowParameterError(env);
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     if (!asyncContext->resolved) {
         TELEPHONY_LOGE("OnCallback error by add observer failed");
+        if (asyncContext->errorCode == TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED) {
+            NapiUtil::ThrowError(env, JS_ERROR_TELEPHONY_PERMISSION_DENIED, OBSERVER_JS_PERMISSION_ERROR_STRING);
+        } else {
+            JsError error = NapiUtil::ConverErrorMessageForJs(asyncContext->errorCode);
+            NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);
+        }
     }
     delete asyncContext;
 }
@@ -92,12 +108,13 @@ static void OnCallback(napi_env env, void *data)
 static napi_value On(napi_env env, napi_callback_info info)
 {
     size_t parameterCount = 3;
-    napi_value parameters[] = {nullptr, nullptr, nullptr};
+    napi_value parameters[] = { nullptr, nullptr, nullptr };
     napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
 
     std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
     if (asyncContext == nullptr) {
-        napi_throw_error(env, nullptr, "ObserverContext is nullptr!");
+        TELEPHONY_LOGE("On asyncContext is nullptr.");
+        NapiUtil::ThrowParameterError(env);
         return nullptr;
     }
     std::array<char, ARRAY_SIZE> eventType {};
@@ -119,8 +136,8 @@ static napi_value On(napi_env env, napi_callback_info info)
     }
 
     if (errCode.has_value()) {
-        const std::string errMsg = "type of input parameters error : " + std::to_string(errCode.value());
-        napi_throw_error(env, nullptr, errMsg.c_str());
+        TELEPHONY_LOGE("On parameter matching failed.");
+        NapiUtil::ThrowParameterError(env);
         return nullptr;
     }
 
@@ -130,7 +147,7 @@ static napi_value On(napi_env env, napi_callback_info info)
         NativeOn(env, observerContext);
         OnCallback(env, observerContext);
     } else {
-        napi_throw_error(env, "1", "first parameter \"type\" mismatch with the observer.d.ts");
+        NapiUtil::ThrowParameterError(env);
     }
     return NapiUtil::CreateUndefined(env);
 }
@@ -139,27 +156,29 @@ static void NativeOff(napi_env env, void *data)
 {
     if (data == nullptr) {
         TELEPHONY_LOGE("NativeOff data is nullptr");
+        NapiUtil::ThrowParameterError(env);
         return;
     }
 
-    std::optional<int32_t> result = std::nullopt;
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     if (asyncContext->callbackRef == nullptr) {
-        result = EventListenerManager::UnregisterEventListener(
+        asyncContext->errorCode = EventListenerManager::UnregisterEventListener(
             env, asyncContext->eventType, asyncContext->removeListenerList);
     } else {
-        result = EventListenerManager::UnregisterEventListener(
+        asyncContext->errorCode = EventListenerManager::UnregisterEventListener(
             env, asyncContext->eventType, asyncContext->callbackRef, asyncContext->removeListenerList);
     }
 
-    asyncContext->resolved = !result.has_value();
-    asyncContext->errorCode = result.value_or(ERROR_NONE);
+    if (asyncContext->errorCode == TELEPHONY_SUCCESS) {
+        asyncContext->resolved = true;
+    }
 }
 
 static void OffCallback(napi_env env, void *data)
 {
     if (data == nullptr) {
         TELEPHONY_LOGE("OffCallback data is nullptr");
+        NapiUtil::ThrowParameterError(env);
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
@@ -171,6 +190,12 @@ static void OffCallback(napi_env env, void *data)
     asyncContext->removeListenerList.clear();
     if (!asyncContext->resolved) {
         TELEPHONY_LOGE("OffCallback error by remove observer failed");
+        if (asyncContext->errorCode == TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED) {
+            NapiUtil::ThrowError(env, JS_ERROR_TELEPHONY_PERMISSION_DENIED, OBSERVER_JS_PERMISSION_ERROR_STRING);
+        } else {
+            JsError error = NapiUtil::ConverErrorMessageForJs(asyncContext->errorCode);
+            NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);
+        }
     }
     delete asyncContext;
 }
@@ -178,20 +203,21 @@ static void OffCallback(napi_env env, void *data)
 static napi_value Off(napi_env env, napi_callback_info info)
 {
     size_t parameterCount = 2;
-    napi_value parameters[] = {nullptr, nullptr};
+    napi_value parameters[] = { nullptr, nullptr };
     napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
 
     std::array<char, ARRAY_SIZE> eventType {};
     std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
     if (asyncContext == nullptr) {
-        napi_throw_error(env, nullptr, "ObserverContext is nullptr!");
+        TELEPHONY_LOGE("Off asyncContext is nullptr.");
+        NapiUtil::ThrowParameterError(env);
         return nullptr;
     }
     auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef);
     std::optional<NapiError> errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
     if (errCode.has_value()) {
-        const std::string errMsg = "type of input parameters error : " + std::to_string(errCode.value());
-        napi_throw_error(env, nullptr, errMsg.c_str());
+        TELEPHONY_LOGE("Off parameter matching failed.");
+        NapiUtil::ThrowParameterError(env);
         return nullptr;
     }
 
@@ -201,7 +227,7 @@ static napi_value Off(napi_env env, napi_callback_info info)
         NativeOff(env, observerContext);
         OffCallback(env, observerContext);
     } else {
-        napi_throw_error(env, "1", "first parameter \"type\" mismatch with the @ohos.telephony.observer.d.ts");
+        NapiUtil::ThrowParameterError(env);
     }
     return NapiUtil::CreateUndefined(env);
 }
@@ -254,7 +280,7 @@ static napi_module _stateRegistryModule = {
     .nm_register_func = InitNapiStateRegistry,
     .nm_modname = "telephony.observer",
     .nm_priv = nullptr,
-    .reserved = {nullptr},
+    .reserved = { nullptr },
 };
 
 extern "C" __attribute__((constructor)) void RegisterTelephonyObserverModule(void)

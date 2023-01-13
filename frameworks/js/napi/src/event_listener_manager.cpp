@@ -14,38 +14,39 @@
  */
 
 #include "event_listener_manager.h"
+
 #include "telephony_update_event_type.h"
 
 namespace OHOS {
 namespace Telephony {
-std::optional<int32_t> EventListenerManager::RegisterEventListener(EventListener &eventListener)
+int32_t EventListenerManager::RegisterEventListener(EventListener &eventListener)
 {
     auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
     if (handler == nullptr) {
         TELEPHONY_LOGE("Get event handler failed");
-        return std::nullopt;
+        return TELEPHONY_ERR_LOCAL_PTR_NULL;
     }
     return handler->RegisterEventListener(eventListener);
 }
 
-std::optional<int32_t> EventListenerManager::UnregisterEventListener(
+int32_t EventListenerManager::UnregisterEventListener(
     napi_env env, const TelephonyUpdateEventType eventType, napi_ref ref, std::list<EventListener> &removeListenerList)
 {
     auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
     if (handler == nullptr) {
         TELEPHONY_LOGE("Get event handler failed");
-        return std::nullopt;
+        return TELEPHONY_ERR_LOCAL_PTR_NULL;
     }
     return handler->UnregisterEventListener(env, eventType, ref, removeListenerList);
 }
 
-std::optional<int32_t> EventListenerManager::UnregisterEventListener(
+int32_t EventListenerManager::UnregisterEventListener(
     napi_env env, TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList)
 {
     auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
     if (handler == nullptr) {
         TELEPHONY_LOGE("Get event handler failed");
-        return std::nullopt;
+        return TELEPHONY_ERR_LOCAL_PTR_NULL;
     }
     return handler->UnregisterEventListener(env, eventType, removeListenerList);
 }
