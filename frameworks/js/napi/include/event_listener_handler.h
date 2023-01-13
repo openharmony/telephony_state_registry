@@ -36,6 +36,10 @@
 
 namespace OHOS {
 namespace Telephony {
+constexpr int32_t EVENT_LISTENER_DIFF = -1;
+constexpr int32_t EVENT_LISTENER_SAME = 0;
+constexpr int32_t EVENT_LISTENER_SLOTID_AND_EVENTTYPE_SAME = 1;
+
 class EventListenerHandler : public AppExecFwk::EventHandler {
     DECLARE_DELAYED_SINGLETON(EventListenerHandler)
 public:
@@ -43,29 +47,38 @@ public:
     EventListenerHandler &operator=(const EventListenerHandler &) = delete;
     void ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event) override;
     std::optional<int32_t> RegisterEventListener(EventListener &eventListener);
-    std::optional<int32_t> UnregisterEventListener(int32_t slotId, TelephonyUpdateEventType eventType);
-    void RemoveListener(TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList);
-    void SetCallbackCompleteToListener(napi_ref ref, bool flag = true);
+    std::optional<int32_t> UnregisterEventListener(
+        napi_env env, TelephonyUpdateEventType eventType, napi_ref ref, std::list<EventListener> &removeListenerList);
+    std::optional<int32_t> UnregisterEventListener(
+        napi_env env, TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList);
+    void UnRegisterAllListener(napi_env env);
 
 private:
     using HandleFuncType = void (EventListenerHandler::*)(const AppExecFwk::InnerEvent::Pointer &event);
     std::map<TelephonyCallbackEventId, HandleFuncType> handleFuncMap_;
-    std::map<TelephonyUpdateEventType, void (*)(uv_work_t *work, int status)> workFuncMap_;
-    std::mutex operatorMutex_;
+    static std::map<TelephonyUpdateEventType, void (*)(uv_work_t *work)> workFuncMap_;
+    static std::mutex operatorMutex_;
     std::list<EventListener> listenerList_;
-    std::map<uint32_t, std::set<TelephonyUpdateEventType>> registerStateMap_;
 
 private:
-    void ManageRegistrants(uint32_t slotId, const TelephonyUpdateEventType eventType, bool isRegister);
-    bool IsEventTypeRegistered(uint32_t slotId, const TelephonyUpdateEventType eventType) const;
+    bool IsCallBackRegister(napi_env env, napi_ref ref, napi_ref registeredRef) const;
+    bool CheckEventTypeExist(int32_t slotId, TelephonyUpdateEventType eventType);
+    void RemoveEventListenerRegister(napi_env env, TelephonyUpdateEventType eventType, napi_ref ref,
+        std::list<EventListener> &removeListenerList, std::set<int32_t> &soltIdSet);
+    void RemoveEventListenerRegister(napi_env env, TelephonyUpdateEventType eventType,
+        std::list<EventListener> &removeListenerList, std::set<int32_t> &soltIdSet);
+    void CheckRemoveStateObserver(TelephonyUpdateEventType eventType, int32_t slotId, int32_t &result);
+    int32_t CheckEventListenerRegister(EventListener &eventListener);
 
-    static void WorkCallStateUpdated(uv_work_t *work, int status);
-    static void WorkSignalUpdated(uv_work_t *work, int status);
-    static void WorkNetworkStateUpdated(uv_work_t *work, int status);
-    static void WorkSimStateUpdated(uv_work_t *work, int status);
-    static void WorkCellInfomationUpdated(uv_work_t *work, int status);
-    static void WorkCellularDataConnectStateUpdate(uv_work_t *work, int status);
-    static void WorkCellularDataFlowUpdate(uv_work_t *work, int status);
+    static void WorkCallStateUpdated(uv_work_t *work);
+    static void WorkSignalUpdated(uv_work_t *work);
+    static void WorkNetworkStateUpdated(uv_work_t *work);
+    static void WorkSimStateUpdated(uv_work_t *work);
+    static void WorkCellInfomationUpdated(uv_work_t *work);
+    static void WorkCellularDataConnectStateUpdate(uv_work_t *work);
+    static void WorkCellularDataFlowUpdate(uv_work_t *work);
+    static void WorkUpdated(uv_work_t *work, int status);
+    static void SetEventListenerDeleting(std::shared_ptr<bool> isDeleting);
 
     template<typename T, typename D, TelephonyUpdateEventType eventType>
     void HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent::Pointer &event);

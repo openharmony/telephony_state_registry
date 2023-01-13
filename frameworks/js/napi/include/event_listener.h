@@ -28,8 +28,7 @@ struct EventListener {
     TelephonyUpdateEventType eventType;
     int32_t slotId;
     napi_ref callbackRef;
-    bool callbackComplete = true;
-    size_t index = 0;
+    std::shared_ptr<bool> isDeleting = nullptr;
 };
 } // namespace Telephony
 } // namespace OHOS
