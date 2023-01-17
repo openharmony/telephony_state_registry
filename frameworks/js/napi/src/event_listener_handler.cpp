@@ -392,7 +392,7 @@ void EventListenerHandler::RemoveEventListenerRegister(napi_env env, TelephonyUp
             removeListenerList.push_back(*it);
             it = listenerList_.erase(it);
         } else {
-            it++;
+            ++it;
         }
     }
 }
@@ -408,7 +408,7 @@ void EventListenerHandler::RemoveEventListenerRegister(napi_env env, TelephonyUp
             removeListenerList.push_back(*it);
             it = listenerList_.erase(it);
         } else {
-            it++;
+            ++it;
         }
     }
 }
