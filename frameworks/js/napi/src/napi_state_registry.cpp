@@ -240,7 +240,7 @@ napi_value InitNapiStateRegistry(napi_env env, napi_value exports)
     NAPI_CALL(env, InitEnumLockReason(env, exports));
     const char *nativeStr = "InitNapiStateRegistry";
     napi_wrap(
-        env, exports, (void *)nativeStr,
+        env, exports, static_cast<void *>(const_cast<char *>(nativeStr)),
         [](napi_env env, void *data, void *hint) { EventListenerManager::UnRegisterAllListener(env); }, nullptr,
         nullptr);
     return exports;
