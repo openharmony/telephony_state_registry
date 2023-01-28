@@ -287,9 +287,9 @@ EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecF
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE] = &EventListenerHandler::WorkSimStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE] = &EventListenerHandler::WorkCellInfomationUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE] =
-        &EventListenerHandler::WorkCellularDataConnectStateUpdate;
+        &EventListenerHandler::WorkCellularDataConnectStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE] =
-        &EventListenerHandler::WorkCellularDataFlowUpdate;
+        &EventListenerHandler::WorkCellularDataFlowUpdated;
 }
 
 EventListenerHandler::~EventListenerHandler()
@@ -655,7 +655,7 @@ void EventListenerHandler::WorkCellInfomationUpdated(uv_work_t *work)
     NapiReturnToJS(cellInfo->env, cellInfo->callbackRef, callbackValue);
 }
 
-void EventListenerHandler::WorkCellularDataConnectStateUpdate(uv_work_t *work)
+void EventListenerHandler::WorkCellularDataConnectStateUpdated(uv_work_t *work)
 {
     std::unique_ptr<CellularDataConnectStateContext> context(
         static_cast<CellularDataConnectStateContext *>(work->data));
@@ -666,7 +666,7 @@ void EventListenerHandler::WorkCellularDataConnectStateUpdate(uv_work_t *work)
     NapiReturnToJS(context->env, context->callbackRef, callbackValue);
 }
 
-void EventListenerHandler::WorkCellularDataFlowUpdate(uv_work_t *work)
+void EventListenerHandler::WorkCellularDataFlowUpdated(uv_work_t *work)
 {
     std::unique_ptr<CellularDataFlowContext> dataFlowInfo(static_cast<CellularDataFlowContext *>(work->data));
     napi_value callbackValue = GetNapiValue(dataFlowInfo->env, dataFlowInfo->flowType_);
