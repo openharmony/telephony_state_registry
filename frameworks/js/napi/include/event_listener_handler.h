@@ -75,8 +75,8 @@ private:
     static void WorkNetworkStateUpdated(uv_work_t *work);
     static void WorkSimStateUpdated(uv_work_t *work);
     static void WorkCellInfomationUpdated(uv_work_t *work);
-    static void WorkCellularDataConnectStateUpdate(uv_work_t *work);
-    static void WorkCellularDataFlowUpdate(uv_work_t *work);
+    static void WorkCellularDataConnectStateUpdated(uv_work_t *work);
+    static void WorkCellularDataFlowUpdated(uv_work_t *work);
     static void WorkUpdated(uv_work_t *work, int status);
     static void SetEventListenerDeleting(std::shared_ptr<bool> isDeleting);
 
