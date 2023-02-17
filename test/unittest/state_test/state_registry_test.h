@@ -157,6 +157,7 @@ public:
     void SetUp();
     void TearDown();
     void CreateProxy();
+    static bool HasSimCard(int32_t slotId);
 
     void UpdateCallState(int32_t slotId);
     void UpdateCallStateForSlotId(int32_t slotId);

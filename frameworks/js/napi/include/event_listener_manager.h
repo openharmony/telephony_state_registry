@@ -38,10 +38,10 @@ public:
         }
         return handler->SendEvent(innerEventId, object, delayTime);
     }
-    static std::optional<int32_t> RegisterEventListener(EventListener &eventListener);
-    static std::optional<int32_t> UnregisterEventListener(napi_env env, const TelephonyUpdateEventType eventType,
-        napi_ref ref, std::list<EventListener> &removeListenerList);
-    static std::optional<int32_t> UnregisterEventListener(
+    static int32_t RegisterEventListener(EventListener &eventListener);
+    static int32_t UnregisterEventListener(napi_env env, const TelephonyUpdateEventType eventType, napi_ref ref,
+        std::list<EventListener> &removeListenerList);
+    static int32_t UnregisterEventListener(
         napi_env env, TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList);
     static void UnRegisterAllListener(napi_env env);
 };

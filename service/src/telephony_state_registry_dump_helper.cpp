@@ -33,7 +33,9 @@ TelephonyStateRegistryDumpHelper::TelephonyStateRegistryDumpHelper() {}
 
 bool TelephonyStateRegistryDumpHelper::WhetherHasSimCard(const int32_t slotId) const
 {
-    return DelayedRefSingleton<CoreServiceClient>::GetInstance().HasSimCard(slotId);
+    bool hasSimCard = false;
+    DelayedRefSingleton<CoreServiceClient>::GetInstance().HasSimCard(slotId, hasSimCard);
+    return hasSimCard;
 }
 
 bool TelephonyStateRegistryDumpHelper::ShowTelephonyStateRegistryInfo(
