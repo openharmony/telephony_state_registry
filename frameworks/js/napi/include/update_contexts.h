@@ -97,6 +97,24 @@ struct CellularDataFlowContext : EventListener {
         return *this;
     }
 };
+
+struct CfuIndicatorContext : EventListener {
+    bool cfuResult_;
+    CfuIndicatorContext &operator=(const CfuIndicatorUpdate &info)
+    {
+        cfuResult_ = info.cfuResult_;
+        return *this;
+    }
+};
+
+struct VoiceMailMsgIndicatorContext : EventListener {
+    bool voiceMailMsgResult_;
+    VoiceMailMsgIndicatorContext &operator=(const VoiceMailMsgIndicatorUpdate &info)
+    {
+        voiceMailMsgResult_ = info.voiceMailMsgResult_;
+        return *this;
+    }
+};
 } // namespace Telephony
 } // namespace OHOS
 #endif // UPDATE_CONTEXTS_H

@@ -59,6 +59,8 @@ private:
     int32_t OnUnregisterStateChange(MessageParcel &data, MessageParcel &reply);
     int32_t OnUpdateCellularDataConnectState(MessageParcel &data, MessageParcel &reply);
     int32_t OnUpdateCellularDataFlow(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateCfuIndicator(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateVoiceMailMsgIndicator(MessageParcel &data, MessageParcel &reply);
 
 private:
     std::map<StateNotifyCode, TelephonyStateFunc> memberFuncMap_;

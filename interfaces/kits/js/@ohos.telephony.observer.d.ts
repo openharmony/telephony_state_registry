@@ -238,6 +238,52 @@ declare namespace observer {
   function off(type: 'callStateChange', callback?: Callback<{ state: CallState, number: string }>): void;
 
   /**
+   * If type is ’cfuIndicatorChange‘, Receives a CFU setting update. This callback is invoked when the CFU setting
+   * of a specified card updates and the observer is added to monitor the updates.
+   *
+   * If type is ‘voiceMailMsgIndicatorChange’, Receives a voice mailbox state change. This callback is invoked when
+   * the voice mailbox state of a specified card updates and the observer is added to monitor the updates.
+   *
+   * @param type cfuIndicatorChange or voiceMailMsgIndicatorChange
+   * @param options including slotId Indicates the ID of the target card slot.
+   *   The value {@code 0} indicates card 1, and the value {@code 1} indicates card 2.
+   * @param callback If type is ’cfuIndicatorChange‘, specifies whether the CFU function is enabled.
+   *   If type is ‘voiceMailMsgIndicatorChange, specifies whether a voice mailbox message exists.
+   * @permission ohos.permission.GET_TELEPHONY_STATE
+   * @throws {BusinessError} 401 - Parameter error.
+   * @throws {BusinessError} 8300001 - Invalid parameter value.
+   * @throws {BusinessError} 8300002 - Operation failed. Cannot connect to service.
+   * @throws {BusinessError} 8300003 - System internal error.
+   * @throws {BusinessError} 8300999 - Unknown error code.
+   * @systemapi Hide this for inner system use.
+   * @since 10
+   */
+  function on(type: 'cfuIndicatorChange' | 'voiceMailMsgIndicatorChange',
+    callback: Callback<boolean>): void;
+  function on(type: 'cfuIndicatorChange' | 'voiceMailMsgIndicatorChange', options: { slotId: number },
+    callback: Callback<boolean>): void;
+
+  /**
+   * If type is ’cfuIndicatorChange‘, Receives a CFU setting update. This callback is invoked when the CFU setting
+   * of a specified card updates and the observer is delete.
+   *
+   * If type is ‘voiceMailMsgIndicatorChange’, Receives a voice mailbox state change. This callback is invoked when
+   * the voice mailbox state of a specified card updates and the observer is delete.
+   *
+   * @param type cfuIndicatorChange or voiceMailMsgIndicatorChange
+   * @param callback If type is ’cfuIndicatorChange‘, specifies whether the CFU function is enabled.
+   *   If type is ‘voiceMailMsgIndicatorChange, specifies whether a voice mailbox message exists.
+   * @throws {BusinessError} 401 - Parameter error.
+   * @throws {BusinessError} 8300001 - Invalid parameter value.
+   * @throws {BusinessError} 8300002 - Operation failed. Cannot connect to service.
+   * @throws {BusinessError} 8300003 - System internal error.
+   * @throws {BusinessError} 8300999 - Unknown error code.
+   * @systemapi Hide this for inner system use.
+   * @since 10
+   */
+  function off(type: 'cfuIndicatorChange' | 'voiceMailMsgIndicatorChange', callback?: Callback<boolean>): void;
+
+  /**
    * Receives a sim state change. This callback is invoked when the sim state of a specified card updates
    * and the observer is added to monitor the updates.
    *

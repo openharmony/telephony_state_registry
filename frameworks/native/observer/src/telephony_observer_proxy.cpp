@@ -220,5 +220,49 @@ void TelephonyObserverProxy::OnCellularDataFlowUpdated(
         dataParcel, replyParcel, option);
     TELEPHONY_LOGI("TelephonyObserverProxy::OnCellularDataFlow##error: %{public}d.", code);
 }
+
+void TelephonyObserverProxy::OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult)
+{
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCfuIndicatorUpdated WriteInterfaceToken failed!");
+        return;
+    }
+    dataParcel.WriteInt32(slotId);
+    dataParcel.WriteBool(cfuResult);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCfuIndicatorUpdated remote is null!");
+        return;
+    }
+    int32_t code = remote->SendRequest(
+        static_cast<uint32_t>(ObserverBrokerCode::ON_CFU_INDICATOR_UPDATED), dataParcel, replyParcel, option);
+    TELEPHONY_LOGI("TelephonyObserverProxy::OnCfuIndicatorUpdated##error: %{public}d.", code);
+}
+
+void TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult)
+{
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated WriteInterfaceToken failed!");
+        return;
+    }
+    dataParcel.WriteInt32(slotId);
+    dataParcel.WriteBool(voiceMailMsgResult);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated remote is null!");
+        return;
+    }
+    int32_t code = remote->SendRequest(static_cast<uint32_t>(ObserverBrokerCode::ON_VOICE_MAIL_MSG_INDICATOR_UPDATED),
+        dataParcel, replyParcel, option);
+    TELEPHONY_LOGI("TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated##error: %{public}d.", code);
+}
 } // namespace Telephony
 } // namespace OHOS

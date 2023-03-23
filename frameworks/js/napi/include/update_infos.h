@@ -37,15 +37,13 @@ struct CallStateUpdateInfo : public UpdateInfo {
     int32_t callState_;
     std::u16string phoneNumber_;
     CallStateUpdateInfo(int32_t slotId, int32_t callStateParam, std::u16string phoneNumberParam)
-        : UpdateInfo(slotId), callState_(callStateParam), phoneNumber_(phoneNumberParam)
-    {}
+        : UpdateInfo(slotId), callState_(callStateParam), phoneNumber_(phoneNumberParam) {}
 };
 
 struct SignalUpdateInfo : public UpdateInfo {
     std::vector<sptr<SignalInformation>> signalInfoList_;
     SignalUpdateInfo(int32_t slotId, std::vector<sptr<SignalInformation>> infoList)
-        : UpdateInfo(slotId), signalInfoList_(infoList)
-    {}
+        : UpdateInfo(slotId), signalInfoList_(infoList) {}
 };
 
 struct NetworkStateUpdateInfo : public UpdateInfo {
@@ -58,28 +56,36 @@ struct SimStateUpdateInfo : public UpdateInfo {
     SimState state_;
     LockReason reason_;
     SimStateUpdateInfo(int32_t slotId, CardType type, SimState simState, LockReason theReason)
-        : UpdateInfo(slotId), type_(type), state_(simState), reason_(theReason)
-    {}
+        : UpdateInfo(slotId), type_(type), state_(simState), reason_(theReason) {}
 };
 
 struct CellInfomationUpdate : public UpdateInfo {
     std::vector<sptr<CellInformation>> cellInfoVec_;
     CellInfomationUpdate(int32_t slotId, const std::vector<sptr<CellInformation>> &cellInfo)
-        : UpdateInfo(slotId), cellInfoVec_(cellInfo)
-    {}
+        : UpdateInfo(slotId), cellInfoVec_(cellInfo) {}
 };
 
 struct CellularDataConnectState : public UpdateInfo {
     int32_t dataState_;
     int32_t networkType_;
     CellularDataConnectState(int32_t slotId, int32_t dataState, int32_t networkType)
-        : UpdateInfo(slotId), dataState_(dataState), networkType_(networkType)
-    {}
+        : UpdateInfo(slotId), dataState_(dataState), networkType_(networkType) {}
 };
 
 struct CellularDataFlowUpdate : public UpdateInfo {
     int32_t flowType_;
     CellularDataFlowUpdate(int32_t slotId, int32_t flowType) : UpdateInfo(slotId), flowType_(flowType) {}
+};
+
+struct CfuIndicatorUpdate : public UpdateInfo {
+    bool cfuResult_;
+    CfuIndicatorUpdate(int32_t slotId, bool cfuResult) : UpdateInfo(slotId), cfuResult_(cfuResult) {}
+};
+
+struct VoiceMailMsgIndicatorUpdate : public UpdateInfo {
+    bool voiceMailMsgResult_;
+    VoiceMailMsgIndicatorUpdate(int32_t slotId, bool voiceMailMsgResult)
+        : UpdateInfo(slotId), voiceMailMsgResult_(voiceMailMsgResult) {}
 };
 } // namespace Telephony
 } // namespace OHOS

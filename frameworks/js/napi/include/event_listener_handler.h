@@ -79,6 +79,8 @@ private:
     static void WorkCellularDataFlowUpdated(uv_work_t *work);
     static void WorkUpdated(uv_work_t *work, int status);
     static void SetEventListenerDeleting(std::shared_ptr<bool> isDeleting);
+    static void WorkCfuIndicatorUpdated(uv_work_t *work);
+    static void WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work);
 
     template<typename T, typename D, TelephonyUpdateEventType eventType>
     void HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent::Pointer &event);

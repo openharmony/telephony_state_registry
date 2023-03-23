@@ -115,5 +115,32 @@ void NapiTelephonyObserver::OnCellularDataFlowUpdated(int32_t slotId, int32_t da
     EventListenerManager::SendEvent(
         ToUint32t(TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_FLOW_UPDATE), cellularDataFlowUpdateInfo);
 }
+
+void NapiTelephonyObserver::OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult)
+{
+    TELEPHONY_LOGI("OnCfuIndicatorUpdated slotId = %{public}d, cfuResult = %{public}d", slotId, cfuResult);
+    std::unique_ptr<CfuIndicatorUpdate> cfuIndicatorUpdateInfo =
+        std::make_unique<CfuIndicatorUpdate>(slotId, cfuResult);
+    if (cfuIndicatorUpdateInfo == nullptr) {
+        TELEPHONY_LOGE("CfuIndicatorUpdate is nullptr!");
+        return;
+    }
+    EventListenerManager::SendEvent(
+        ToUint32t(TelephonyCallbackEventId::EVENT_ON_CFU_INDICATOR_UPDATE), cfuIndicatorUpdateInfo);
+}
+
+void NapiTelephonyObserver::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult)
+{
+    TELEPHONY_LOGI("OnVoiceMailMsgIndicatorUpdated slotId = %{public}d, voiceMailMsgResult =  %{public}d", slotId,
+        voiceMailMsgResult);
+    std::unique_ptr<VoiceMailMsgIndicatorUpdate> voiceMailMsgIndicatorUpdateInfo =
+        std::make_unique<VoiceMailMsgIndicatorUpdate>(slotId, voiceMailMsgResult);
+    if (voiceMailMsgIndicatorUpdateInfo == nullptr) {
+        TELEPHONY_LOGE("VoiceMailMsgIndicatorUpdate is nullptr!");
+        return;
+    }
+    EventListenerManager::SendEvent(
+        ToUint32t(TelephonyCallbackEventId::EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE), voiceMailMsgIndicatorUpdateInfo);
+}
 } // namespace Telephony
 } // namespace OHOS

@@ -44,6 +44,8 @@ public:
         int32_t slotId, int32_t dataState, int32_t networkType) override;
     void OnCellularDataFlowUpdated(
         int32_t slotId, int32_t dataFlowType) override;
+    virtual void OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult) override;
+    virtual void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult) override;
     int32_t OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
@@ -57,6 +59,8 @@ private:
     void OnSimStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnCellularDataConnectStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnCellularDataFlowUpdatedInner(MessageParcel &data, MessageParcel &reply);
+    void OnCfuIndicatorUpdatedInner(MessageParcel &data, MessageParcel &reply);
+    void OnVoiceMailMsgIndicatorUpdatedInner(MessageParcel &data, MessageParcel &reply);
     static constexpr int32_t CELL_NUM_MAX = 100;
     static constexpr int32_t SIGNAL_NUM_MAX = 100;
 };

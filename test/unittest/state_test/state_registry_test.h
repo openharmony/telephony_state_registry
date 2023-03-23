@@ -83,6 +83,25 @@ PermissionStateFull testNetSetTelephonyState = {
     .resDeviceID = { "local" },
 };
 
+PermissionDef testNetPermGetTelephonyStateDef = {
+    .permissionName = "ohos.permission.GET_TELEPHONY_STATE",
+    .bundleName = "tel_state_registry_test",
+    .grantMode = 1, // SYSTEM_GRANT
+    .label = "label",
+    .labelId = 1,
+    .description = "Test state registry",
+    .descriptionId = 1,
+    .availableLevel = APL_SYSTEM_BASIC,
+};
+
+PermissionStateFull testNetGetTelephonyState = {
+    .grantFlags = { 2 }, // PERMISSION_USER_SET
+    .grantStatus = { PermissionState::PERMISSION_GRANTED },
+    .isGeneral = true,
+    .permissionName = "ohos.permission.GET_TELEPHONY_STATE",
+    .resDeviceID = { "local" },
+};
+
 PermissionDef testNetPermLocationDef = {
     .permissionName = "ohos.permission.LOCATION",
     .bundleName = "tel_state_registry_test",
@@ -124,10 +143,10 @@ PermissionStateFull testNetPermReadCallLog = {
 HapPolicyParams testPolicyParams = {
     .apl = APL_SYSTEM_BASIC,
     .domain = "test.domain",
-    .permList = { testNetPermGetNetworkInfoDef, testNetPermSetTelephonyStateDef, testNetPermLocationDef,
-        testNetPermReadCallLogDef },
-    .permStateList = { testNetPermGetNetworkInfo, testNetSetTelephonyState, testNetPermLocation,
-        testNetPermReadCallLog },
+    .permList = { testNetPermGetNetworkInfoDef, testNetPermSetTelephonyStateDef, testNetPermGetTelephonyStateDef,
+        testNetPermLocationDef, testNetPermReadCallLogDef },
+    .permStateList = { testNetPermGetNetworkInfo, testNetSetTelephonyState, testNetGetTelephonyState,
+        testNetPermLocation, testNetPermReadCallLog },
 };
 
 class AccessToken {
@@ -166,6 +185,8 @@ public:
     void UpdateCellularDataFlow(int32_t slotId);
     void UpdateSimState(int32_t slotId);
     void UpdateNetworkState(int32_t slotId);
+    void UpdateCfuIndicator(int32_t slotId);
+    void UpdateVoiceMailMsgIndicator(int32_t slotId);
 
 public:
     using RequestFuncType = void (StateRegistryTest::*)(int32_t slotId);

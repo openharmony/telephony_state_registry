@@ -280,6 +280,12 @@ EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecF
     handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_FLOW_UPDATE] =
         &EventListenerHandler::HandleCallbackInfoUpdate<CellularDataFlowContext, CellularDataFlowUpdate,
             TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE>;
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CFU_INDICATOR_UPDATE] =
+        &EventListenerHandler::HandleCallbackInfoUpdate<CfuIndicatorContext, CfuIndicatorUpdate,
+            TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE>;
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE] =
+        &EventListenerHandler::HandleCallbackInfoUpdate<VoiceMailMsgIndicatorContext, VoiceMailMsgIndicatorUpdate,
+            TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE>;
 
     workFuncMap_[TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE] = &EventListenerHandler::WorkCallStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE] = &EventListenerHandler::WorkSignalUpdated;
@@ -290,6 +296,9 @@ EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecF
         &EventListenerHandler::WorkCellularDataConnectStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE] =
         &EventListenerHandler::WorkCellularDataFlowUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE] = &EventListenerHandler::WorkCfuIndicatorUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE] =
+        &EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated;
 }
 
 EventListenerHandler::~EventListenerHandler()
@@ -553,10 +562,6 @@ void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
 
 void EventListenerHandler::WorkUpdated(uv_work_t *work, int status)
 {
-    if (work == nullptr || work->data == nullptr) {
-        TELEPHONY_LOGE("work is null");
-        return;
-    }
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
     EventListener *listener = static_cast<EventListener *>(work->data);
     TELEPHONY_LOGI("WorkUpdated eventType is %{public}d", listener->eventType);
@@ -671,6 +676,30 @@ void EventListenerHandler::WorkCellularDataFlowUpdated(uv_work_t *work)
     std::unique_ptr<CellularDataFlowContext> dataFlowInfo(static_cast<CellularDataFlowContext *>(work->data));
     napi_value callbackValue = GetNapiValue(dataFlowInfo->env, dataFlowInfo->flowType_);
     NapiReturnToJS(dataFlowInfo->env, dataFlowInfo->callbackRef, callbackValue);
+}
+
+void EventListenerHandler::WorkCfuIndicatorUpdated(uv_work_t *work)
+{
+    if (work == nullptr) {
+        TELEPHONY_LOGE("work is null");
+        return;
+    }
+    std::unique_ptr<CfuIndicatorContext> cfuIndicatorInfo(static_cast<CfuIndicatorContext *>(work->data));
+    napi_value callbackValue = GetNapiValue(cfuIndicatorInfo->env, cfuIndicatorInfo->cfuResult_);
+    NapiReturnToJS(cfuIndicatorInfo->env, cfuIndicatorInfo->callbackRef, callbackValue);
+}
+
+void EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work)
+{
+    if (work == nullptr) {
+        TELEPHONY_LOGE("work is null");
+        return;
+    }
+    std::unique_ptr<VoiceMailMsgIndicatorContext> voiceMailMsgIndicatorInfo(
+        static_cast<VoiceMailMsgIndicatorContext *>(work->data));
+    napi_value callbackValue =
+        GetNapiValue(voiceMailMsgIndicatorInfo->env, voiceMailMsgIndicatorInfo->voiceMailMsgResult_);
+    NapiReturnToJS(voiceMailMsgIndicatorInfo->env, voiceMailMsgIndicatorInfo->callbackRef, callbackValue);
 }
 } // namespace Telephony
 } // namespace OHOS
