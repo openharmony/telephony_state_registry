@@ -26,36 +26,56 @@ class StateRegistryObserver : public Telephony::TelephonyObserver {
 public:
     StateRegistryObserver() = default;
     ~StateRegistryObserver() = default;
+
     void OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber)
     {
         TELEPHONY_LOGI(
             "StateRegistryObserver%{public}d::OnCallStateUpdated callState is %{public}d", slotId, callState);
     }
+
     void OnSignalInfoUpdated(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec)
     {
         TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnSignalInfoUpdated", slotId);
     }
+
     void OnNetworkStateUpdated(int32_t slotId, const sptr<NetworkState> &networkState)
     {
         TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnNetworkStateUpdated", slotId);
     }
+
     void OnCellInfoUpdated(int32_t slotId, const std::vector<sptr<CellInformation>> &vec)
     {
         TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnCellInfoUpdated", slotId);
     }
+
     void OnSimStateUpdated(int32_t slotId, CardType type, SimState state, LockReason reason)
     {
         TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnSimStateUpdated state is %{public}d", slotId, state);
     }
+
     void OnCellularDataConnectStateUpdated(int32_t slotId, int32_t dataState, int32_t networkType)
     {
         TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnCellularDataConnectStateUpdated dataState is %{public}d",
             slotId, dataState);
     }
+
     void OnCellularDataFlowUpdated(int32_t slotId, int32_t dataFlowType)
     {
         TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnCellularDataFlowUpdated dataFlowType is %{public}d", slotId,
             dataFlowType);
+    }
+
+    void OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult)
+    {
+        TELEPHONY_LOGI(
+            "StateRegistryObserver%{public}d::OnCfuIndicatorUpdated cfuResult is %{public}d", slotId, cfuResult);
+    }
+
+    void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult)
+    {
+        TELEPHONY_LOGI(
+            "StateRegistryObserver%{public}d::OnVoiceMailMsgIndicatorUpdated voiceMailMsgResult is %{public}d", slotId,
+            voiceMailMsgResult);
     }
 };
 } // namespace Telephony

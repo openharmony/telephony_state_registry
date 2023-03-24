@@ -29,6 +29,8 @@ enum class TelephonyUpdateEventType {
     EVENT_SIM_STATE_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE,
     EVENT_DATA_CONNECTION_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE,
     EVENT_CELLULAR_DATA_FLOW_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW,
+    EVENT_CFU_INDICATOR_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR,
+    EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR,
 };
 } // namespace Telephony
 } // namespace OHOS

@@ -43,6 +43,8 @@ const std::map<std::string_view, TelephonyUpdateEventType> eventMap {
     {"cellInfoChange", TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE},
     {"cellularDataConnectionStateChange", TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE},
     {"cellularDataFlowChange", TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE},
+    {"cfuIndicatorChange", TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE},
+    {"voiceMailMsgIndicatorChange", TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE},
 };
 
 TelephonyUpdateEventType GetEventType(std::string_view event)

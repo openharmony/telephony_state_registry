@@ -41,6 +41,10 @@ void TelephonyObserver::OnCellularDataConnectStateUpdated(
 void TelephonyObserver::OnCellularDataFlowUpdated(
     int32_t slotId, int32_t dataFlowType) {}
 
+void TelephonyObserver::OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult) {}
+
+void TelephonyObserver::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult) {}
+
 int32_t TelephonyObserver::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
@@ -76,6 +80,14 @@ int32_t TelephonyObserver::OnRemoteRequest(
         }
         case ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED: {
             OnCellularDataFlowUpdatedInner(data, reply);
+            break;
+        }
+        case ObserverBrokerCode::ON_CFU_INDICATOR_UPDATED: {
+            OnCfuIndicatorUpdatedInner(data, reply);
+            break;
+        }
+        case ObserverBrokerCode::ON_VOICE_MAIL_MSG_INDICATOR_UPDATED: {
+            OnVoiceMailMsgIndicatorUpdatedInner(data, reply);
             break;
         }
         default: {
@@ -145,6 +157,22 @@ void TelephonyObserver::OnCellularDataFlowUpdatedInner(
     int32_t slotId = data.ReadInt32();
     int32_t flowType = data.ReadInt32();
     OnCellularDataFlowUpdated(slotId, flowType);
+}
+
+void TelephonyObserver::OnCfuIndicatorUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    bool cfuResult = data.ReadBool();
+    OnCfuIndicatorUpdated(slotId, cfuResult);
+}
+
+void TelephonyObserver::OnVoiceMailMsgIndicatorUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    bool voiceMailMsgResult = data.ReadBool();
+    OnVoiceMailMsgIndicatorUpdated(slotId, voiceMailMsgResult);
 }
 
 void TelephonyObserver::ConvertSignalInfoList(

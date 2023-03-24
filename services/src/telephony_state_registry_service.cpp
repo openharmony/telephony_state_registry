@@ -297,7 +297,51 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(
         }
     }
     SendNetworkStateChanged(slotId, networkState);
-    TELEPHONY_LOGI("TelephonyStateRegistryService::NotifyNetworkStateUpdated end");
+    TELEPHONY_LOGI("TelephonyStateRegistryService::UpdateNetworkState end");
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::UpdateCfuIndicator(int32_t slotId, bool cfuResult)
+{
+    if (!VerifySlotId(slotId)) {
+        TELEPHONY_LOGE(
+            "UpdateCfuIndicator##VerifySlotId failed ##slotId = %{public}d", slotId);
+        return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    cfuResult_[slotId] = cfuResult;
+    std::lock_guard<std::mutex> guard(lock_);
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    for (size_t i = 0; i < stateRecords_.size(); i++) {
+        TelephonyStateRegistryRecord record = stateRecords_[i];
+        if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR) &&
+            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+            record.telephonyObserver_->OnCfuIndicatorUpdated(slotId, cfuResult);
+            result = TELEPHONY_SUCCESS;
+        }
+    }
+    TELEPHONY_LOGI("TelephonyStateRegistryService::UpdateCfuIndicator end");
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::UpdateVoiceMailMsgIndicator(int32_t slotId, bool voiceMailMsgResult)
+{
+    if (!VerifySlotId(slotId)) {
+        TELEPHONY_LOGE(
+            "UpdateVoiceMailMsgIndicator##VerifySlotId failed ##slotId = %{public}d", slotId);
+        return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    voiceMailMsgResult_[slotId] = voiceMailMsgResult;
+    std::lock_guard<std::mutex> guard(lock_);
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    for (size_t i = 0; i < stateRecords_.size(); i++) {
+        TelephonyStateRegistryRecord record = stateRecords_[i];
+        if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR) &&
+            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+            record.telephonyObserver_->OnVoiceMailMsgIndicatorUpdated(slotId, voiceMailMsgResult);
+            result = TELEPHONY_SUCCESS;
+        }
+    }
+    TELEPHONY_LOGI("TelephonyStateRegistryService::UpdateVoiceMailMsgIndicator end");
     return result;
 }
 
@@ -426,6 +470,16 @@ void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecor
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_DATA_FLOW");
         record.telephonyObserver_->OnCellularDataFlowUpdated(
             record.slotId_, cellularDataFlow_[record.slotId_]);
+    }
+    if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR) != 0) {
+        TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CFU_INDICATOR");
+        record.telephonyObserver_->OnCfuIndicatorUpdated(
+            record.slotId_, cfuResult_[record.slotId_]);
+    }
+    if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR) != 0) {
+        TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR");
+        record.telephonyObserver_->OnVoiceMailMsgIndicatorUpdated(
+            record.slotId_, voiceMailMsgResult_[record.slotId_]);
     }
 }
 

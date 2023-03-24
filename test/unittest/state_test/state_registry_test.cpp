@@ -65,7 +65,9 @@ void StateRegistryTest::InitTelephonyObserver()
                 Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS |
                 Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE |
                 Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE |
-                Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW,
+                Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW |
+                Telephony::TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR |
+                Telephony::TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR,
             true);
     TELEPHONY_LOGI("StateRegistryTest init telephony observer0 ret:%{public}d", res);
     ASSERT_TRUE(res == TELEPHONY_SUCCESS);
@@ -79,7 +81,9 @@ void StateRegistryTest::InitTelephonyObserver()
             Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS |
             Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE |
             Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE |
-            Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW,
+            Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW |
+            Telephony::TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR |
+            Telephony::TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR,
         true);
     TELEPHONY_LOGI("StateRegistryTest init telephony observer1 ret:%{public}d", res);
     ASSERT_TRUE(res == TELEPHONY_SUCCESS);
@@ -205,6 +209,26 @@ void StateRegistryTest::UpdateNetworkState(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateNetworkState(
         slotId, networkState.release());
     TELEPHONY_LOGI("StateRegistryTest::UpdateNetworkState ret = %{public}d", ret);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+void StateRegistryTest::UpdateCfuIndicator(int32_t slotId)
+{
+    AccessToken token;
+    bool cfuResult = true;
+    int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCfuIndicator(
+        slotId, cfuResult);
+    TELEPHONY_LOGI("StateRegistryTest::UpdateCfuIndicator ret = %{public}d", ret);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+void StateRegistryTest::UpdateVoiceMailMsgIndicator(int32_t slotId)
+{
+    AccessToken token;
+    bool voiceMailMsgResult = true;
+    int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateVoiceMailMsgIndicator(
+        slotId, voiceMailMsgResult);
+    TELEPHONY_LOGI("StateRegistryTest::UpdateVoiceMailMsgIndicator ret = %{public}d", ret);
     EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
 }
 
@@ -405,6 +429,58 @@ HWTEST_F(StateRegistryTest, UpdateNetworkState_002, Function | MediumTest | Leve
         return;
     }
     UpdateNetworkState(SIM_SLOT_ID_1);
+}
+
+/**
+ * @tc.number   UpdateCfuIndicator_001
+ * @tc.name     update the result of call forwarding
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, UpdateCfuIndicator_001, Function | MediumTest | Level1)
+{
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+        return;
+    }
+    UpdateCfuIndicator(DEFAULT_SIM_SLOT_ID);
+}
+
+/**
+ * @tc.number   UpdateCfuIndicator_002
+ * @tc.name     update the result of call forwarding
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, UpdateCfuIndicator_002, Function | MediumTest | Level1)
+{
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+        return;
+    }
+    UpdateCfuIndicator(SIM_SLOT_ID_1);
+}
+
+/**
+ * @tc.number   UpdateVoiceMailMsgIndicator_001
+ * @tc.name     update voice mail message indicator
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_001, Function | MediumTest | Level1)
+{
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+        return;
+    }
+    UpdateVoiceMailMsgIndicator(DEFAULT_SIM_SLOT_ID);
+}
+
+/**
+ * @tc.number   UpdateVoiceMailMsgIndicator_002
+ * @tc.name     update voice mail message indicator
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_002, Function | MediumTest | Level1)
+{
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+        return;
+    }
+    UpdateVoiceMailMsgIndicator(SIM_SLOT_ID_1);
 }
 
 /**

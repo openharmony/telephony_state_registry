@@ -54,6 +54,8 @@ public:
     int32_t UpdateNetworkState(int32_t slotId, const sptr<NetworkState> &networkState) override;
     int32_t UpdateSimState(int32_t slotId, CardType type, SimState state, LockReason reason) override;
     int32_t UpdateCellInfo(int32_t slotId, const std::vector<sptr<CellInformation>> &vec) override;
+    int32_t UpdateCfuIndicator(int32_t slotId, bool cfuResult) override;
+    int32_t UpdateVoiceMailMsgIndicator(int32_t slotId, bool voiceMailMsgResult) override;
     int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
         uint32_t mask, const std::string &bundleName, bool notifyNow, pid_t pid) override;
     int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid) override;
@@ -89,6 +91,8 @@ private:
     int64_t bindStartTime_ = 0L;
     int64_t bindEndTime_ = 0L;
     int64_t bindSpendTime_ = 0L;
+    std::map<int32_t, bool> cfuResult_;
+    std::map<int32_t, bool> voiceMailMsgResult_;
     std::map<int32_t, int32_t> callState_;
     std::map<int32_t, std::u16string> callIncomingNumber_;
     std::map<int32_t, std::vector<sptr<SignalInformation>>> signalInfos_;

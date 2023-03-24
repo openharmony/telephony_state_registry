@@ -34,6 +34,8 @@ public:
     void OnCellInfoUpdated(int32_t slotId, const std::vector<sptr<CellInformation>> &vec) override;
     void OnCellularDataConnectStateUpdated(int32_t slotId, int32_t dataState, int32_t networkType) override;
     void OnCellularDataFlowUpdated(int32_t slotId, int32_t dataFlowType) override;
+    void OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult) override;
+    void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult) override;
 };
 } // namespace Telephony
 } // namespace OHOS
