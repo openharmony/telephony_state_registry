@@ -199,6 +199,10 @@ static void OffCallback(napi_env env, void *data)
             NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);
         }
     }
+    if (env != nullptr && asyncContext->callbackRef != nullptr) {
+        napi_delete_reference(env, asyncContext->callbackRef);
+        asyncContext->callbackRef = nullptr;
+    }
     delete asyncContext;
 }
 
