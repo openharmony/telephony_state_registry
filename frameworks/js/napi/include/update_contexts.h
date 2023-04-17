@@ -48,7 +48,7 @@ struct SignalListContext : EventListener {
 };
 
 struct NetworkStateContext : EventListener {
-    sptr<NetworkState> networkState;
+    sptr<NetworkState> networkState = nullptr;
     NetworkStateContext &operator=(const NetworkStateUpdateInfo &info)
     {
         networkState = info.networkState_;

@@ -67,7 +67,7 @@ struct ObserverContext : BaseContext {
     int32_t slotId = DEFAULT_SIM_SLOT_ID;
     TelephonyUpdateEventType eventType = TelephonyUpdateEventType::NONE_EVENT_TYPE;
     int32_t errorCode = 0;
-    std::list<EventListener> removeListenerList;
+    std::list<EventListener> removeListenerList {};
 };
 } // namespace Telephony
 } // namespace OHOS

@@ -34,20 +34,20 @@ struct UpdateInfo {
 };
 
 struct CallStateUpdateInfo : public UpdateInfo {
-    int32_t callState_;
-    std::u16string phoneNumber_;
+    int32_t callState_ = 0;
+    std::u16string phoneNumber_ = u"";
     CallStateUpdateInfo(int32_t slotId, int32_t callStateParam, std::u16string phoneNumberParam)
         : UpdateInfo(slotId), callState_(callStateParam), phoneNumber_(phoneNumberParam) {}
 };
 
 struct SignalUpdateInfo : public UpdateInfo {
-    std::vector<sptr<SignalInformation>> signalInfoList_;
+    std::vector<sptr<SignalInformation>> signalInfoList_ {};
     SignalUpdateInfo(int32_t slotId, std::vector<sptr<SignalInformation>> infoList)
         : UpdateInfo(slotId), signalInfoList_(infoList) {}
 };
 
 struct NetworkStateUpdateInfo : public UpdateInfo {
-    sptr<NetworkState> networkState_;
+    sptr<NetworkState> networkState_ = nullptr;
     NetworkStateUpdateInfo(int32_t slotId, sptr<NetworkState> state) : UpdateInfo(slotId), networkState_(state) {}
 };
 
@@ -60,30 +60,30 @@ struct SimStateUpdateInfo : public UpdateInfo {
 };
 
 struct CellInfomationUpdate : public UpdateInfo {
-    std::vector<sptr<CellInformation>> cellInfoVec_;
+    std::vector<sptr<CellInformation>> cellInfoVec_ {};
     CellInfomationUpdate(int32_t slotId, const std::vector<sptr<CellInformation>> &cellInfo)
         : UpdateInfo(slotId), cellInfoVec_(cellInfo) {}
 };
 
 struct CellularDataConnectState : public UpdateInfo {
-    int32_t dataState_;
-    int32_t networkType_;
+    int32_t dataState_ = 0;
+    int32_t networkType_ = 0;
     CellularDataConnectState(int32_t slotId, int32_t dataState, int32_t networkType)
         : UpdateInfo(slotId), dataState_(dataState), networkType_(networkType) {}
 };
 
 struct CellularDataFlowUpdate : public UpdateInfo {
-    int32_t flowType_;
+    int32_t flowType_ = 0;
     CellularDataFlowUpdate(int32_t slotId, int32_t flowType) : UpdateInfo(slotId), flowType_(flowType) {}
 };
 
 struct CfuIndicatorUpdate : public UpdateInfo {
-    bool cfuResult_;
+    bool cfuResult_ = false;
     CfuIndicatorUpdate(int32_t slotId, bool cfuResult) : UpdateInfo(slotId), cfuResult_(cfuResult) {}
 };
 
 struct VoiceMailMsgIndicatorUpdate : public UpdateInfo {
-    bool voiceMailMsgResult_;
+    bool voiceMailMsgResult_ = false;
     VoiceMailMsgIndicatorUpdate(int32_t slotId, bool voiceMailMsgResult)
         : UpdateInfo(slotId), voiceMailMsgResult_(voiceMailMsgResult) {}
 };
