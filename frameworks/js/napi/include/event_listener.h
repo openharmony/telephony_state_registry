@@ -24,10 +24,10 @@
 namespace OHOS {
 namespace Telephony {
 struct EventListener {
-    napi_env env;
-    TelephonyUpdateEventType eventType;
-    int32_t slotId;
-    napi_ref callbackRef;
+    napi_env env = nullptr;
+    TelephonyUpdateEventType eventType = TelephonyUpdateEventType::NONE_EVENT_TYPE;
+    int32_t slotId = 0;
+    napi_ref callbackRef = nullptr;
     std::shared_ptr<bool> isDeleting = nullptr;
 };
 } // namespace Telephony
