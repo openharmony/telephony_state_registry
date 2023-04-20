@@ -491,6 +491,9 @@ HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_002, Function | MediumTe
 HWTEST_F(StateRegistryTest, TelephonyStateManagerTest_001, Function | MediumTest | Level1)
 {
     TELEPHONY_LOGI("TelephonyStateManagerTest_001 start!");
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+        return;
+    }
     TelephonyStateManager::AddStateObserver(
         telephonyObserver0_, DEFAULT_SIM_SLOT_ID, TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE, true);
     wptr<IRemoteObject> wptrDeath = nullptr;
