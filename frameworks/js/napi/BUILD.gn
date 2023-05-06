@@ -10,47 +10,38 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import("//base/telephony/core_service/telephony.gni")
 import("//build/ohos.gni")
-SUBSYSTEM_DIR = "//base/telephony"
+SUBSYSTEM_DIR = "../../../.."
 ohos_shared_library("observer") {
   include_dirs = [
     "//third_party/node/src",
     "include",
     "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer/include",
-    "$SUBSYSTEM_DIR/core_service/frameworks/js/sim/include",
-    "$SUBSYSTEM_DIR/core_service/frameworks/js/network_search/include",
-    "$SUBSYSTEM_DIR/core_service/frameworks/js/napi",
-    "$SUBSYSTEM_DIR/call_manager/interfaces/innerkits",
-    "//third_party/libuv/include",
   ]
 
   sources = [
-    "$SUBSYSTEM_DIR/core_service/frameworks/js/napi/napi_util.cpp",
     "src/event_listener_handler.cpp",
     "src/event_listener_manager.cpp",
     "src/napi_state_registry.cpp",
     "src/napi_telephony_observer.cpp",
   ]
 
-  configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
-
-  deps = [
-    "//foundation/arkui/napi:ace_napi",
-    "//third_party/libuv:uv",
-  ]
+  deps = [ "//third_party/libuv:uv" ]
 
   external_deps = [
     "c_utils:utils",
+    "call_manager:tel_call_manager_api",
+    "core_service:libtel_common",
     "core_service:tel_core_service_api",
     "eventhandler:libeventhandler",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
+    "napi:ace_napi",
     "state_registry:tel_state_registry_api",
   ]
 
-  defines += [
+  defines = [
     "TELEPHONY_LOG_TAG = \"StateRegistryJsApi\"",
     "LOG_DOMAIN = 0xD001F07",
   ]

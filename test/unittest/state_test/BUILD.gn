@@ -12,7 +12,7 @@
 # limitations under the License.
 
 import("//build/test.gni")
-SOURCE_DIR = "//base/telephony/state_registry"
+SOURCE_DIR = "../../.."
 
 ohos_unittest("tel_state_registry_test") {
   part_name = "state_registry"
@@ -20,11 +20,7 @@ ohos_unittest("tel_state_registry_test") {
   test_module = "tel_state_registry_test"
   module_out_path = part_name + "/" + test_module
 
-  sources = [
-    "$SOURCE_DIR/test/unittest/state_test/state_registry_test.cpp",
-    "//base/telephony/core_service/frameworks/native/src/telephony_state_registry_client.cpp",
-    "//base/telephony/core_service/frameworks/native/src/telephony_state_registry_proxy.cpp",
-  ]
+  sources = [ "$SOURCE_DIR/test/unittest/state_test/state_registry_test.cpp" ]
 
   include_dirs = [
     "$SOURCE_DIR/interfaces/innerkits/notify",
@@ -33,15 +29,14 @@ ohos_unittest("tel_state_registry_test") {
     "$SOURCE_DIR/services/include",
   ]
 
-  configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
-
-  deps = [ "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api" ]
+  deps = [ "$SOURCE_DIR/frameworks/native/observer:tel_state_registry_api" ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
     "access_token:libnativetoken",
     "access_token:libtoken_setproc",
     "c_utils:utils",
+    "core_service:libtel_common",
     "core_service:tel_core_service_api",
     "init:libbegetutil",
     "ipc:ipc_core",

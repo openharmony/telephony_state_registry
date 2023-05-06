@@ -11,8 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 import("//build/ohos.gni")
-SUBSYSTEM_DIR = "//base/telephony/state_registry"
-CORE_DIR = "//base/telephony/core_service"
+SUBSYSTEM_DIR = "../../.."
 
 config("state_registry_observer_config") {
   include_dirs = [
@@ -23,28 +22,20 @@ config("state_registry_observer_config") {
 
 ohos_shared_library("tel_state_registry_api") {
   sources = [
-    "$CORE_DIR/frameworks/native/src/cell_information.cpp",
-    "$CORE_DIR/frameworks/native/src/network_state.cpp",
-    "$CORE_DIR/frameworks/native/src/signal_information.cpp",
-    "$CORE_DIR/frameworks/native/src/telephony_state_registry_proxy.cpp",
     "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_observer.cpp",
     "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_observer_client.cpp",
     "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_observer_proxy.cpp",
     "$SUBSYSTEM_DIR/frameworks/native/observer/src/telephony_state_manager.cpp",
   ]
 
-  include_dirs = [
-    "$SUBSYSTEM_DIR/frameworks/native/observer/include",
-    "$CORE_DIR/interfaces/innerkits/include",
-  ]
-
-  configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
+  include_dirs = [ "$SUBSYSTEM_DIR/frameworks/native/observer/include" ]
 
   public_configs = [ ":state_registry_observer_config" ]
 
-  deps = [ "$CORE_DIR/utils:libtel_common" ]
-
   external_deps = [
+    "c_utils:utils",
+    "core_service:libtel_common",
+    "core_service:tel_core_service_api",
     "hiviewdfx_hilog_native:libhilog",
     "ipc:ipc_core",
     "samgr:samgr_proxy",
