@@ -22,7 +22,6 @@
 #include "inner_event.h"
 #include "napi_parameter_util.h"
 #include "napi_radio_types.h"
-#include "napi_sim_type.h"
 #include "napi_state_registry.h"
 #include "napi_telephony_observer.h"
 #include "napi_util.h"
