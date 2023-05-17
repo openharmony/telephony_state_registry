@@ -285,8 +285,8 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(
             "UpdateNetworkState##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
-    searchNetworkState_[slotId] = networkState;
     std::lock_guard<std::mutex> guard(lock_);
+    searchNetworkState_[slotId] = networkState;
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord r = stateRecords_[i];
