@@ -341,7 +341,7 @@ int32_t EventListenerHandler::RegisterEventListener(EventListener &eventListener
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
     int32_t registerStatus = CheckEventListenerRegister(eventListener);
     if (registerStatus == EVENT_LISTENER_SAME) {
-        return TELEPHONY_SUCCESS;
+        return TELEPHONY_ERR_CALLBACK_ALREADY_REGISTERED;
     }
     if (registerStatus != EVENT_LISTENER_SLOTID_AND_EVENTTYPE_SAME) {
         NapiTelephonyObserver *telephonyObserver = std::make_unique<NapiTelephonyObserver>().release();
