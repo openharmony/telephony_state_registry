@@ -98,6 +98,10 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
             "UpdateCellularDataConnectState##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     cellularDataConnectionState_[slotId] = dataState;
     cellularDataConnectionNetworkType_[slotId] = networkType;
     std::lock_guard<std::mutex> guard(lock_);
@@ -121,6 +125,10 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataFlow(
         TELEPHONY_LOGE(
             "UpdateCellularDataFlow##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     cellularDataFlow_[slotId] = flowData;
     std::lock_guard<std::mutex> guard(lock_);
@@ -206,6 +214,10 @@ int32_t TelephonyStateRegistryService::UpdateSimState(
             "UpdateSimState##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     simState_[slotId] = state;
     simReason_[slotId] = reason;
     cardType_[slotId] = type;
@@ -230,6 +242,10 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(
         TELEPHONY_LOGE(
             "UpdateSignalInfo##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     signalInfos_[slotId] = vec;
     std::lock_guard<std::mutex> guard(lock_);
@@ -285,6 +301,10 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(
             "UpdateNetworkState##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     std::lock_guard<std::mutex> guard(lock_);
     searchNetworkState_[slotId] = networkState;
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
@@ -308,6 +328,10 @@ int32_t TelephonyStateRegistryService::UpdateCfuIndicator(int32_t slotId, bool c
             "UpdateCfuIndicator##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     cfuResult_[slotId] = cfuResult;
     std::lock_guard<std::mutex> guard(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
@@ -329,6 +353,10 @@ int32_t TelephonyStateRegistryService::UpdateVoiceMailMsgIndicator(int32_t slotI
         TELEPHONY_LOGE(
             "UpdateVoiceMailMsgIndicator##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     voiceMailMsgResult_[slotId] = voiceMailMsgResult;
     std::lock_guard<std::mutex> guard(lock_);
@@ -381,6 +409,9 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
 int32_t TelephonyStateRegistryService::UnregisterStateChange(
     int32_t slotId, uint32_t mask, pid_t pid)
 {
+    if (!CheckPermission(mask)) {
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     std::lock_guard<std::mutex> guard(lock_);
     int32_t result = TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST;
     std::vector<TelephonyStateRegistryRecord>::iterator it;
