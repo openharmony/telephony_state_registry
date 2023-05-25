@@ -437,23 +437,19 @@ void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecor
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) != 0) {
         std::u16string phoneNumber = GetCallIncomingNumberForSlotId(record, record.slotId_);
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE");
-        record.telephonyObserver_->OnCallStateUpdated(
-            record.slotId_, callState_[record.slotId_], phoneNumber);
+        record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState_[record.slotId_], phoneNumber);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_SIGNAL_STRENGTHS");
-        record.telephonyObserver_->OnSignalInfoUpdated(
-            record.slotId_, signalInfos_[record.slotId_]);
+        record.telephonyObserver_->OnSignalInfoUpdated(record.slotId_, signalInfos_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_NETWORK_STATE");
-        record.telephonyObserver_->OnNetworkStateUpdated(
-            record.slotId_, searchNetworkState_[record.slotId_]);
+        record.telephonyObserver_->OnNetworkStateUpdated(record.slotId_, searchNetworkState_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CELL_INFO");
-        record.telephonyObserver_->OnCellInfoUpdated(
-            record.slotId_, cellInfos_[record.slotId_]);
+        record.telephonyObserver_->OnCellInfoUpdated(record.slotId_, cellInfos_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_SIM_STATE");
@@ -462,24 +458,20 @@ void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecor
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_DATA_CONNECTION_STATE");
-        record.telephonyObserver_->OnCellularDataConnectStateUpdated(
-            record.slotId_, cellularDataConnectionState_[record.slotId_],
-            cellularDataConnectionNetworkType_[record.slotId_]);
+        record.telephonyObserver_->OnCellularDataConnectStateUpdated(record.slotId_,
+            cellularDataConnectionState_[record.slotId_], cellularDataConnectionNetworkType_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_DATA_FLOW");
-        record.telephonyObserver_->OnCellularDataFlowUpdated(
-            record.slotId_, cellularDataFlow_[record.slotId_]);
+        record.telephonyObserver_->OnCellularDataFlowUpdated(record.slotId_, cellularDataFlow_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CFU_INDICATOR");
-        record.telephonyObserver_->OnCfuIndicatorUpdated(
-            record.slotId_, cfuResult_[record.slotId_]);
+        record.telephonyObserver_->OnCfuIndicatorUpdated(record.slotId_, cfuResult_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR");
-        record.telephonyObserver_->OnVoiceMailMsgIndicatorUpdated(
-            record.slotId_, voiceMailMsgResult_[record.slotId_]);
+        record.telephonyObserver_->OnVoiceMailMsgIndicatorUpdated(record.slotId_, voiceMailMsgResult_[record.slotId_]);
     }
 }
 
