@@ -102,9 +102,13 @@ static void OnCallback(napi_env env, void *data)
         TELEPHONY_LOGE("OnCallback error by add observer failed");
         if (asyncContext->errorCode == TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED) {
             NapiUtil::ThrowError(env, JS_ERROR_TELEPHONY_PERMISSION_DENIED, OBSERVER_JS_PERMISSION_ERROR_STRING);
-        } else {
+        } else if (asyncContext->errorCode != TELEPHONY_ERR_CALLBACK_ALREADY_REGISTERED) {
             JsError error = NapiUtil::ConverErrorMessageForJs(asyncContext->errorCode);
             NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);
+        }
+        if (env != nullptr && asyncContext->callbackRef != nullptr) {
+            napi_delete_reference(env, asyncContext->callbackRef);
+            asyncContext->callbackRef = nullptr;
         }
     }
     delete asyncContext;
@@ -146,14 +150,14 @@ static napi_value On(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    asyncContext->eventType = GetEventType(eventType.data());
-    if (asyncContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
-        ObserverContext *observerContext = asyncContext.release();
+    ObserverContext *observerContext = asyncContext.release();
+    observerContext->eventType = GetEventType(eventType.data());
+    if (observerContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
         NativeOn(env, observerContext);
-        OnCallback(env, observerContext);
     } else {
         NapiUtil::ThrowParameterError(env);
     }
+    OnCallback(env, observerContext);
     return NapiUtil::CreateUndefined(env);
 }
 
@@ -236,14 +240,14 @@ static napi_value Off(napi_env env, napi_callback_info info)
         return nullptr;
     }
 
-    asyncContext->eventType = GetEventType(eventType.data());
-    if (asyncContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
-        ObserverContext *observerContext = asyncContext.release();
+    ObserverContext *observerContext = asyncContext.release();
+    observerContext->eventType = GetEventType(eventType.data());
+    if (observerContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
         NativeOff(env, observerContext);
-        OffCallback(env, observerContext);
     } else {
         NapiUtil::ThrowParameterError(env);
     }
+    OffCallback(env, observerContext);
     return NapiUtil::CreateUndefined(env);
 }
 
