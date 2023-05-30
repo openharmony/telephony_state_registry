@@ -14,7 +14,7 @@
 import("//build/ohos/sa_profile/sa_profile.gni")
 
 ohos_sa_profile("state_registry_sa_profile") {
-  sources = [ "4009.xml" ]
+  sources = [ "4009.json" ]
 
   part_name = "state_registry"
 }

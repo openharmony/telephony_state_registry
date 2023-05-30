@@ -1,0 +1,12 @@
+{
+    "process": "foundation",
+    "systemability": [
+        {
+            "name": 4009,
+            "libpath": "libtel_state_registry.z.so",
+            "run-on-create": true,
+            "distributed": false,
+            "dump_level": 1
+        }
+    ]
+}

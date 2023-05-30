@@ -34,6 +34,7 @@ constexpr const char *OBSERVER_JS_PERMISSION_ERROR_STRING =
     "Permission denied. An attempt was made to Observer "
     "On forbidden by permission : ohos.permission.GET_NETWORK_INFO or ohos.permission.LOCATION ";
 constexpr int32_t ARRAY_SIZE = 64;
+constexpr size_t PARAMETER_COUNT_ONE = 1;
 constexpr size_t PARAMETER_COUNT_TWO = 2;
 constexpr size_t PARAMETER_COUNT_THREE = 3;
 
@@ -221,14 +222,20 @@ static napi_value Off(napi_env env, napi_callback_info info)
     std::array<char, ARRAY_SIZE> eventType {};
     std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
     if (asyncContext == nullptr) {
-        TELEPHONY_LOGE("Off asyncContext is nullptr.");
+        TELEPHONY_LOGE("asyncContext is nullptr.");
         NapiUtil::ThrowParameterError(env);
         return nullptr;
+    }
+    napi_valuetype valueTypeTemp = napi_undefined;
+    napi_typeof(env, parameters[parameterCount - 1], &valueTypeTemp);
+    if (valueTypeTemp == napi_undefined || valueTypeTemp == napi_null) {
+        TELEPHONY_LOGI("undefined or null parameter is ignored.");
+        parameterCount = PARAMETER_COUNT_ONE;
     }
     auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef);
     std::optional<NapiError> errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
     if (errCode.has_value()) {
-        TELEPHONY_LOGE("Off parameter matching failed.");
+        TELEPHONY_LOGE("parameter matching failed.");
         NapiUtil::ThrowParameterError(env);
         return nullptr;
     }
