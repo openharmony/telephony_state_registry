@@ -30,6 +30,8 @@ ohos_shared_library("tel_state_registry_api") {
 
   include_dirs = [ "$SUBSYSTEM_DIR/frameworks/native/observer/include" ]
 
+  #version_script = "$SUBSYSTEM_DIR/interfaces/innerkits/libtel_state_registry_api.versionscript"
+
   public_configs = [ ":state_registry_observer_config" ]
 
   external_deps = [

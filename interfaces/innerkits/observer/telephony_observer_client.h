@@ -28,9 +28,32 @@ class TelephonyObserverClient : public DelayedRefSingleton<TelephonyObserverClie
     DECLARE_DELAYED_REF_SINGLETON(TelephonyObserverClient);
 
 public:
+    /**
+     * @brief Add state observer.
+     *
+     * @param telephonyObserver Indicates the TelephonyObserverBroker.
+     * @param slotId Indicates the slot identification.
+     * @param mask Indicates the event type mask.
+     * @param isUpdate Whether to update data immediately.
+     * @return Return 0 if add succeed, others if remove failed.
+     */
     int32_t AddStateObserver(const sptr<TelephonyObserverBroker> &telephonyObserver,
         int32_t slotId, uint32_t mask, bool isUpdate);
+
+    /**
+     * @brief Remove state observer.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param mask Indicates event type mask.
+     * @return Return 0 if remove successful, others if remove failed.
+     */
     int32_t RemoveStateObserver(int32_t slotId, uint32_t mask);
+
+    /**
+     * @brief Get the state registry proxy.
+     *
+     * @return Return the ITelephonyStateNotify interface.
+     */
     sptr<ITelephonyStateNotify> GetProxy();
 
 private:
