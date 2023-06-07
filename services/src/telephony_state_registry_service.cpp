@@ -98,6 +98,10 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
             "UpdateCellularDataConnectState##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     cellularDataConnectionState_[slotId] = dataState;
     cellularDataConnectionNetworkType_[slotId] = networkType;
     std::lock_guard<std::mutex> guard(lock_);
@@ -121,6 +125,10 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataFlow(
         TELEPHONY_LOGE(
             "UpdateCellularDataFlow##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     cellularDataFlow_[slotId] = flowData;
     std::lock_guard<std::mutex> guard(lock_);
@@ -206,6 +214,10 @@ int32_t TelephonyStateRegistryService::UpdateSimState(
             "UpdateSimState##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     simState_[slotId] = state;
     simReason_[slotId] = reason;
     cardType_[slotId] = type;
@@ -230,6 +242,10 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(
         TELEPHONY_LOGE(
             "UpdateSignalInfo##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     signalInfos_[slotId] = vec;
     std::lock_guard<std::mutex> guard(lock_);
@@ -285,8 +301,12 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(
             "UpdateNetworkState##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
-    searchNetworkState_[slotId] = networkState;
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     std::lock_guard<std::mutex> guard(lock_);
+    searchNetworkState_[slotId] = networkState;
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord r = stateRecords_[i];
@@ -307,6 +327,10 @@ int32_t TelephonyStateRegistryService::UpdateCfuIndicator(int32_t slotId, bool c
         TELEPHONY_LOGE(
             "UpdateCfuIndicator##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     cfuResult_[slotId] = cfuResult;
     std::lock_guard<std::mutex> guard(lock_);
@@ -329,6 +353,10 @@ int32_t TelephonyStateRegistryService::UpdateVoiceMailMsgIndicator(int32_t slotI
         TELEPHONY_LOGE(
             "UpdateVoiceMailMsgIndicator##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     voiceMailMsgResult_[slotId] = voiceMailMsgResult;
     std::lock_guard<std::mutex> guard(lock_);
@@ -411,6 +439,9 @@ int32_t TelephonyStateRegistryService::UnregisterStateChange(
     if (!CheckCallerIsSystemApp(mask)) {
         return TELEPHONY_ERR_ILLEGAL_USE_OF_SYSTEM_API;
     }
+    if (!CheckPermission(mask)) {
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     std::lock_guard<std::mutex> guard(lock_);
     int32_t result = TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST;
     std::vector<TelephonyStateRegistryRecord>::iterator it;
@@ -467,23 +498,19 @@ void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecor
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) != 0) {
         std::u16string phoneNumber = GetCallIncomingNumberForSlotId(record, record.slotId_);
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE");
-        record.telephonyObserver_->OnCallStateUpdated(
-            record.slotId_, callState_[record.slotId_], phoneNumber);
+        record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState_[record.slotId_], phoneNumber);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_SIGNAL_STRENGTHS");
-        record.telephonyObserver_->OnSignalInfoUpdated(
-            record.slotId_, signalInfos_[record.slotId_]);
+        record.telephonyObserver_->OnSignalInfoUpdated(record.slotId_, signalInfos_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_NETWORK_STATE");
-        record.telephonyObserver_->OnNetworkStateUpdated(
-            record.slotId_, searchNetworkState_[record.slotId_]);
+        record.telephonyObserver_->OnNetworkStateUpdated(record.slotId_, searchNetworkState_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CELL_INFO");
-        record.telephonyObserver_->OnCellInfoUpdated(
-            record.slotId_, cellInfos_[record.slotId_]);
+        record.telephonyObserver_->OnCellInfoUpdated(record.slotId_, cellInfos_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_SIM_STATE");
@@ -492,24 +519,20 @@ void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecor
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_DATA_CONNECTION_STATE");
-        record.telephonyObserver_->OnCellularDataConnectStateUpdated(
-            record.slotId_, cellularDataConnectionState_[record.slotId_],
-            cellularDataConnectionNetworkType_[record.slotId_]);
+        record.telephonyObserver_->OnCellularDataConnectStateUpdated(record.slotId_,
+            cellularDataConnectionState_[record.slotId_], cellularDataConnectionNetworkType_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_DATA_FLOW");
-        record.telephonyObserver_->OnCellularDataFlowUpdated(
-            record.slotId_, cellularDataFlow_[record.slotId_]);
+        record.telephonyObserver_->OnCellularDataFlowUpdated(record.slotId_, cellularDataFlow_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CFU_INDICATOR");
-        record.telephonyObserver_->OnCfuIndicatorUpdated(
-            record.slotId_, cfuResult_[record.slotId_]);
+        record.telephonyObserver_->OnCfuIndicatorUpdated(record.slotId_, cfuResult_[record.slotId_]);
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR");
-        record.telephonyObserver_->OnVoiceMailMsgIndicatorUpdated(
-            record.slotId_, voiceMailMsgResult_[record.slotId_]);
+        record.telephonyObserver_->OnVoiceMailMsgIndicatorUpdated(record.slotId_, voiceMailMsgResult_[record.slotId_]);
     }
 }
 

@@ -11,37 +11,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//base/telephony/core_service/telephony.gni")
 import("//build/ohos.gni")
-SOURCE_DIR = "//base/telephony/state_registry"
-CORE_DIR = "//base/telephony/core_service"
 
 ohos_shared_library("tel_state_registry") {
   part_name = "state_registry"
   subsystem_name = "telephony"
 
   sources = [
-    "$SOURCE_DIR/frameworks/native/observer/src/telephony_observer_proxy.cpp",
-    "$SOURCE_DIR/services/src/telephony_state_registry_dump_helper.cpp",
-    "$SOURCE_DIR/services/src/telephony_state_registry_record.cpp",
-    "$SOURCE_DIR/services/src/telephony_state_registry_service.cpp",
-    "$SOURCE_DIR/services/src/telephony_state_registry_stub.cpp",
+    "frameworks/native/observer/src/telephony_observer_proxy.cpp",
+    "services/src/telephony_state_registry_dump_helper.cpp",
+    "services/src/telephony_state_registry_record.cpp",
+    "services/src/telephony_state_registry_service.cpp",
+    "services/src/telephony_state_registry_stub.cpp",
   ]
 
   include_dirs = [
-    "$SOURCE_DIR/frameworks/native/observer/include",
-    "$SOURCE_DIR/frameworks/native/common/include",
-    "$SOURCE_DIR/services/include",
+    "frameworks/native/observer/include",
+    "frameworks/native/common/include",
+    "services/include",
   ]
-
-  configs = [ "//base/telephony/core_service/utils:telephony_log_config" ]
-
-  deps = [ "$CORE_DIR/utils:libtel_common" ]
 
   external_deps = [
     "ability_base:want",
+    "c_utils:utils",
     "call_manager:tel_call_manager_api",
     "common_event_service:cesfwk_innerkits",
+    "core_service:libtel_common",
     "core_service:tel_core_service_api",
     "hiviewdfx_hilog_native:libhilog",
     "init:libbegetutil",
@@ -50,7 +45,7 @@ ohos_shared_library("tel_state_registry") {
     "samgr:samgr_proxy",
   ]
 
-  defines += [
+  defines = [
     "TELEPHONY_LOG_TAG = \"StateRegistry\"",
     "LOG_DOMAIN = 0xD001F07",
   ]
