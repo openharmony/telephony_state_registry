@@ -43,6 +43,7 @@ public:
         int32_t slotId, int32_t dataFlowType);
     void OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult);
     void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult);
+    void OnIccAccountUpdated();
 
 private:
     static inline BrokerDelegator<TelephonyObserverProxy> delegator_;

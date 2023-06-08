@@ -77,6 +77,11 @@ public:
             "StateRegistryObserver%{public}d::OnVoiceMailMsgIndicatorUpdated voiceMailMsgResult is %{public}d", slotId,
             voiceMailMsgResult);
     }
+
+    void OnIccAccountUpdated()
+    {
+        TELEPHONY_LOGI("StateRegistryObserver::OnIccAccountUpdated");
+    }
 };
 } // namespace Telephony
 } // namespace OHOS
