@@ -465,7 +465,6 @@ void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecor
         TELEPHONY_LOGE("record.telephonyObserver_ is nullptr");
         return;
     }
-    TELEPHONY_LOGI("RegisterStateChange UpdateData mask is %{public}zu", record.mask_);
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) != 0) {
         std::u16string phoneNumber = GetCallIncomingNumberForSlotId(record, record.slotId_);
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE");
