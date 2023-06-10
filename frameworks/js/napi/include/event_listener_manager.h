@@ -38,6 +38,17 @@ public:
         }
         return handler->SendEvent(innerEventId, object, delayTime);
     }
+
+    inline static bool SendEvent(uint32_t innerEventId)
+    {
+        auto handler = DelayedSingleton<EventListenerHandler>::GetInstance();
+        if (handler == nullptr) {
+            TELEPHONY_LOGE("Get handler failed");
+            return false;
+        }
+        return handler->SendEvent(innerEventId);
+    }
+
     static int32_t RegisterEventListener(EventListener &eventListener);
     static int32_t UnregisterEventListener(napi_env env, const TelephonyUpdateEventType eventType, napi_ref ref,
         std::list<EventListener> &removeListenerList);

@@ -232,6 +232,13 @@ void StateRegistryTest::UpdateVoiceMailMsgIndicator(int32_t slotId)
     EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
 }
 
+void StateRegistryTest::UpdateIccAccount()
+{
+    int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateIccAccount();
+    TELEPHONY_LOGI("StateRegistryTest::UpdateIccAccount ret = %{public}d", ret);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
 #ifndef TEL_TEST_UNSUPPORT
 /**
  * @tc.number   StateRegistry_001
@@ -481,6 +488,32 @@ HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_002, Function | MediumTe
         return;
     }
     UpdateVoiceMailMsgIndicator(SIM_SLOT_ID_1);
+}
+
+/**
+ * @tc.number   UpdateIccAccount_001
+ * @tc.name     UpdateIccAccount
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, UpdateIccAccount_001, Function | MediumTest | Level1)
+{
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+        return;
+    }
+    UpdateIccAccount();
+}
+
+/**
+ * @tc.number   UpdateIccAccount_002
+ * @tc.name     UpdateIccAccount
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, UpdateIccAccount_002, Function | MediumTest | Level1)
+{
+    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+        return;
+    }
+    UpdateIccAccount();
 }
 
 /**

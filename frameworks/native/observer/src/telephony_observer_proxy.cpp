@@ -264,5 +264,25 @@ void TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool
         dataParcel, replyParcel, option);
     TELEPHONY_LOGI("TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated##error: %{public}d.", code);
 }
+
+void TelephonyObserverProxy::OnIccAccountUpdated()
+{
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("WriteInterfaceToken failed!");
+        return;
+    }
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TELEPHONY_LOGE("remote is null!");
+        return;
+    }
+    int32_t code = remote->SendRequest(
+        static_cast<uint32_t>(ObserverBrokerCode::ON_ICC_ACCOUNT_UPDATED), dataParcel, replyParcel, option);
+    TELEPHONY_LOGI("result code: %{public}d.", code);
+}
 } // namespace Telephony
 } // namespace OHOS

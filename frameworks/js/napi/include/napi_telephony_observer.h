@@ -36,6 +36,7 @@ public:
     void OnCellularDataFlowUpdated(int32_t slotId, int32_t dataFlowType) override;
     void OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult) override;
     void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult) override;
+    void OnIccAccountUpdated() override;
 };
 } // namespace Telephony
 } // namespace OHOS

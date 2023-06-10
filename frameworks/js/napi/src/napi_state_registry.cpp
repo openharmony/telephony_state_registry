@@ -39,15 +39,16 @@ constexpr size_t PARAMETER_COUNT_TWO = 2;
 constexpr size_t PARAMETER_COUNT_THREE = 3;
 
 const std::map<std::string_view, TelephonyUpdateEventType> eventMap {
-    {"networkStateChange", TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE},
-    {"callStateChange", TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE},
-    {"signalInfoChange", TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE},
-    {"simStateChange", TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE},
-    {"cellInfoChange", TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE},
-    {"cellularDataConnectionStateChange", TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE},
-    {"cellularDataFlowChange", TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE},
-    {"cfuIndicatorChange", TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE},
-    {"voiceMailMsgIndicatorChange", TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE},
+    { "networkStateChange", TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE },
+    { "callStateChange", TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE },
+    { "signalInfoChange", TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE },
+    { "simStateChange", TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE },
+    { "cellInfoChange", TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE },
+    { "cellularDataConnectionStateChange", TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE },
+    { "cellularDataFlowChange", TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE },
+    { "cfuIndicatorChange", TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE },
+    { "voiceMailMsgIndicatorChange", TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE },
+    { "iccAccountInfoChange", TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE },
 };
 
 TelephonyUpdateEventType GetEventType(std::string_view event)

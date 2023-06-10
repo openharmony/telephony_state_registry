@@ -81,9 +81,12 @@ private:
     static void SetEventListenerDeleting(std::shared_ptr<bool> isDeleting);
     static void WorkCfuIndicatorUpdated(uv_work_t *work);
     static void WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work);
+    static void WorkIccAccountUpdated(uv_work_t *work);
 
     template<typename T, typename D, TelephonyUpdateEventType eventType>
     void HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent::Pointer &event);
+    template<TelephonyUpdateEventType eventType>
+    void HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent::Pointer &event);
 };
 } // namespace Telephony
 } // namespace OHOS

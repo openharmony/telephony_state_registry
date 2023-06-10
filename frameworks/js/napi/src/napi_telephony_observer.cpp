@@ -129,6 +129,12 @@ void NapiTelephonyObserver::OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult
         ToUint32t(TelephonyCallbackEventId::EVENT_ON_CFU_INDICATOR_UPDATE), cfuIndicatorUpdateInfo);
 }
 
+void NapiTelephonyObserver::OnIccAccountUpdated()
+{
+    TELEPHONY_LOGI("OnIccAccountUpdated begin");
+    EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_ICC_ACCOUNT_UPDATE));
+}
+
 void NapiTelephonyObserver::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult)
 {
     TELEPHONY_LOGI("OnVoiceMailMsgIndicatorUpdated slotId = %{public}d, voiceMailMsgResult =  %{public}d", slotId,
