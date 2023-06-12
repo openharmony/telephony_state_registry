@@ -40,6 +40,7 @@ TelephonyStateRegistryStub::TelephonyStateRegistryStub()
     memberFuncMap_[StateNotifyCode::CFU_INDICATOR] = &TelephonyStateRegistryStub::OnUpdateCfuIndicator;
     memberFuncMap_[StateNotifyCode::VOICE_MAIL_MSG_INDICATOR] =
         &TelephonyStateRegistryStub::OnUpdateVoiceMailMsgIndicator;
+    memberFuncMap_[StateNotifyCode::ICC_ACCOUNT_CHANGE] = &TelephonyStateRegistryStub::OnIccAccountUpdated;
 }
 
 TelephonyStateRegistryStub::~TelephonyStateRegistryStub()
@@ -319,6 +320,14 @@ int32_t TelephonyStateRegistryStub::OnUpdateVoiceMailMsgIndicator(MessageParcel 
     bool voiceMailMsgResult = data.ReadBool();
     int32_t ret = UpdateVoiceMailMsgIndicator(slotId, voiceMailMsgResult);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateVoiceMailMsgIndicator end##ret=%{public}d", ret);
+    reply.WriteInt32(ret);
+    return ret;
+}
+
+int32_t TelephonyStateRegistryStub::OnIccAccountUpdated(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t ret = UpdateIccAccount();
+    TELEPHONY_LOGI("end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
     return ret;
 }

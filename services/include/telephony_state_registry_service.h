@@ -56,6 +56,7 @@ public:
     int32_t UpdateCellInfo(int32_t slotId, const std::vector<sptr<CellInformation>> &vec) override;
     int32_t UpdateCfuIndicator(int32_t slotId, bool cfuResult) override;
     int32_t UpdateVoiceMailMsgIndicator(int32_t slotId, bool voiceMailMsgResult) override;
+    int32_t UpdateIccAccount() override;
     int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
         uint32_t mask, const std::string &bundleName, bool notifyNow, pid_t pid) override;
     int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid) override;

@@ -285,6 +285,8 @@ EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecF
     handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE] =
         &EventListenerHandler::HandleCallbackInfoUpdate<VoiceMailMsgIndicatorContext, VoiceMailMsgIndicatorUpdate,
             TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE>;
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_ICC_ACCOUNT_UPDATE] =
+        &EventListenerHandler::HandleCallbackVoidUpdate<TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE>;
 
     workFuncMap_[TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE] = &EventListenerHandler::WorkCallStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE] = &EventListenerHandler::WorkSignalUpdated;
@@ -298,6 +300,7 @@ EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecF
     workFuncMap_[TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE] = &EventListenerHandler::WorkCfuIndicatorUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE] =
         &EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE] = &EventListenerHandler::WorkIccAccountUpdated;
 }
 
 EventListenerHandler::~EventListenerHandler()
@@ -559,6 +562,40 @@ void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
     }
 }
 
+template<TelephonyUpdateEventType eventType>
+void EventListenerHandler::HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent::Pointer &event)
+{
+    if (event == nullptr) {
+        TELEPHONY_LOGE("event nullptr");
+        return;
+    }
+
+    std::lock_guard<std::mutex> lockGuard(operatorMutex_);
+    for (const EventListener &listen : listenerList_) {
+        if ((listen.eventType == eventType)) {
+            uv_loop_s *loop = nullptr;
+            if (!InitLoop(listen.env, &loop)) {
+                TELEPHONY_LOGE("loop is null");
+                break;
+            }
+            uv_work_t *work = std::make_unique<uv_work_t>().release();
+            if (work == nullptr) {
+                TELEPHONY_LOGE("make work failed");
+                break;
+            }
+            EventListener *listener = new EventListener();
+            listener->env = listen.env;
+            listener->eventType = listen.eventType;
+            listener->slotId = listen.slotId;
+            listener->callbackRef = listen.callbackRef;
+            listener->isDeleting = listen.isDeleting;
+            work->data = static_cast<void *>(listener);
+            uv_queue_work(
+                loop, work, [](uv_work_t *) {}, WorkUpdated);
+        }
+    }
+}
+
 void EventListenerHandler::WorkUpdated(uv_work_t *work, int status)
 {
     std::lock_guard<std::mutex> lockGuard(operatorMutex_);
@@ -566,11 +603,15 @@ void EventListenerHandler::WorkUpdated(uv_work_t *work, int status)
     TELEPHONY_LOGI("WorkUpdated eventType is %{public}d", listener->eventType);
     if (listener->isDeleting == nullptr || *(listener->isDeleting)) {
         TELEPHONY_LOGI("listener is deleting");
+        delete listener;
+        listener = nullptr;
         return;
     }
     if (workFuncMap_.find(listener->eventType) == workFuncMap_.end() ||
         workFuncMap_.find(listener->eventType)->second == nullptr) {
         TELEPHONY_LOGE("listener state update is nullptr");
+        delete listener;
+        listener = nullptr;
         return;
     }
     workFuncMap_.find(listener->eventType)->second(work);
@@ -699,6 +740,18 @@ void EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work)
     napi_value callbackValue =
         GetNapiValue(voiceMailMsgIndicatorInfo->env, voiceMailMsgIndicatorInfo->voiceMailMsgResult_);
     NapiReturnToJS(voiceMailMsgIndicatorInfo->env, voiceMailMsgIndicatorInfo->callbackRef, callbackValue);
+}
+
+void EventListenerHandler::WorkIccAccountUpdated(uv_work_t *work)
+{
+    if (work == nullptr) {
+        TELEPHONY_LOGE("work is null");
+        return;
+    }
+    std::unique_ptr<EventListener> UpdateIccAccount(static_cast<EventListener *>(work->data));
+    napi_value callbackValue = nullptr;
+    napi_create_object(UpdateIccAccount->env, &callbackValue);
+    NapiReturnToJS(UpdateIccAccount->env, UpdateIccAccount->callbackRef, callbackValue);
 }
 } // namespace Telephony
 } // namespace OHOS

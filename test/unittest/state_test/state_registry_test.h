@@ -187,6 +187,7 @@ public:
     void UpdateNetworkState(int32_t slotId);
     void UpdateCfuIndicator(int32_t slotId);
     void UpdateVoiceMailMsgIndicator(int32_t slotId);
+    void UpdateIccAccount();
 
 public:
     using RequestFuncType = void (StateRegistryTest::*)(int32_t slotId);

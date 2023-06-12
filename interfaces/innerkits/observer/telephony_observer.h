@@ -28,8 +28,8 @@ namespace OHOS {
 namespace Telephony {
 class TelephonyObserver : public IRemoteStub<TelephonyObserverBroker> {
 public:
-    TelephonyObserver() {}
-    ~TelephonyObserver() {}
+    TelephonyObserver();
+    ~TelephonyObserver();
 
     /**
      * @brief Called when call state is updated.
@@ -117,8 +117,11 @@ public:
     virtual void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult) override;
     int32_t OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
+    virtual void OnIccAccountUpdated() override;
 
 private:
+    using TelephonyObserverFunc = void (TelephonyObserver::*)(MessageParcel &data, MessageParcel &reply);
+
     void ConvertSignalInfoList(MessageParcel &data, std::vector<sptr<SignalInformation>> &signalInfos);
     void ConvertCellInfoList(MessageParcel &data, std::vector<sptr<CellInformation>> &cells);
     void OnCallStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
@@ -130,8 +133,10 @@ private:
     void OnCellularDataFlowUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnCfuIndicatorUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnVoiceMailMsgIndicatorUpdatedInner(MessageParcel &data, MessageParcel &reply);
+    void OnIccAccountUpdatedInner(MessageParcel &data, MessageParcel &reply);
     static constexpr int32_t CELL_NUM_MAX = 100;
     static constexpr int32_t SIGNAL_NUM_MAX = 100;
+    std::map<uint32_t, TelephonyObserverFunc> memberFuncMap_;
 };
 } // namespace Telephony
 } // namespace OHOS

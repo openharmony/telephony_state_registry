@@ -45,56 +45,54 @@ void TelephonyObserver::OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult) {}
 
 void TelephonyObserver::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult) {}
 
+void TelephonyObserver::OnIccAccountUpdated() {}
+
+TelephonyObserver::TelephonyObserver()
+{
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_UPDATED)] =
+        &TelephonyObserver::OnCallStateUpdatedInner;
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_SIGNAL_INFO_UPDATED)] =
+        &TelephonyObserver::OnSignalInfoUpdatedInner;
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CELL_INFO_UPDATED)] =
+        &TelephonyObserver::OnCellInfoUpdatedInner;
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_NETWORK_STATE_UPDATED)] =
+        &TelephonyObserver::OnNetworkStateUpdatedInner;
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_SIM_STATE_UPDATED)] =
+        &TelephonyObserver::OnSimStateUpdatedInner;
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_CONNECT_STATE_UPDATED)] =
+        &TelephonyObserver::OnCellularDataConnectStateUpdatedInner;
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED)] =
+        &TelephonyObserver::OnCellularDataFlowUpdatedInner;
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CFU_INDICATOR_UPDATED)] =
+        &TelephonyObserver::OnCfuIndicatorUpdatedInner;
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_VOICE_MAIL_MSG_INDICATOR_UPDATED)] =
+        &TelephonyObserver::OnVoiceMailMsgIndicatorUpdatedInner;
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_ICC_ACCOUNT_UPDATED)] =
+        &TelephonyObserver::OnIccAccountUpdatedInner;
+}
+
+TelephonyObserver::~TelephonyObserver()
+{
+    memberFuncMap_.clear();
+}
+
 int32_t TelephonyObserver::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    TELEPHONY_LOGI("TelephonyObserver::OnRemoteRequest code = %{public}u......\n", code);
+    TELEPHONY_LOGI(" code = %{public}u......", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
-        TELEPHONY_LOGE("TelephonyObserver::OnRemoteRequest verify token failed!");
+        TELEPHONY_LOGE("verify token failed!");
         return TELEPHONY_ERR_DESCRIPTOR_MISMATCH;
     }
-    switch (static_cast<ObserverBrokerCode>(code)) {
-        case ObserverBrokerCode::ON_CALL_STATE_UPDATED: {
-            OnCallStateUpdatedInner(data, reply);
-            break;
-        }
-        case ObserverBrokerCode::ON_SIGNAL_INFO_UPDATED: {
-            OnSignalInfoUpdatedInner(data, reply);
-            break;
-        }
-        case ObserverBrokerCode::ON_CELL_INFO_UPDATED: {
-            OnCellInfoUpdatedInner(data, reply);
-            break;
-        }
-        case ObserverBrokerCode::ON_NETWORK_STATE_UPDATED: {
-            OnNetworkStateUpdatedInner(data, reply);
-            break;
-        }
-        case ObserverBrokerCode::ON_SIM_STATE_UPDATED: {
-            OnSimStateUpdatedInner(data, reply);
-            break;
-        }
-        case ObserverBrokerCode::ON_CELLULAR_DATA_CONNECT_STATE_UPDATED: {
-            OnCellularDataConnectStateUpdatedInner(data, reply);
-            break;
-        }
-        case ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED: {
-            OnCellularDataFlowUpdatedInner(data, reply);
-            break;
-        }
-        case ObserverBrokerCode::ON_CFU_INDICATOR_UPDATED: {
-            OnCfuIndicatorUpdatedInner(data, reply);
-            break;
-        }
-        case ObserverBrokerCode::ON_VOICE_MAIL_MSG_INDICATOR_UPDATED: {
-            OnVoiceMailMsgIndicatorUpdatedInner(data, reply);
-            break;
-        }
-        default: {
-            return OHOS::UNKNOWN_TRANSACTION;
+    auto itFunc = memberFuncMap_.find(code);
+    if (itFunc != memberFuncMap_.end()) {
+        auto memberFunc = itFunc->second;
+        if (memberFunc != nullptr) {
+            (this->*memberFunc)(data, reply);
+            return OHOS::NO_ERROR;
         }
     }
-    return OHOS::NO_ERROR;
+    return IPCObjectStub::OnRemoteRequest(code, data, reply, option);
 }
 
 void TelephonyObserver::OnCallStateUpdatedInner(
@@ -173,6 +171,11 @@ void TelephonyObserver::OnVoiceMailMsgIndicatorUpdatedInner(
     int32_t slotId = data.ReadInt32();
     bool voiceMailMsgResult = data.ReadBool();
     OnVoiceMailMsgIndicatorUpdated(slotId, voiceMailMsgResult);
+}
+
+void TelephonyObserver::OnIccAccountUpdatedInner(MessageParcel &data, MessageParcel &reply)
+{
+    OnIccAccountUpdated();
 }
 
 void TelephonyObserver::ConvertSignalInfoList(
