@@ -31,21 +31,89 @@ public:
     TelephonyObserver();
     ~TelephonyObserver();
 
+    /**
+     * @brief Called when call state is updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param callState Indicates the call state.
+     * @param phoneNumber Indicates the phoneNumber.
+     */
     void OnCallStateUpdated(
         int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
+
+    /**
+     * @brief Called when signal info is updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param vec Indicates the signal information lists.
+     */
     void OnSignalInfoUpdated(
         int32_t slotId, const std::vector<sptr<SignalInformation>> &vec) override;
+
+    /**
+     * @brief Called when network state is updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param networkState Indicates the NetworkState.
+     */
     void OnNetworkStateUpdated(
         int32_t slotId, const sptr<NetworkState> &networkState) override;
+
+    /**
+     * @brief Called when cell info is updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param vec Indicates the cell information list.
+     */
     void OnCellInfoUpdated(
         int32_t slotId, const std::vector<sptr<CellInformation>> &vec) override;
+
+    /**
+     * @brief Called when sim state is updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param type Indicates the type of sim card.
+     * @param state Indicates the sim state.
+     * @param reason Indicates the sim lock reason.
+     */
     void OnSimStateUpdated(
         int32_t slotId, CardType type, SimState state, LockReason reason) override;
+
+    /**
+     * @brief Called when cellular data connect state is updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param dataState Indicates the cellular data state.
+     * @param networkType Indicates the network type.
+     */
     void OnCellularDataConnectStateUpdated(
         int32_t slotId, int32_t dataState, int32_t networkType) override;
+
+    /**
+     * @brief Called when cellular data flow type is updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param dataFlowType Indicates the data flow type.
+     */
     void OnCellularDataFlowUpdated(
         int32_t slotId, int32_t dataFlowType) override;
+
+    /**
+     * @brief Called when CFU(Call Forwarding Unconditional) indicator updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param cfuResult Indicates whether support CFU, true if support, false if
+     * not.
+     */
     virtual void OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult) override;
+
+    /**
+     * @brief Called when the voice mailbox state corresponding to the monitored slotId
+     * is updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param voiceMailMsgResult
+     */
     virtual void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult) override;
     int32_t OnRemoteRequest(
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
