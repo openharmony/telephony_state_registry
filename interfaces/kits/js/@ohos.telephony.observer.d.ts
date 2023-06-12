@@ -489,6 +489,7 @@ declare namespace observer {
    * @throws { BusinessError } 8300002 - Operation failed. Cannot connect to service.
    * @throws { BusinessError } 8300003 - System internal error.
    * @throws { BusinessError } 8300999 - Unknown error code.
+   * @syscap SystemCapability.Telephony.StateRegistry
    * @since 10
    */
   function on(type: 'iccAccountInfoChange', callback: Callback<void>): void;
@@ -504,6 +505,7 @@ declare namespace observer {
    * @throws { BusinessError } 8300002 - Operation failed. Cannot connect to service.
    * @throws { BusinessError } 8300003 - System internal error.
    * @throws { BusinessError } 8300999 - Unknown error code.
+   * @syscap SystemCapability.Telephony.StateRegistry
    * @since 10
    */
   function off(type: 'iccAccountInfoChange', callback?: Callback<void>): void;
