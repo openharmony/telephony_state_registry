@@ -74,6 +74,7 @@ private:
     void UpdateData(const TelephonyStateRegistryRecord &record);
 
 private:
+    bool CheckCallerIsSystemApp(uint32_t mask);
     bool CheckPermission(uint32_t mask);
     bool VerifySlotId(int32_t slotId);
     std::u16string GetCallIncomingNumberForSlotId(TelephonyStateRegistryRecord record, int32_t slotId);

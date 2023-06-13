@@ -374,10 +374,37 @@ int32_t TelephonyStateRegistryService::UpdateVoiceMailMsgIndicator(int32_t slotI
     return result;
 }
 
+bool TelephonyStateRegistryService::CheckCallerIsSystemApp(uint32_t mask)
+{
+    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO) != 0) {
+        if (!TelephonyPermission::CheckCallerIsSystemApp()) {
+            TELEPHONY_LOGE("The listening event is cellInfoChange. Non-system applications use system APIs!");
+            return false;
+        }
+    }
+    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR) != 0) {
+        if (!TelephonyPermission::CheckCallerIsSystemApp()) {
+            TELEPHONY_LOGE("The listening event is cfuIndicatorChange. Non-system applications use system APIs!");
+            return false;
+        }
+    }
+    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR) != 0) {
+        if (!TelephonyPermission::CheckCallerIsSystemApp()) {
+            TELEPHONY_LOGE(
+                "The listening event is voiceMailMsgIndicatorChange. Non-system applications use system APIs!");
+            return false;
+        }
+    }
+    return true;
+}
+
 int32_t TelephonyStateRegistryService::RegisterStateChange(
     const sptr<TelephonyObserverBroker> &telephonyObserver,
     int32_t slotId, uint32_t mask, const std::string &bundleName, bool isUpdate, pid_t pid)
 {
+    if (!CheckCallerIsSystemApp(mask)) {
+        return TELEPHONY_ERR_ILLEGAL_USE_OF_SYSTEM_API;
+    }
     if (!CheckPermission(mask)) {
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
@@ -409,6 +436,9 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
 
 int32_t TelephonyStateRegistryService::UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid)
 {
+    if (!CheckCallerIsSystemApp(mask)) {
+        return TELEPHONY_ERR_ILLEGAL_USE_OF_SYSTEM_API;
+    }
     if (!CheckPermission(mask)) {
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
