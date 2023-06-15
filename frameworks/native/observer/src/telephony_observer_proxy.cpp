@@ -282,7 +282,7 @@ void TelephonyObserverProxy::OnIccAccountUpdated()
     MessageParcel replyParcel;
     int32_t code = remote->SendRequest(
         static_cast<uint32_t>(ObserverBrokerCode::ON_ICC_ACCOUNT_UPDATED), dataParcel, replyParcel, option);
-    TELEPHONY_LOGI("error: %{public}d.", code);
+    TELEPHONY_LOGI("result code: %{public}d.", code);
 }
 } // namespace Telephony
 } // namespace OHOS
