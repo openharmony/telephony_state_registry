@@ -112,7 +112,8 @@ public:
      * is updated.
      *
      * @param slotId Indicates the slot identification.
-     * @param voiceMailMsgResult
+     * @param voiceMailMsgResult Indicates the result of voice mail message,
+     * true if success, false if not.
      */
     virtual void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult) override;
     int32_t OnRemoteRequest(

@@ -267,10 +267,7 @@ void TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool
 
 void TelephonyObserverProxy::OnIccAccountUpdated()
 {
-    MessageOption option;
     MessageParcel dataParcel;
-    MessageParcel replyParcel;
-    option.SetFlags(MessageOption::TF_ASYNC);
     if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
         TELEPHONY_LOGE("WriteInterfaceToken failed!");
         return;
@@ -280,6 +277,9 @@ void TelephonyObserverProxy::OnIccAccountUpdated()
         TELEPHONY_LOGE("remote is null!");
         return;
     }
+    MessageOption option;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    MessageParcel replyParcel;
     int32_t code = remote->SendRequest(
         static_cast<uint32_t>(ObserverBrokerCode::ON_ICC_ACCOUNT_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGI("result code: %{public}d.", code);
