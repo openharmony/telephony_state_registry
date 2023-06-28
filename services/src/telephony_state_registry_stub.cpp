@@ -26,21 +26,23 @@ namespace OHOS {
 namespace Telephony {
 TelephonyStateRegistryStub::TelephonyStateRegistryStub()
 {
-    memberFuncMap_[StateNotifyCode::CELL_INFO] = &TelephonyStateRegistryStub::OnUpdateCellInfo;
-    memberFuncMap_[StateNotifyCode::SIM_STATE] = &TelephonyStateRegistryStub::OnUpdateSimState;
-    memberFuncMap_[StateNotifyCode::SIGNAL_INFO] = &TelephonyStateRegistryStub::OnUpdateSignalInfo;
-    memberFuncMap_[StateNotifyCode::NET_WORK_STATE] = &TelephonyStateRegistryStub::OnUpdateNetworkState;
-    memberFuncMap_[StateNotifyCode::CALL_STATE] = &TelephonyStateRegistryStub::OnUpdateCallState;
-    memberFuncMap_[StateNotifyCode::CALL_STATE_FOR_ID] = &TelephonyStateRegistryStub::OnUpdateCallStateForSlotId;
-    memberFuncMap_[StateNotifyCode::CELLULAR_DATA_STATE] =
+    memberFuncMap_[StateNotifyInterfaceCode::CELL_INFO] = &TelephonyStateRegistryStub::OnUpdateCellInfo;
+    memberFuncMap_[StateNotifyInterfaceCode::SIM_STATE] = &TelephonyStateRegistryStub::OnUpdateSimState;
+    memberFuncMap_[StateNotifyInterfaceCode::SIGNAL_INFO] = &TelephonyStateRegistryStub::OnUpdateSignalInfo;
+    memberFuncMap_[StateNotifyInterfaceCode::NET_WORK_STATE] = &TelephonyStateRegistryStub::OnUpdateNetworkState;
+    memberFuncMap_[StateNotifyInterfaceCode::CALL_STATE] = &TelephonyStateRegistryStub::OnUpdateCallState;
+    memberFuncMap_[StateNotifyInterfaceCode::CALL_STATE_FOR_ID] =
+        &TelephonyStateRegistryStub::OnUpdateCallStateForSlotId;
+    memberFuncMap_[StateNotifyInterfaceCode::CELLULAR_DATA_STATE] =
         &TelephonyStateRegistryStub::OnUpdateCellularDataConnectState;
-    memberFuncMap_[StateNotifyCode::CELLULAR_DATA_FLOW] = &TelephonyStateRegistryStub::OnUpdateCellularDataFlow;
-    memberFuncMap_[StateNotifyCode::ADD_OBSERVER] = &TelephonyStateRegistryStub::OnRegisterStateChange;
-    memberFuncMap_[StateNotifyCode::REMOVE_OBSERVER] = &TelephonyStateRegistryStub::OnUnregisterStateChange;
-    memberFuncMap_[StateNotifyCode::CFU_INDICATOR] = &TelephonyStateRegistryStub::OnUpdateCfuIndicator;
-    memberFuncMap_[StateNotifyCode::VOICE_MAIL_MSG_INDICATOR] =
+    memberFuncMap_[StateNotifyInterfaceCode::CELLULAR_DATA_FLOW] =
+        &TelephonyStateRegistryStub::OnUpdateCellularDataFlow;
+    memberFuncMap_[StateNotifyInterfaceCode::ADD_OBSERVER] = &TelephonyStateRegistryStub::OnRegisterStateChange;
+    memberFuncMap_[StateNotifyInterfaceCode::REMOVE_OBSERVER] = &TelephonyStateRegistryStub::OnUnregisterStateChange;
+    memberFuncMap_[StateNotifyInterfaceCode::CFU_INDICATOR] = &TelephonyStateRegistryStub::OnUpdateCfuIndicator;
+    memberFuncMap_[StateNotifyInterfaceCode::VOICE_MAIL_MSG_INDICATOR] =
         &TelephonyStateRegistryStub::OnUpdateVoiceMailMsgIndicator;
-    memberFuncMap_[StateNotifyCode::ICC_ACCOUNT_CHANGE] = &TelephonyStateRegistryStub::OnIccAccountUpdated;
+    memberFuncMap_[StateNotifyInterfaceCode::ICC_ACCOUNT_CHANGE] = &TelephonyStateRegistryStub::OnIccAccountUpdated;
 }
 
 TelephonyStateRegistryStub::~TelephonyStateRegistryStub()
