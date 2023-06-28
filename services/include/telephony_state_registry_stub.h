@@ -65,7 +65,7 @@ private:
     int32_t OnIccAccountUpdated(MessageParcel &data, MessageParcel &reply);
 
 private:
-    std::map<StateNotifyCode, TelephonyStateFunc> memberFuncMap_;
+    std::map<StateNotifyInterfaceCode, TelephonyStateFunc> memberFuncMap_;
 };
 } // namespace Telephony
 } // namespace OHOS

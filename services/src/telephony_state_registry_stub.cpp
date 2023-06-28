@@ -60,7 +60,7 @@ int32_t TelephonyStateRegistryStub::OnRemoteRequest(
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnRemoteRequest end##descriptor checked fail");
         return TELEPHONY_ERR_DESCRIPTOR_MISMATCH;
     }
-    auto itFunc = memberFuncMap_.find(static_cast<StateNotifyCode>(code));
+    auto itFunc = memberFuncMap_.find(static_cast<StateNotifyInterfaceCode>(code));
     if (itFunc != memberFuncMap_.end()) {
         auto memberFunc = itFunc->second;
         if (memberFunc != nullptr) {
