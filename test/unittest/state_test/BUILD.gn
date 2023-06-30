@@ -38,6 +38,7 @@ ohos_unittest("tel_state_registry_test") {
     "c_utils:utils",
     "core_service:libtel_common",
     "core_service:tel_core_service_api",
+    "hilog:libhilog",
     "init:libbegetutil",
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
@@ -48,12 +49,6 @@ ohos_unittest("tel_state_registry_test") {
     "TELEPHONY_LOG_TAG = \"StateRegistryTest\"",
     "LOG_DOMAIN = 0xD000F00",
   ]
-
-  if (is_standard_system) {
-    external_deps += [ "hiviewdfx_hilog_native:libhilog" ]
-  } else {
-    external_deps += [ "hilog:libhilog" ]
-  }
 }
 
 group("unittest") {
