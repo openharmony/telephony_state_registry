@@ -71,7 +71,8 @@
                 }
             ],
             "test": [
-                "//base/telephony/state_registry/test:unittest"
+                "//base/telephony/state_registry/test:unittest",
+                "//base/telephony/state_registry/test/fuzztest:fuzztest"
             ]
         }
     }
