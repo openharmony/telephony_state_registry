@@ -13,8 +13,8 @@
  * limitations under the License.
  */
 
-#ifndef ADD_STATE_REGISTRY_TOKEN_FUZZER
-#define ADD_STATE_REGISTRY_TOKEN_FUZZER
+#ifndef ADD_STATE_REGISTRY_TOKEN_FUZZER_H
+#define ADD_STATE_REGISTRY_TOKEN_FUZZER_H
 
 #include "accesstoken_kit.h"
 
@@ -28,4 +28,4 @@ private:
     Security::AccessToken::AccessTokenID currentID_ = 0;
 };
 } // namespace OHOS
-#endif // ADD_STATE_REGISTRY_TOKEN_FUZZER
+#endif // ADD_STATE_REGISTRY_TOKEN_FUZZER_H
