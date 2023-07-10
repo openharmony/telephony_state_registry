@@ -26,7 +26,10 @@ ohos_shared_library("observer") {
     "src/napi_telephony_observer.cpp",
   ]
 
-  deps = [ "//third_party/libuv:uv" ]
+  deps = [
+    "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer:tel_state_registry_api",
+    "//third_party/libuv:uv",
+  ]
 
   external_deps = [
     "c_utils:utils",
@@ -38,7 +41,6 @@ ohos_shared_library("observer") {
     "init:libbegetutil",
     "ipc:ipc_core",
     "napi:ace_napi",
-    "state_registry:tel_state_registry_api",
   ]
 
   defines = [

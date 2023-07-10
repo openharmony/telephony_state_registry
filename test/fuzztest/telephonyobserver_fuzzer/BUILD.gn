@@ -30,7 +30,10 @@ ohos_fuzztest("TelephonyObserverFuzzTest") {
     "$SUBSYSTEM_DIR/state_registry/test/fuzztest/common_fuzzer",
   ]
 
-  deps = [ "$SUBSYSTEM_DIR/state_registry:tel_state_registry" ]
+  deps = [
+    "$SUBSYSTEM_DIR/state_registry:tel_state_registry",
+    "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer:tel_state_registry_api",
+  ]
 
   external_deps = [
     "ability_base:want",
