@@ -50,7 +50,6 @@ ohos_fuzztest("TelephonyObserverFuzzTest") {
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "state_registry:tel_state_registry_api",
   ]
 
   cflags = [
