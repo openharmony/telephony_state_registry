@@ -30,7 +30,10 @@ ohos_fuzztest("TelephonyObserverFuzzTest") {
     "$SUBSYSTEM_DIR/state_registry/test/fuzztest/common_fuzzer",
   ]
 
-  deps = [ "$SUBSYSTEM_DIR/state_registry:tel_state_registry" ]
+  deps = [
+    "$SUBSYSTEM_DIR/state_registry:tel_state_registry",
+    "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer:tel_state_registry_api",
+  ]
 
   external_deps = [
     "ability_base:want",
@@ -47,7 +50,6 @@ ohos_fuzztest("TelephonyObserverFuzzTest") {
     "ipc:ipc_single",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "state_registry:tel_state_registry_api",
   ]
 
   cflags = [
