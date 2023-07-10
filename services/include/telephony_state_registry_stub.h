@@ -22,6 +22,7 @@
 
 #include "telephony_log_wrapper.h"
 #include "i_telephony_state_notify.h"
+#include "state_registry_ipc_interface_code.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -64,7 +65,7 @@ private:
     int32_t OnIccAccountUpdated(MessageParcel &data, MessageParcel &reply);
 
 private:
-    std::map<StateNotifyCode, TelephonyStateFunc> memberFuncMap_;
+    std::map<StateNotifyInterfaceCode, TelephonyStateFunc> memberFuncMap_;
 };
 } // namespace Telephony
 } // namespace OHOS
