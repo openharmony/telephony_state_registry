@@ -55,7 +55,7 @@ void OnRemoteRequest(const uint8_t *data, size_t size)
     if (!dataMessageParcel.WriteInterfaceToken(TelephonyObserver::GetDescriptor())) {
         return;
     }
-    dataMessageParcel.WriteBuffer(data, dataSize);
+    dataMessageParcel.WriteBuffer(data, size);
     dataMessageParcel.RewindRead(0);
     uint32_t code = static_cast<uint32_t>(size);
     MessageParcel reply;
