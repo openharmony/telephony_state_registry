@@ -17,7 +17,6 @@
 
 #include <sstream>
 
-#include "call_manager_inner_type.h"
 #include "common_event_manager.h"
 #include "common_event_support.h"
 #include "iservice_registry.h"
@@ -26,6 +25,7 @@
 #include "system_ability.h"
 #include "system_ability_definition.h"
 #include "telephony_permission.h"
+#include "telephony_state_manager.h"
 #include "telephony_state_registry_dump_helper.h"
 #include "telephony_types.h"
 
