@@ -62,8 +62,7 @@ void OnRemoteRequest(const uint8_t *data, size_t size)
     if (!dataMessageParcel.WriteInterfaceToken(TelephonyStateRegistryStub::GetDescriptor())) {
         return;
     }
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
+    dataMessageParcel.WriteBuffer(data, size);
     dataMessageParcel.RewindRead(0);
     uint32_t code = static_cast<uint32_t>(size);
     MessageParcel reply;
@@ -139,8 +138,6 @@ void UpdateCellInfo(const uint8_t *data, size_t size)
             cell->Marshalling(dataMessageParcel);
         }
     }
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnUpdateCellInfo(dataMessageParcel, reply);
@@ -158,8 +155,6 @@ void UpdateCallState(const uint8_t *data, size_t size)
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteInt32(callState);
     dataMessageParcel.WriteString16(Str8ToStr16(phoneNumber));
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnUpdateCallState(dataMessageParcel, reply);
@@ -179,8 +174,6 @@ void UpdateCallStateForSlotId(const uint8_t *data, size_t size)
     dataMessageParcel.WriteInt32(callId);
     dataMessageParcel.WriteInt32(callState);
     dataMessageParcel.WriteString16(Str8ToStr16(incomingNumber));
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnUpdateCallStateForSlotId(
@@ -316,8 +309,6 @@ void UpdateNetworkState(const uint8_t *data, size_t size)
     networkState->cfgTech_ = static_cast<RadioTech>(size % RADIO_NUM);
     networkState->nrState_ = static_cast<NrState>(size % NR_NUM);
     networkState->Marshalling(dataMessageParcel);
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnUpdateNetworkState(dataMessageParcel, reply);
@@ -335,8 +326,6 @@ void UpdateCellularDataConnectState(const uint8_t *data, size_t size)
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteInt32(dataState);
     dataMessageParcel.WriteInt32(networkType);
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnUpdateCellularDataConnectState(
@@ -353,8 +342,6 @@ void UpdateCellularDataFlow(const uint8_t *data, size_t size)
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteInt32(flowData);
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnUpdateCellularDataFlow(dataMessageParcel, reply);
@@ -370,8 +357,6 @@ void UpdateCfuIndicator(const uint8_t *data, size_t size)
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteBool(cfuResult);
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnUpdateCfuIndicator(dataMessageParcel, reply);
@@ -387,8 +372,6 @@ void UpdateVoiceMailMsgIndicator(const uint8_t *data, size_t size)
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteBool(voiceMailMsgResult);
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnUpdateVoiceMailMsgIndicator(

@@ -55,8 +55,7 @@ void OnRemoteRequest(const uint8_t *data, size_t size)
     if (!dataMessageParcel.WriteInterfaceToken(TelephonyObserver::GetDescriptor())) {
         return;
     }
-    size_t dataSize = size - sizeof(uint32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(uint32_t), dataSize);
+    dataMessageParcel.WriteBuffer(data, size);
     dataMessageParcel.RewindRead(0);
     uint32_t code = static_cast<uint32_t>(size);
     MessageParcel reply;
@@ -76,8 +75,6 @@ void CallStateUpdatedInner(const uint8_t *data, size_t size)
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteInt32(callState);
     dataMessageParcel.WriteString16(Str8ToStr16(phoneNumber));
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     telephonyObserver.OnCallStateUpdatedInner(dataMessageParcel, reply);
@@ -91,8 +88,6 @@ void SignalInfoUpdatedInner(const uint8_t *data, size_t size)
     int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     telephonyObserver.OnSignalInfoUpdatedInner(dataMessageParcel, reply);
@@ -131,8 +126,6 @@ void NetworkStateUpdatedInner(const uint8_t *data, size_t size)
     networkState->cfgTech_ = static_cast<RadioTech>(size % RADIO_NUM);
     networkState->nrState_ = static_cast<NrState>(size % NR_NUM);
     networkState->Marshalling(dataMessageParcel);
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     telephonyObserver.OnNetworkStateUpdatedInner(dataMessageParcel, reply);
@@ -146,8 +139,6 @@ void CellInfoUpdatedInner(const uint8_t *data, size_t size)
     int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
-    size_t dataSize = size - sizeof(int32_t);
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), dataSize);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     telephonyObserver.OnCellInfoUpdatedInner(dataMessageParcel, reply);
