@@ -22,6 +22,52 @@ namespace OHOS {
 template<typename T>
 class sptr;
 namespace Telephony {
+/**
+ * @brief Indicates the detailed state of call.
+ */
+enum class TelCallState {
+    /**
+     * Indicates the call is unknown.
+     */
+    CALL_STATUS_UNKNOWN = -1,
+    /**
+     * Indicates the call is active.
+     */
+    CALL_STATUS_ACTIVE = 0,
+    /**
+     * Indicates the call is holding.
+     */
+    CALL_STATUS_HOLDING,
+    /**
+     * Indicates the call is dialing.
+     */
+    CALL_STATUS_DIALING,
+    /**
+     * Indicates the call is alerting.
+     */
+    CALL_STATUS_ALERTING,
+    /**
+     * Indicates the call is incoming.
+     */
+    CALL_STATUS_INCOMING,
+    /**
+     * Indicates the call is waiting.
+     */
+    CALL_STATUS_WAITING,
+    /**
+     * Indicates the call is disconnected.
+     */
+    CALL_STATUS_DISCONNECTED,
+    /**
+     * Indicates the call is disconnecting.
+     */
+    CALL_STATUS_DISCONNECTING,
+    /**
+     * Indicates the call is idle.
+     */
+    CALL_STATUS_IDLE,
+};
+
 class TelephonyObserverBroker;
 class TelephonyStateManager {
 public:
