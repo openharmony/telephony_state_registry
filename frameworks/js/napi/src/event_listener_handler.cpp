@@ -555,8 +555,7 @@ void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
                 break;
             }
             work->data = static_cast<void *>(context);
-            uv_queue_work(
-                loop, work, [](uv_work_t *) {}, WorkUpdated);
+            uv_queue_work_with_qos(loop, work, [](uv_work_t *) {}, WorkUpdated, uv_qos_default);
         }
     }
 }
@@ -589,8 +588,7 @@ void EventListenerHandler::HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent
             listener->callbackRef = listen.callbackRef;
             listener->isDeleting = listen.isDeleting;
             work->data = static_cast<void *>(listener);
-            uv_queue_work(
-                loop, work, [](uv_work_t *) {}, WorkUpdated);
+            uv_queue_work_with_qos(loop, work, [](uv_work_t *) {}, WorkUpdated, uv_qos_default);
         }
     }
 }
