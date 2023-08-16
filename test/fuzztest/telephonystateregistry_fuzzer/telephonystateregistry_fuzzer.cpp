@@ -270,7 +270,6 @@ void UpdateSignalInfo(const uint8_t *data, size_t size)
             signal->Marshalling(dataMessageParcel);
         }
     }
-    dataMessageParcel.WriteBuffer(data + sizeof(int32_t), size - sizeof(int32_t));
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnUpdateSignalInfo(dataMessageParcel, reply);
