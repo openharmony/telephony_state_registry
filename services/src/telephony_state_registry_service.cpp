@@ -40,6 +40,9 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
 {
     TELEPHONY_LOGI("TelephonyStateRegistryService SystemAbility create");
     slotSize_ = SIM_SLOT_COUNT;
+    for (int32_t i = 0; i < slotSize_; i++) {
+        callState_[i] = static_cast<int32_t>(TelCallState::CALL_STATUS_UNKNOWN);
+    }
 }
 
 TelephonyStateRegistryService::~TelephonyStateRegistryService()
