@@ -25,7 +25,7 @@ namespace Telephony {
 /**
  * @brief Indicates the detailed state of call.
  */
-enum class TelCallState {
+enum class CallStatus {
     /**
      * Indicates the call is unknown.
      */
