@@ -19,7 +19,7 @@ import("//build/test.gni")
 
 ##############################fuzztest##########################################
 ohos_fuzztest("TelephonyStateRegistryFuzzTest") {
-  module_output_path = "state_registry/TelephonyStateRegistryFuzzTest"
+  module_output_path = "state_registry/state_registry"
   module_out_path = module_output_path
   fuzz_config_file = "$SUBSYSTEM_DIR/state_registry/test/fuzztest/telephonystateregistry_fuzzer"
 
