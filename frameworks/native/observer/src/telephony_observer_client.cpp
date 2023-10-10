@@ -17,10 +17,10 @@
 
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
-#include "system_ability_definition.h"
-
-#include "telephony_log_wrapper.h"
 #include "state_registry_errors.h"
+#include "system_ability_definition.h"
+#include "telephony_log_wrapper.h"
+#include "telephony_state_registry_proxy.h"
 
 namespace OHOS {
 namespace Telephony {
