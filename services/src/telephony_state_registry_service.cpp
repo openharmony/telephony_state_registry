@@ -16,6 +16,7 @@
 #include "telephony_state_registry_service.h"
 
 #include <sstream>
+#include <thread>
 
 #include "common_event_manager.h"
 #include "common_event_support.h"
@@ -73,12 +74,16 @@ void TelephonyStateRegistryService::OnStart()
     bindEndTime_ =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
             .count();
-    if (IsCommonEventServiceAbilityExist()) {
-        for (int32_t i = 0; i < slotSize_; i++) {
-            TELEPHONY_LOGI("TelephonyStateRegistryService send disconnected call state.");
-            SendCallStateChanged(i, static_cast<int32_t>(CallStatus::CALL_STATUS_DISCONNECTED), u"");
+    std::thread task([&]() {
+        if (IsCommonEventServiceAbilityExist()) {
+            for (int32_t i = 0; i < slotSize_; i++) {
+                TELEPHONY_LOGI("TelephonyStateRegistryService send disconnected call state.");
+                SendCallStateChanged(i, static_cast<int32_t>(CallStatus::CALL_STATUS_DISCONNECTED), u"");
+            }
         }
-    }
+    });
+    pthread_setname_np(task.native_handle(), "state_registry_task");
+    task.detach();
 }
 
 void TelephonyStateRegistryService::OnStop()
