@@ -790,6 +790,49 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_009, Function | MediumTest | L
     int32_t ret = telephonyObserver.OnRemoteRequest(testId, dataParcel, reply, option);
     EXPECT_NE(TELEPHONY_ERR_SUCCESS, ret);
 }
+/**
+ * @tc.number   TelephonyObserverTest_010
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_010, Function | MediumTest | Level1)
+{
+    int32_t signalSize = 5;
+    int32_t cellInfoMaxSize = 11;
+    int32_t callState = 16;
+    std::u16string number = u"137xxxxxxxx";
+    std::unique_ptr<Telephony::TelephonyObserverClient> telephonyObserverClient =
+        std::make_unique<Telephony::TelephonyObserverClient>();
+    telephonyObserverClient->OnRemoteDied(nullptr);
+    telephonyObserverClient->proxy_ = nullptr;
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    sptr<IRemoteObject> obj = sam->CheckSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
+    telephonyObserverClient->OnRemoteDied(obj);
+    telephonyObserverClient->proxy_ = iface_cast<ITelephonyStateNotify>(obj);
+    telephonyObserverClient->OnRemoteDied(obj);
+    std::shared_ptr<OHOS::Telephony::TelephonyObserverProxy> telephonyObserverProxy =
+        std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(obj);
+    telephonyObserverProxy->OnCallStateUpdated(DEFAULT_SIM_SLOT_ID, callState, number);
+    std::vector<sptr<SignalInformation>> signalInformations;
+    telephonyObserverProxy->OnSignalInfoUpdated(DEFAULT_SIM_SLOT_ID, signalInformations);
+    for (int32_t i = 0; i < signalSize; i++) {
+        sptr<SignalInformation> signalInformation = sptr<SignalInformation>();
+        signalInformations.push_back(signalInformation);
+    }
+    telephonyObserverProxy->OnSignalInfoUpdated(DEFAULT_SIM_SLOT_ID, signalInformations);
+    std::vector<sptr<CellInformation>> cellInformations;
+    telephonyObserverProxy->OnCellInfoUpdated(DEFAULT_SIM_SLOT_ID, cellInformations);
+    for (int32_t i = 0; i < cellInfoMaxSize; i++) {
+        sptr<CellInformation> cellInfo = sptr<CellInformation>();
+        cellInformations.push_back(cellInfo);
+    }
+    telephonyObserverProxy->OnCellInfoUpdated(DEFAULT_SIM_SLOT_ID, cellInformations);
+    EXPECT_TRUE(telephonyObserverClient != nullptr);
+    EXPECT_TRUE(telephonyObserverProxy != nullptr);
+    EXPECT_GE(signalInformations.size(), static_cast<size_t>(0));
+    EXPECT_GE(cellInformations.size(), static_cast<size_t>(0));
+}
+
 #else // TEL_TEST_UNSUPPORT
 /**
  * @tc.number   State_MockTest_001
