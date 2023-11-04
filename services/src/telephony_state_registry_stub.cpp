@@ -191,6 +191,15 @@ void TelephonyStateRegistryStub::parseSignalInfos(
                 }
                 break;
             }
+            case SignalInformation::NetworkType::NR: {
+                TELEPHONY_LOGI("TelephonyStateRegistryStub::UpdateSignalInfoInner NetworkType::NR");
+                std::unique_ptr<NrSignalInformation> signal = std::make_unique<NrSignalInformation>();
+                if (signal != nullptr) {
+                    signal->ReadFromParcel(data);
+                    result.emplace_back(signal.release());
+                }
+                break;
+            }
             default:
                 break;
         }
