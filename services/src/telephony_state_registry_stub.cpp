@@ -174,17 +174,38 @@ void TelephonyStateRegistryStub::parseSignalInfos(
                 break;
             }
             case SignalInformation::NetworkType::LTE: {
-                TELEPHONY_LOGI("TelephonyStateRegistryStub::parseSignalInfos NetworkType::LTE");
-                std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
+                parseLteNrSignalInfos(data, size, result);
+                break;
+            }
+            case SignalInformation::NetworkType::WCDMA: {
+                TELEPHONY_LOGI("TelephonyStateRegistryStub::parseSignalInfos NetworkType::Wcdma");
+                std::unique_ptr<WcdmaSignalInformation> signal = std::make_unique<WcdmaSignalInformation>();
                 if (signal != nullptr) {
                     signal->ReadFromParcel(data);
                     result.emplace_back(signal.release());
                 }
                 break;
             }
-            case SignalInformation::NetworkType::WCDMA: {
-                TELEPHONY_LOGI("TelephonyStateRegistryStub::UpdateSignalInfoInner NetworkType::Wcdma");
-                std::unique_ptr<WcdmaSignalInformation> signal = std::make_unique<WcdmaSignalInformation>();
+            case SignalInformation::NetworkType::NR: {
+                parseLteNrSignalInfos(data, size, result);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+}
+
+void TelephonyStateRegistryStub::parseLteNrSignalInfos(
+    MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result)
+{
+    SignalInformation::NetworkType type;
+    for (int i = 0; i < size; ++i) {
+        type = static_cast<SignalInformation::NetworkType>(data.ReadInt32());
+        switch (type) {
+            case SignalInformation::NetworkType::LTE: {
+                TELEPHONY_LOGI("TelephonyStateRegistryStub::parseSignalInfos NetworkType::LTE");
+                std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
                 if (signal != nullptr) {
                     signal->ReadFromParcel(data);
                     result.emplace_back(signal.release());
