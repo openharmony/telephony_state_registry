@@ -173,7 +173,9 @@ void TelephonyStateRegistryStub::parseSignalInfos(
                 }
                 break;
             }
-            case SignalInformation::NetworkType::LTE: {
+            case SignalInformation::NetworkType::LTE:
+                [[fallthrough]]; // fall_through
+            case SignalInformation::NetworkType::NR: {
                 parseLteNrSignalInfos(data, size, result);
                 break;
             }
@@ -184,10 +186,6 @@ void TelephonyStateRegistryStub::parseSignalInfos(
                     signal->ReadFromParcel(data);
                     result.emplace_back(signal.release());
                 }
-                break;
-            }
-            case SignalInformation::NetworkType::NR: {
-                parseLteNrSignalInfos(data, size, result);
                 break;
             }
             default:
@@ -213,7 +211,7 @@ void TelephonyStateRegistryStub::parseLteNrSignalInfos(
                 break;
             }
             case SignalInformation::NetworkType::NR: {
-                TELEPHONY_LOGI("TelephonyStateRegistryStub::UpdateSignalInfoInner NetworkType::NR");
+                TELEPHONY_LOGI("TelephonyStateRegistryStub::parseSignalInfos NetworkType::NR");
                 std::unique_ptr<NrSignalInformation> signal = std::make_unique<NrSignalInformation>();
                 if (signal != nullptr) {
                     signal->ReadFromParcel(data);
