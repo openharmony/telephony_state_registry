@@ -224,6 +224,38 @@ void CreateWCDMASignalInfo(std::unique_ptr<WcdmaSignalInformation> &signal, cons
     signal->wcdmaBer_ = static_cast<int32_t>(size);
 }
 
+void CreateNRSignalInfo(std::unique_ptr<NrSignalInformation> &signal, const uint8_t *data, size_t size)
+{
+    if (signal == nullptr) {
+        return;
+    }
+    signal->signalBar_ = static_cast<int32_t>(size);
+    signal->nrRsrp_ = static_cast<int32_t>(size);
+    signal->nrRsrq_ = static_cast<int32_t>(size);
+    signal->nrSinr_ = static_cast<int32_t>(size);
+}
+
+void UpdateLteNrSignalInfo(const uint8_t *data, size_t size, MessageParcel &dataMessageParcel,
+    SignalInformation::NetworkType type)
+{
+    if (type == SignalInformation::NetworkType::LTE) {
+        std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
+        if (signal == nullptr) {
+            return;
+        }
+        CreateLTESignalInfo(signal, data, size);
+        signal->Marshalling(dataMessageParcel);
+    }
+    if (type == SignalInformation::NetworkType::NR) {
+        std::unique_ptr<NrSignalInformation> signal = std::make_unique<NrSignalInformation>();
+        if (signal == nullptr) {
+            return;
+        }
+        CreateNRSignalInfo(signal, data, size);
+        signal->Marshalling(dataMessageParcel);
+    }
+}
+
 void UpdateSignalInfo(const uint8_t *data, size_t size)
 {
     if (!IsServiceInited()) {
@@ -253,13 +285,8 @@ void UpdateSignalInfo(const uint8_t *data, size_t size)
             CreateCDMASignalInfo(signal, data, size);
             signal->Marshalling(dataMessageParcel);
         }
-        if (type == SignalInformation::NetworkType::LTE) {
-            std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
-            if (signal == nullptr) {
-                return;
-            }
-            CreateLTESignalInfo(signal, data, size);
-            signal->Marshalling(dataMessageParcel);
+        if (type == SignalInformation::NetworkType::LTE || type == SignalInformation::NetworkType::NR) {
+            UpdateLteNrSignalInfo(data, size, dataMessageParcel, type);
         }
         if (type == SignalInformation::NetworkType::WCDMA) {
             std::unique_ptr<WcdmaSignalInformation> signal = std::make_unique<WcdmaSignalInformation>();
@@ -404,3 +431,4 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t *data, size_t size)
     OHOS::DoSomethingInterestingWithMyAPI(data, size);
     return 0;
 }
+
