@@ -176,7 +176,7 @@ void TelephonyStateRegistryStub::parseSignalInfos(
             case SignalInformation::NetworkType::LTE:
                 [[fallthrough]]; // fall_through
             case SignalInformation::NetworkType::NR: {
-                ParseLteNrSignalInfos(data, size, result, type);
+                ParseLteNrSignalInfos(data, result, type);
                 break;
             }
             case SignalInformation::NetworkType::WCDMA: {
@@ -194,8 +194,8 @@ void TelephonyStateRegistryStub::parseSignalInfos(
     }
 }
 
-void TelephonyStateRegistryStub::ParseLteNrSignalInfos(MessageParcel &data, const int32_t size,
-    std::vector<sptr<SignalInformation>> &result, SignalInformation::NetworkType type)
+void TelephonyStateRegistryStub::ParseLteNrSignalInfos(
+    MessageParcel &data, std::vector<sptr<SignalInformation>> &result, SignalInformation::NetworkType type)
 {
     switch (type) {
         case SignalInformation::NetworkType::LTE: {
