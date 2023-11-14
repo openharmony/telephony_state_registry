@@ -176,7 +176,7 @@ void TelephonyStateRegistryStub::parseSignalInfos(
             case SignalInformation::NetworkType::LTE:
                 [[fallthrough]]; // fall_through
             case SignalInformation::NetworkType::NR: {
-                parseLteNrSignalInfos(data, size, result);
+                ParseLteNrSignalInfos(data, size, result, type);
                 break;
             }
             case SignalInformation::NetworkType::WCDMA: {
@@ -194,34 +194,30 @@ void TelephonyStateRegistryStub::parseSignalInfos(
     }
 }
 
-void TelephonyStateRegistryStub::parseLteNrSignalInfos(
-    MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result)
+void TelephonyStateRegistryStub::ParseLteNrSignalInfos(MessageParcel &data, const int32_t size,
+    std::vector<sptr<SignalInformation>> &result, SignalInformation::NetworkType type)
 {
-    SignalInformation::NetworkType type;
-    for (int i = 0; i < size; ++i) {
-        type = static_cast<SignalInformation::NetworkType>(data.ReadInt32());
-        switch (type) {
-            case SignalInformation::NetworkType::LTE: {
-                TELEPHONY_LOGI("TelephonyStateRegistryStub::parseSignalInfos NetworkType::LTE");
-                std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
-                if (signal != nullptr) {
-                    signal->ReadFromParcel(data);
-                    result.emplace_back(signal.release());
-                }
-                break;
+    switch (type) {
+        case SignalInformation::NetworkType::LTE: {
+            TELEPHONY_LOGI("TelephonyStateRegistryStub::ParseLteNrSignalInfos NetworkType::LTE");
+            std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
+            if (signal != nullptr) {
+                signal->ReadFromParcel(data);
+                result.emplace_back(signal.release());
             }
-            case SignalInformation::NetworkType::NR: {
-                TELEPHONY_LOGI("TelephonyStateRegistryStub::parseSignalInfos NetworkType::NR");
-                std::unique_ptr<NrSignalInformation> signal = std::make_unique<NrSignalInformation>();
-                if (signal != nullptr) {
-                    signal->ReadFromParcel(data);
-                    result.emplace_back(signal.release());
-                }
-                break;
-            }
-            default:
-                break;
+            break;
         }
+        case SignalInformation::NetworkType::NR: {
+            TELEPHONY_LOGI("TelephonyStateRegistryStub::ParseLteNrSignalInfos NetworkType::NR");
+            std::unique_ptr<NrSignalInformation> signal = std::make_unique<NrSignalInformation>();
+            if (signal != nullptr) {
+                signal->ReadFromParcel(data);
+                result.emplace_back(signal.release());
+            }
+            break;
+        }
+        default:
+            break;
     }
 }
 
