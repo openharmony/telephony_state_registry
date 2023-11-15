@@ -46,8 +46,8 @@ private:
     int32_t UnregisterStateChange(int32_t slotId, uint32_t mask) override;
     void parseSignalInfos(
         MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result);
-    void parseLteNrSignalInfos(
-        MessageParcel &data, const int32_t size, std::vector<sptr<SignalInformation>> &result);
+    void ParseLteNrSignalInfos(
+        MessageParcel &data, std::vector<sptr<SignalInformation>> &result, SignalInformation::NetworkType type);
 
 private:
     using TelephonyStateFunc = int32_t (TelephonyStateRegistryStub::*)(MessageParcel &data, MessageParcel &reply);
