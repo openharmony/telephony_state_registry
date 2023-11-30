@@ -15,9 +15,6 @@ import("//build/ohos.gni")
 
 ohos_shared_library("tel_state_registry") {
   sanitize = {
-    integer_overflow = true
-    all_ubsan = true
-    boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
     debug = false
