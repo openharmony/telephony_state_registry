@@ -14,9 +14,6 @@ import("//build/ohos.gni")
 SUBSYSTEM_DIR = "../../../.."
 ohos_shared_library("observer") {
   sanitize = {
-    integer_overflow = true
-    all_ubsan = true
-    boundary_sanitize = true
     cfi = true
     cfi_cross_dso = true
     debug = false
