@@ -17,6 +17,7 @@ config("state_registry_observer_config") {
   include_dirs = [
     "$SUBSYSTEM_DIR/interfaces/innerkits/observer",
     "$SUBSYSTEM_DIR/frameworks/native/common/include",
+    "$SUBSYSTEM_DIR/services/include",
   ]
 }
 

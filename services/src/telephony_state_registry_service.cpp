@@ -29,6 +29,7 @@
 #include "telephony_state_manager.h"
 #include "telephony_state_registry_dump_helper.h"
 #include "telephony_types.h"
+#include "telephony_ext_wrapper.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -70,6 +71,9 @@ void TelephonyStateRegistryService::OnStart()
     if (!ret) {
         TELEPHONY_LOGE("Leave, Failed to publish TelephonyStateRegistryService");
     }
+#ifdef OHOS_BUILD_ENABLE_TELEPHONY_EXT
+    TELEPHONY_EXT_WRAPPER.InitTelephonyExtWrapper();
+#endif
     TELEPHONY_LOGI("TelephonyStateRegistryService start success.");
     bindEndTime_ =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
@@ -254,7 +258,13 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(int32_t slotId, const st
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) &&
             (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
-            record.telephonyObserver_->OnSignalInfoUpdated(slotId, vec);
+            if (TELEPHONY_EXT_WRAPPER.onSignalInfoUpdated_ != nullptr) {
+                std::vector<sptr<SignalInformation>> vecExt;
+                TELEPHONY_EXT_WRAPPER.onSignalInfoUpdated_(slotId, record, vecExt, vec);
+                record.telephonyObserver_->OnSignalInfoUpdated(slotId, vecExt);
+            } else {
+                record.telephonyObserver_->OnSignalInfoUpdated(slotId, vec);
+            }
             result = TELEPHONY_SUCCESS;
         }
     }
@@ -283,7 +293,13 @@ int32_t TelephonyStateRegistryService::UpdateCellInfo(int32_t slotId, const std:
                 TELEPHONY_LOGE("record.telephonyObserver_ is nullptr");
                 return TELEPHONY_ERR_LOCAL_PTR_NULL;
             }
-            record.telephonyObserver_->OnCellInfoUpdated(slotId, vec);
+            if (TELEPHONY_EXT_WRAPPER.onCellInfoUpdated_ != nullptr) {
+                std::vector<sptr<CellInformation>> vecExt;
+                TELEPHONY_EXT_WRAPPER.onCellInfoUpdated_(slotId, record, vecExt, vec);
+                record.telephonyObserver_->OnCellInfoUpdated(slotId, vecExt);
+            } else {
+                record.telephonyObserver_->OnCellInfoUpdated(slotId, vec);
+            }
             result = TELEPHONY_SUCCESS;
         }
     }
@@ -307,7 +323,13 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const 
         TelephonyStateRegistryRecord r = stateRecords_[i];
         if (r.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) && (r.slotId_ == slotId) &&
             r.telephonyObserver_ != nullptr) {
-            r.telephonyObserver_->OnNetworkStateUpdated(slotId, networkState);
+            if (TELEPHONY_EXT_WRAPPER.onNetworkStateUpdated_ != nullptr) {
+                sptr<NetworkState> networkStateExt = new NetworkState();
+                TELEPHONY_EXT_WRAPPER.onNetworkStateUpdated_(slotId, r, networkStateExt, networkState);
+                r.telephonyObserver_->OnNetworkStateUpdated(slotId, networkStateExt);
+            } else {
+                r.telephonyObserver_->OnNetworkStateUpdated(slotId, networkState);
+            }
             result = TELEPHONY_SUCCESS;
         }
     }
@@ -616,6 +638,9 @@ void TelephonyStateRegistryService::SendSignalInfoChanged(
     want.SetParam("slotId", slotId);
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_SIGNAL_INFO_CHANGED);
     std::vector<std::string> contentStr;
+    if (TELEPHONY_EXT_WRAPPER.sendSignalInfoChanged_ != nullptr) {
+        TELEPHONY_EXT_WRAPPER.sendSignalInfoChanged_(slotId, vec);
+    }
     for (size_t i = 0; i < vec.size(); i++) {
         sptr<SignalInformation> signal = vec[i];
         if (signal != nullptr) {
@@ -634,6 +659,9 @@ void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t slotId, cons
     want.SetParam("slotId", slotId);
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED);
     int32_t eventCode = 1;
+    if (TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_ != nullptr) {
+        TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_(slotId, networkState);
+    }
     if (networkState != nullptr) {
         want.SetParam("networkState", networkState->ToString());
     }
