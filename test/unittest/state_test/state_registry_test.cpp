@@ -790,6 +790,7 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_009, Function | MediumTest | L
     int32_t ret = telephonyObserver.OnRemoteRequest(testId, dataParcel, reply, option);
     EXPECT_NE(TELEPHONY_ERR_SUCCESS, ret);
 }
+
 /**
  * @tc.number   TelephonyObserverTest_010
  * @tc.name     telephony observer test
@@ -831,6 +832,31 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_010, Function | MediumTest | L
     EXPECT_TRUE(telephonyObserverProxy != nullptr);
     EXPECT_GE(signalInformations.size(), static_cast<size_t>(0));
     EXPECT_GE(cellInformations.size(), static_cast<size_t>(0));
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_011
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_011, Function | MediumTest | Level1)
+{
+    int32_t slotId = 0;
+    bool cfuResult = false;
+    std::shared_ptr<OHOS::Telephony::TelephonyObserver> telephonyObserver =
+        std::make_shared<OHOS::Telephony::TelephonyObserver>();
+    telephonyObserver->OnCfuIndicatorUpdated(slotId, cfuResult);
+    telephonyObserver->OnVoiceMailMsgIndicatorUpdated(slotId, cfuResult);
+    MessageParcel data;
+    MessageParcel reply;
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    telephonyObserver->OnIccAccountUpdatedInner(data, reply);
+    sptr<IRemoteObject> obj = sam->CheckSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
+    std::shared_ptr<OHOS::Telephony::TelephonyObserverProxy> telephonyObserverProxy =
+        std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(obj);
+    telephonyObserverProxy->OnIccAccountUpdated();
+    EXPECT_TRUE(telephonyObserver != nullptr);
+    EXPECT_TRUE(telephonyObserverProxy != nullptr);
 }
 
 #else // TEL_TEST_UNSUPPORT
