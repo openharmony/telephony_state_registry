@@ -616,6 +616,9 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_003, Function | MediumTest | L
     std::unique_ptr<LteSignalInformation> lteSignal = std::make_unique<LteSignalInformation>();
     ASSERT_TRUE(lteSignal != nullptr);
     vec.push_back(lteSignal.release());
+    std::unique_ptr<NrSignalInformation> nrSignal = std::make_unique<NrSignalInformation>();
+    ASSERT_TRUE(nrSignal != nullptr);
+    vec.push_back(nrSignal.release());
     int32_t size = static_cast<int32_t>(vec.size());
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
     dataParcel.WriteInt32(size);
@@ -654,6 +657,9 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_004, Function | MediumTest | L
     std::unique_ptr<WcdmaCellInformation> wcdmaCell = std::make_unique<WcdmaCellInformation>();
     ASSERT_TRUE(wcdmaCell != nullptr);
     vec.push_back(wcdmaCell.release());
+    std::unique_ptr<NrCellInformation> nrCell = std::make_unique<NrCellInformation>();
+    ASSERT_TRUE(nrCell != nullptr);
+    vec.push_back(nrCell.release());
     int32_t size = static_cast<int32_t>(vec.size());
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
     if (!dataParcel.WriteInt32(size)) {
