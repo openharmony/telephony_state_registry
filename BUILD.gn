@@ -12,6 +12,7 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
+import("../core_service/telephony_core_service.gni")
 
 ohos_shared_library("tel_state_registry") {
   sanitize = {
@@ -29,12 +30,14 @@ ohos_shared_library("tel_state_registry") {
     "services/src/telephony_state_registry_record.cpp",
     "services/src/telephony_state_registry_service.cpp",
     "services/src/telephony_state_registry_stub.cpp",
+    "services/telephony_ext_wrapper/src/telephony_ext_wrapper.cpp",
   ]
 
   include_dirs = [
     "frameworks/native/observer/include",
     "frameworks/native/common/include",
     "services/include",
+    "services/telephony_ext_wrapper/include",
   ]
 
   external_deps = [
@@ -54,4 +57,6 @@ ohos_shared_library("tel_state_registry") {
     "TELEPHONY_LOG_TAG = \"StateRegistry\"",
     "LOG_DOMAIN = 0xD001F07",
   ]
+
+  defines += telephony_extra_defines
 }

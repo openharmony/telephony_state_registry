@@ -38,14 +38,29 @@ public:
         TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnSignalInfoUpdated", slotId);
     }
 
+    void OnSignalInfoUpdatedExt(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec)
+    {
+        TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnSignalInfoUpdatedExt", slotId);
+    }
+
     void OnNetworkStateUpdated(int32_t slotId, const sptr<NetworkState> &networkState)
     {
         TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnNetworkStateUpdated", slotId);
     }
 
+    void OnNetworkStateUpdatedExt(int32_t slotId, const sptr<NetworkState> &networkState)
+    {
+        TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnNetworkStateUpdatedExt", slotId);
+    }
+
     void OnCellInfoUpdated(int32_t slotId, const std::vector<sptr<CellInformation>> &vec)
     {
         TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnCellInfoUpdated", slotId);
+    }
+    
+    void OnCellInfoUpdatedExt(int32_t slotId, const std::vector<sptr<CellInformation>> &vec)
+    {
+        TELEPHONY_LOGI("StateRegistryObserver%{public}d::OnCellInfoUpdatedExt", slotId);
     }
 
     void OnSimStateUpdated(int32_t slotId, CardType type, SimState state, LockReason reason)
