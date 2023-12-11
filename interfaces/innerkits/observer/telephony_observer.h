@@ -124,6 +124,8 @@ private:
     using TelephonyObserverFunc = void (TelephonyObserver::*)(MessageParcel &data, MessageParcel &reply);
 
     void ConvertSignalInfoList(MessageParcel &data, std::vector<sptr<SignalInformation>> &signalInfos);
+    void ConvertLteNrSignalInfoList(
+        MessageParcel &data, std::vector<sptr<SignalInformation>> &signalInfos, SignalInformation::NetworkType type);
     void ConvertCellInfoList(MessageParcel &data, std::vector<sptr<CellInformation>> &cells);
     void OnCallStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnSignalInfoUpdatedInner(MessageParcel &data, MessageParcel &reply);

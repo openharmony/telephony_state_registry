@@ -203,12 +203,10 @@ void TelephonyObserver::ConvertSignalInfoList(
                 }
                 break;
             }
-            case SignalInformation::NetworkType::LTE: {
-                std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
-                if (signal != nullptr) {
-                    signal->ReadFromParcel(data);
-                    result.emplace_back(signal.release());
-                }
+            case SignalInformation::NetworkType::LTE:
+                [[fallthrough]]; // fall_through
+            case SignalInformation::NetworkType::NR: {
+                ConvertLteNrSignalInfoList(data, result, type);
                 break;
             }
             case SignalInformation::NetworkType::WCDMA: {
@@ -222,6 +220,31 @@ void TelephonyObserver::ConvertSignalInfoList(
             default:
                 break;
         }
+    }
+}
+
+void TelephonyObserver::ConvertLteNrSignalInfoList(
+    MessageParcel &data, std::vector<sptr<SignalInformation>> &signalInfos, SignalInformation::NetworkType type)
+{
+    switch (type) {
+        case SignalInformation::NetworkType::LTE: {
+            std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
+            if (signal != nullptr) {
+                signal->ReadFromParcel(data);
+                signalInfos.emplace_back(signal.release());
+            }
+            break;
+        }
+        case SignalInformation::NetworkType::NR: {
+            std::unique_ptr<NrSignalInformation> signal = std::make_unique<NrSignalInformation>();
+            if (signal != nullptr) {
+                signal->ReadFromParcel(data);
+                signalInfos.emplace_back(signal.release());
+            }
+            break;
+        }
+        default:
+            break;
     }
 }
 
@@ -244,6 +267,14 @@ void TelephonyObserver::ConvertCellInfoList(
             }
             case CellInformation::CellType::CELL_TYPE_LTE: {
                 std::unique_ptr<LteCellInformation> cell = std::make_unique<LteCellInformation>();
+                if (cell != nullptr) {
+                    cell->ReadFromParcel(data);
+                    cells.emplace_back(cell.release());
+                }
+                break;
+            }
+            case CellInformation::CellType::CELL_TYPE_NR: {
+                std::unique_ptr<NrCellInformation> cell = std::make_unique<NrCellInformation>();
                 if (cell != nullptr) {
                     cell->ReadFromParcel(data);
                     cells.emplace_back(cell.release());

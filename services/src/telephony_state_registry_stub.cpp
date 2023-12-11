@@ -254,6 +254,14 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellInfo(MessageParcel &data, Messag
                 }
                 break;
             }
+            case CellInformation::CellType::CELL_TYPE_NR: {
+                std::unique_ptr<NrCellInformation> cell = std::make_unique<NrCellInformation>();
+                if (cell != nullptr) {
+                    cell->ReadFromParcel(data);
+                    cells.emplace_back(cell.release());
+                }
+                break;
+            }
             default:
                 break;
         }
