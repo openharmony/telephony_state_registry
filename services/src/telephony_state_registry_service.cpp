@@ -259,7 +259,7 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(int32_t slotId, const st
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) &&
             (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
             if (TELEPHONY_EXT_WRAPPER.onSignalInfoUpdated_ != nullptr) {
-                std::vector<sptr<SignalInformation>> vecExt;
+                std::vector<sptr<SignalInformation>> vecExt = vec;
                 TELEPHONY_EXT_WRAPPER.onSignalInfoUpdated_(slotId, record, vecExt, vec);
                 record.telephonyObserver_->OnSignalInfoUpdated(slotId, vecExt);
             } else {
@@ -294,7 +294,7 @@ int32_t TelephonyStateRegistryService::UpdateCellInfo(int32_t slotId, const std:
                 return TELEPHONY_ERR_LOCAL_PTR_NULL;
             }
             if (TELEPHONY_EXT_WRAPPER.onCellInfoUpdated_ != nullptr) {
-                std::vector<sptr<CellInformation>> vecExt;
+                std::vector<sptr<CellInformation>> vecExt = vec;
                 TELEPHONY_EXT_WRAPPER.onCellInfoUpdated_(slotId, record, vecExt, vec);
                 record.telephonyObserver_->OnCellInfoUpdated(slotId, vecExt);
             } else {
@@ -325,6 +325,8 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const 
             r.telephonyObserver_ != nullptr) {
             if (TELEPHONY_EXT_WRAPPER.onNetworkStateUpdated_ != nullptr) {
                 sptr<NetworkState> networkStateExt = new NetworkState();
+                NetworkState &networkStateObj = *networkStateExt;
+                networkStateObj = *(static_cast<NetworkState *>(networkState.GetRefPtr()));
                 TELEPHONY_EXT_WRAPPER.onNetworkStateUpdated_(slotId, r, networkStateExt, networkState);
                 r.telephonyObserver_->OnNetworkStateUpdated(slotId, networkStateExt);
             } else {

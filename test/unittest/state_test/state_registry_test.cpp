@@ -164,7 +164,7 @@ void StateRegistryTest::UpdateSignalInfo(int32_t slotId)
     ASSERT_TRUE(signal != nullptr);
     vec.push_back(signal.release());
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateSignalInfo(slotId, vec);
-    TELEPHONY_LOGI("StateRegistryTest::UpdateSignalInfo ret = %{public}d", ret);
+    TELEPHONY_LOGI("StateRegistryTest::UpdateSignalInfo result = %{public}d", ret);
     EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
 }
 
