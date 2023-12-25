@@ -79,7 +79,7 @@ TelephonyObserver::~TelephonyObserver()
 int32_t TelephonyObserver::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    TELEPHONY_LOGI(" code = %{public}u......", code);
+    TELEPHONY_LOGD("code = %{public}u......", code);
     if (data.ReadInterfaceToken() != GetDescriptor()) {
         TELEPHONY_LOGE("verify token failed!");
         return TELEPHONY_ERR_DESCRIPTOR_MISMATCH;

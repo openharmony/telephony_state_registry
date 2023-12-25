@@ -518,7 +518,7 @@ HWTEST_F(StateRegistryTest, UpdateIccAccount_002, Function | MediumTest | Level1
 
 /**
  * @tc.number   TelephonyStateManagerTest_001
- * @tc.name     telephony state ,anager test
+ * @tc.name     telephony state manager test
  * @tc.desc     Function test
  */
 HWTEST_F(StateRegistryTest, TelephonyStateManagerTest_001, Function | MediumTest | Level1)

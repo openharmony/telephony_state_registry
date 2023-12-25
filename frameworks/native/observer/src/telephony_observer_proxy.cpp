@@ -104,7 +104,7 @@ void TelephonyObserverProxy::OnSignalInfoUpdated(
     int code = remote->SendRequest(
         static_cast<uint32_t>(ObserverBrokerCode::ON_SIGNAL_INFO_UPDATED),
         dataParcel, replyParcel, option);
-    TELEPHONY_LOGI("TelephonyObserverProxy::OnSignalInfoUpdated##error: %{public}d.", code);
+    TELEPHONY_LOGD("TelephonyObserverProxy::OnSignalInfoUpdated##error: %{public}d.", code);
 }
 
 void TelephonyObserverProxy::OnCellInfoUpdated(
