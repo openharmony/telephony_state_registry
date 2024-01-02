@@ -432,7 +432,7 @@ bool TelephonyStateRegistryService::CheckCallerIsSystemApp(uint32_t mask)
 
 int32_t TelephonyStateRegistryService::RegisterStateChange(
     const sptr<TelephonyObserverBroker> &telephonyObserver,
-    int32_t slotId, uint32_t mask, const std::string &bundleName, bool isUpdate, pid_t pid)
+    int32_t slotId, uint32_t mask, const std::string &bundleName, bool isUpdate, pid_t pid, int32_t uid)
 {
     if (!CheckCallerIsSystemApp(mask)) {
         return TELEPHONY_ERR_ILLEGAL_USE_OF_SYSTEM_API;
@@ -445,7 +445,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     TelephonyStateRegistryRecord record;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         record = stateRecords_[i];
-        if (record.slotId_ == slotId && record.mask_ == mask && record.pid_ == pid) {
+        if (record.slotId_ == slotId && record.mask_ == mask && record.pid_ == pid && record.uid_ == uid) {
             isExist = true;
             break;
         }
@@ -453,6 +453,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
 
     if (!isExist) {
         record.pid_ = pid;
+        record.uid_ = uid;
         record.slotId_ = slotId;
         record.mask_ = mask;
         record.bundleName_ = bundleName;
@@ -466,7 +467,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     return TELEPHONY_SUCCESS;
 }
 
-int32_t TelephonyStateRegistryService::UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid)
+int32_t TelephonyStateRegistryService::UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid, int32_t uid)
 {
     if (!CheckCallerIsSystemApp(mask)) {
         return TELEPHONY_ERR_ILLEGAL_USE_OF_SYSTEM_API;
@@ -478,7 +479,7 @@ int32_t TelephonyStateRegistryService::UnregisterStateChange(int32_t slotId, uin
     int32_t result = TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST;
     std::vector<TelephonyStateRegistryRecord>::iterator it;
     for (it = stateRecords_.begin(); it != stateRecords_.end(); ++it) {
-        if (it->slotId_ == slotId && it->mask_ == mask && it->pid_ == pid) {
+        if (it->slotId_ == slotId && it->mask_ == mask && it->pid_ == pid && it->uid_ == uid) {
             stateRecords_.erase(it);
             result = TELEPHONY_SUCCESS;
             break;
