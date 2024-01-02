@@ -35,6 +35,7 @@ public:
 
 public:
     std::string bundleName_ = "";
+    int32_t uid_ = 0;
     pid_t pid_ = 0;
     unsigned int mask_ = 0;
     int slotId_ = 0;

@@ -35,9 +35,9 @@ public:
         uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) override;
 
     virtual int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
-        uint32_t mask, const std::string &bundleName, bool notifyNow, pid_t pid) = 0;
+        uint32_t mask, const std::string &bundleName, bool notifyNow, pid_t pid, int32_t uid) = 0;
 
-    virtual int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid) = 0;
+    virtual int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid, int32_t uid) = 0;
 
 private:
     int32_t ReadData(MessageParcel &data, MessageParcel &reply, sptr<TelephonyObserverBroker> &callback);

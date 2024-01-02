@@ -372,12 +372,14 @@ int32_t TelephonyStateRegistryStub::RegisterStateChange(const sptr<TelephonyObse
     int32_t uid = IPCSkeleton::GetCallingUid();
     std::string bundleName = "";
     TelephonyPermission::GetBundleNameByUid(uid, bundleName);
-    return RegisterStateChange(telephonyObserver, slotId, mask, bundleName, isUpdate, IPCSkeleton::GetCallingPid());
+    return RegisterStateChange(telephonyObserver, slotId, mask, bundleName, isUpdate,
+        IPCSkeleton::GetCallingPid(), uid);
 }
 
 int32_t TelephonyStateRegistryStub::UnregisterStateChange(int32_t slotId, uint32_t mask)
 {
-    return UnregisterStateChange(slotId, mask, IPCSkeleton::GetCallingPid());
+    int32_t uid = IPCSkeleton::GetCallingUid();
+    return UnregisterStateChange(slotId, mask, IPCSkeleton::GetCallingPid(), uid);
 }
 } // namespace Telephony
 } // namespace OHOS
