@@ -1,4 +1,4 @@
-# Copyright (C) 2021 Huawei Device Co., Ltd.
+# Copyright (C) 2021-2024 Huawei Device Co., Ltd.
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
@@ -29,7 +29,10 @@ ohos_unittest("tel_state_registry_test") {
     "$SOURCE_DIR/services/include",
   ]
 
-  deps = [ "$SOURCE_DIR/frameworks/native/observer:tel_state_registry_api" ]
+  deps = [
+    "$SOURCE_DIR:tel_state_registry",
+    "$SOURCE_DIR/frameworks/native/observer:tel_state_registry_api",
+  ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",

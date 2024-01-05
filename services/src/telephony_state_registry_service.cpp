@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -815,7 +815,7 @@ int32_t TelephonyStateRegistryService::GetLockReason(int32_t slotId)
     return result;
 }
 
-bool TelephonyStateRegistryService::IsCommonEventServiceAbilityExist()
+bool TelephonyStateRegistryService::IsCommonEventServiceAbilityExist() __attribute__((no_sanitize("cfi")))
 {
     sptr<ISystemAbilityManager> sm = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     if (sm == nullptr) {
