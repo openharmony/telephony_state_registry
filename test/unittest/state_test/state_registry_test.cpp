@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -24,6 +24,7 @@
 #include "telephony_observer_proxy.h"
 #include "telephony_state_manager.h"
 #include "telephony_state_registry_client.h"
+#include "telephony_state_registry_service.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -863,6 +864,21 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_011, Function | MediumTest | L
     telephonyObserverProxy->OnIccAccountUpdated();
     EXPECT_TRUE(telephonyObserver != nullptr);
     EXPECT_TRUE(telephonyObserverProxy != nullptr);
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_001
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_001, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_001 service is nullptr");
+        return;
+    }
+    EXPECT_TRUE(service->IsCommonEventServiceAbilityExist());
 }
 
 #else // TEL_TEST_UNSUPPORT
