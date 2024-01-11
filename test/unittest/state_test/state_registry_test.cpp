@@ -493,7 +493,7 @@ HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_002, Function | MediumTe
 
 /**
  * @tc.number   UpdateIccAccount_001
- * @tc.name     UpdateIccAccount
+ * @tc.name     Update Icc Account
  * @tc.desc     Function test
  */
 HWTEST_F(StateRegistryTest, UpdateIccAccount_001, Function | MediumTest | Level1)

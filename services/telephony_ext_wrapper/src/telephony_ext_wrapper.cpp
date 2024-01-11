@@ -20,7 +20,7 @@
 namespace OHOS {
 namespace Telephony {
 namespace {
-const std::string TELEPHONY_EXT_WRAPPER_PATH = "libtelephony_ext_service.z.so";
+const std::string TELEPHONY_EXT_WRAPPER_PATH = "libtel_ext_symbol.z.so";
 } // namespace
 
 TelephonyExtWrapper::TelephonyExtWrapper() {}
@@ -36,7 +36,7 @@ void TelephonyExtWrapper::InitTelephonyExtWrapper()
     TELEPHONY_LOGD("TelephonyExtWrapper::InitTelephonyExtWrapper() start");
     telephonyExtWrapperHandle_ = dlopen(TELEPHONY_EXT_WRAPPER_PATH.c_str(), RTLD_NOW);
     if (telephonyExtWrapperHandle_ == nullptr) {
-        TELEPHONY_LOGE("libtelephony_ext_service.z.so was not loaded, error: %{public}s", dlerror());
+        TELEPHONY_LOGE("libtel_ext_symbol.z.so was not loaded, error: %{public}s", dlerror());
         return;
     }
 
