@@ -580,7 +580,7 @@ bool TelephonyStateRegistryService::PublishCommonEvent(
     data.SetCode(eventCode);
     data.SetData(eventData);
     EventFwk::CommonEventPublishInfo publishInfo;
-    publishInfo.SetOrdered(true);
+    publishInfo.SetOrdered(false);
     bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
     TELEPHONY_LOGI("PublishCommonEvent end###publishResult = %{public}d\n", publishResult);
     return publishResult;
@@ -597,7 +597,7 @@ void TelephonyStateRegistryService::SendCallStateChanged(int32_t slotId, int32_t
     EventFwk::CommonEventData data;
     data.SetWant(want);
     EventFwk::CommonEventPublishInfo publishInfo;
-    publishInfo.SetOrdered(true);
+    publishInfo.SetOrdered(false);
     std::vector<std::string> callPermissions;
     callPermissions.emplace_back(Permission::GET_TELEPHONY_STATE);
     publishInfo.SetSubscriberPermissions(callPermissions);
