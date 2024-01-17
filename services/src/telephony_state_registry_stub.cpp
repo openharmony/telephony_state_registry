@@ -208,7 +208,7 @@ void TelephonyStateRegistryStub::ParseLteNrSignalInfos(
             break;
         }
         case SignalInformation::NetworkType::NR: {
-            TELEPHONY_LOGI("TelephonyStateRegistryStub::ParseLteNrSignalInfos NetworkType::NR");
+            TELEPHONY_LOGI("TelephonyStateRegistryStub::ParseSignalInfos");
             std::unique_ptr<NrSignalInformation> signal = std::make_unique<NrSignalInformation>();
             if (signal != nullptr) {
                 signal->ReadFromParcel(data);
