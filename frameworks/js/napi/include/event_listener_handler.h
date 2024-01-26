@@ -56,7 +56,8 @@ public:
 private:
     using HandleFuncType = void (EventListenerHandler::*)(const AppExecFwk::InnerEvent::Pointer &event);
     std::map<TelephonyCallbackEventId, HandleFuncType> handleFuncMap_;
-    static std::map<TelephonyUpdateEventType, void (*)(uv_work_t *work)> workFuncMap_;
+    static std::map<TelephonyUpdateEventType,
+        void (*)(uv_work_t *work, std::unique_lock<std::mutex> &lock)> workFuncMap_;
     static std::mutex operatorMutex_;
     std::list<EventListener> listenerList_;
 
@@ -70,18 +71,18 @@ private:
     void CheckRemoveStateObserver(TelephonyUpdateEventType eventType, int32_t slotId, int32_t &result);
     int32_t CheckEventListenerRegister(EventListener &eventListener);
 
-    static void WorkCallStateUpdated(uv_work_t *work);
-    static void WorkSignalUpdated(uv_work_t *work);
-    static void WorkNetworkStateUpdated(uv_work_t *work);
-    static void WorkSimStateUpdated(uv_work_t *work);
-    static void WorkCellInfomationUpdated(uv_work_t *work);
-    static void WorkCellularDataConnectStateUpdated(uv_work_t *work);
-    static void WorkCellularDataFlowUpdated(uv_work_t *work);
+    static void WorkCallStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkSignalUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkNetworkStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkSimStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkCellInfomationUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkCellularDataConnectStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkCellularDataFlowUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
     static void WorkUpdated(uv_work_t *work, int status);
     static void SetEventListenerDeleting(std::shared_ptr<bool> isDeleting);
-    static void WorkCfuIndicatorUpdated(uv_work_t *work);
-    static void WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work);
-    static void WorkIccAccountUpdated(uv_work_t *work);
+    static void WorkCfuIndicatorUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkIccAccountUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
 
     template<typename T, typename D, TelephonyUpdateEventType eventType>
     void HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent::Pointer &event);

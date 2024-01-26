@@ -139,7 +139,8 @@ int32_t WrapRadioTech(int32_t radioTechType)
     }
 }
 
-napi_status NapiReturnToJS(napi_env env, napi_ref callbackRef, napi_value callbackVal)
+napi_status NapiReturnToJS(
+    napi_env env, napi_ref callbackRef, napi_value callbackVal, std::unique_lock<std::mutex> &lock)
 {
     if (callbackRef == nullptr) {
         TELEPHONY_LOGE("NapiReturnToJS callbackRef is nullptr");
@@ -147,6 +148,7 @@ napi_status NapiReturnToJS(napi_env env, napi_ref callbackRef, napi_value callba
     }
     napi_value callbackFunc = nullptr;
     napi_get_reference_value(env, callbackRef, &callbackFunc);
+    lock.unlock();
     napi_value callbackValues[] = { callbackVal };
     napi_value recv = nullptr;
     napi_get_undefined(env, &recv);
@@ -252,7 +254,8 @@ bool InitLoop(napi_env env, uv_loop_s **loop)
 }
 } // namespace
 
-std::map<TelephonyUpdateEventType, void (*)(uv_work_t *work)> EventListenerHandler::workFuncMap_;
+std::map<TelephonyUpdateEventType,
+    void (*)(uv_work_t *work, std::unique_lock<std::mutex> &lock)> EventListenerHandler::workFuncMap_;
 std::mutex EventListenerHandler::operatorMutex_;
 
 EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecFwk::EventRunner::Create())
@@ -340,7 +343,7 @@ int32_t EventListenerHandler::CheckEventListenerRegister(EventListener &eventLis
 
 int32_t EventListenerHandler::RegisterEventListener(EventListener &eventListener)
 {
-    std::lock_guard<std::mutex> lockGuard(operatorMutex_);
+    std::unique_lock<std::mutex> lock(operatorMutex_);
     int32_t registerStatus = CheckEventListenerRegister(eventListener);
     if (registerStatus == EVENT_LISTENER_SAME) {
         return TELEPHONY_ERR_CALLBACK_ALREADY_REGISTERED;
@@ -435,7 +438,7 @@ void EventListenerHandler::CheckRemoveStateObserver(TelephonyUpdateEventType eve
 int32_t EventListenerHandler::UnregisterEventListener(
     napi_env env, TelephonyUpdateEventType eventType, napi_ref ref, std::list<EventListener> &removeListenerList)
 {
-    std::lock_guard<std::mutex> lockGuard(operatorMutex_);
+    std::unique_lock<std::mutex> lock(operatorMutex_);
     if (listenerList_.empty()) {
         TELEPHONY_LOGI("UnregisterEventListener listener list is empty.");
         return TELEPHONY_SUCCESS;
@@ -455,7 +458,7 @@ int32_t EventListenerHandler::UnregisterEventListener(
 int32_t EventListenerHandler::UnregisterEventListener(
     napi_env env, TelephonyUpdateEventType eventType, std::list<EventListener> &removeListenerList)
 {
-    std::lock_guard<std::mutex> lockGuard(operatorMutex_);
+    std::unique_lock<std::mutex> lock(operatorMutex_);
     if (listenerList_.empty()) {
         TELEPHONY_LOGI("UnregisterEventListener listener list is empty.");
         return TELEPHONY_SUCCESS;
@@ -474,7 +477,7 @@ int32_t EventListenerHandler::UnregisterEventListener(
 
 void EventListenerHandler::UnRegisterAllListener(napi_env env)
 {
-    std::lock_guard<std::mutex> lockGuard(operatorMutex_);
+    std::unique_lock<std::mutex> lock(operatorMutex_);
     if (listenerList_.empty()) {
         TELEPHONY_LOGI("UnRegisterAllListener listener list is empty.");
         return;
@@ -534,7 +537,7 @@ void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
         return;
     }
 
-    std::lock_guard<std::mutex> lockGuard(operatorMutex_);
+    std::unique_lock<std::mutex> lock(operatorMutex_);
     for (const EventListener &listen : listenerList_) {
         if ((listen.eventType == eventType) && (listen.slotId == info->slotId_)) {
             uv_loop_s *loop = nullptr;
@@ -568,7 +571,7 @@ void EventListenerHandler::HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent
         return;
     }
 
-    std::lock_guard<std::mutex> lockGuard(operatorMutex_);
+    std::unique_lock<std::mutex> lock(operatorMutex_);
     for (const EventListener &listen : listenerList_) {
         if ((listen.eventType == eventType)) {
             uv_loop_s *loop = nullptr;
@@ -595,7 +598,7 @@ void EventListenerHandler::HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent
 
 void EventListenerHandler::WorkUpdated(uv_work_t *work, int status)
 {
-    std::lock_guard<std::mutex> lockGuard(operatorMutex_);
+    std::unique_lock<std::mutex> lock(operatorMutex_);
     EventListener *listener = static_cast<EventListener *>(work->data);
     TELEPHONY_LOGI("WorkUpdated eventType is %{public}d", listener->eventType);
     if (listener->isDeleting == nullptr || *(listener->isDeleting)) {
@@ -611,10 +614,10 @@ void EventListenerHandler::WorkUpdated(uv_work_t *work, int status)
         listener = nullptr;
         return;
     }
-    workFuncMap_.find(listener->eventType)->second(work);
+    workFuncMap_.find(listener->eventType)->second(work, lock);
 }
 
-void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work)
+void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     std::unique_ptr<CallStateContext> callStateInfo(static_cast<CallStateContext *>(work->data));
     napi_value callbackValue = nullptr;
@@ -623,10 +626,10 @@ void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work)
     std::string number = NapiUtil::ToUtf8(callStateInfo->phoneNumber);
     SetPropertyToNapiObject(callStateInfo->env, callbackValue, "state", wrappedCallState);
     SetPropertyToNapiObject(callStateInfo->env, callbackValue, "number", number);
-    NapiReturnToJS(callStateInfo->env, callStateInfo->callbackRef, callbackValue);
+    NapiReturnToJS(callStateInfo->env, callStateInfo->callbackRef, callbackValue, lock);
 }
 
-void EventListenerHandler::WorkSignalUpdated(uv_work_t *work)
+void EventListenerHandler::WorkSignalUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     std::unique_ptr<SignalListContext> infoListUpdateInfo(static_cast<SignalListContext *>(work->data));
     napi_value callbackValue = nullptr;
@@ -641,10 +644,10 @@ void EventListenerHandler::WorkSignalUpdated(uv_work_t *work)
         SetPropertyToNapiObject(env, info, "signalLevel", infoItem->GetSignalLevel());
         napi_set_element(env, callbackValue, i, info);
     }
-    NapiReturnToJS(env, infoListUpdateInfo->callbackRef, callbackValue);
+    NapiReturnToJS(env, infoListUpdateInfo->callbackRef, callbackValue, lock);
 }
 
-void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work)
+void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     std::unique_ptr<NetworkStateContext> networkStateUpdateInfo(static_cast<NetworkStateContext *>(work->data));
     napi_value callbackValue = nullptr;
@@ -668,10 +671,10 @@ void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work)
     SetPropertyToNapiObject(env, callbackValue, "cfgTech", WrapRadioTech(cfgTech));
     SetPropertyToNapiObject(env, callbackValue, "nsaState", nsaState);
     SetPropertyToNapiObject(env, callbackValue, "isCaActive", false);
-    NapiReturnToJS(env, networkStateUpdateInfo->callbackRef, callbackValue);
+    NapiReturnToJS(env, networkStateUpdateInfo->callbackRef, callbackValue, lock);
 }
 
-void EventListenerHandler::WorkSimStateUpdated(uv_work_t *work)
+void EventListenerHandler::WorkSimStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     std::unique_ptr<SimStateContext> simStateUpdateInfo(static_cast<SimStateContext *>(work->data));
     napi_value callbackValue = nullptr;
@@ -682,10 +685,10 @@ void EventListenerHandler::WorkSimStateUpdated(uv_work_t *work)
     SetPropertyToNapiObject(simStateUpdateInfo->env, callbackValue, "type", cardType);
     SetPropertyToNapiObject(simStateUpdateInfo->env, callbackValue, "state", simState);
     SetPropertyToNapiObject(simStateUpdateInfo->env, callbackValue, "reason", lockReason);
-    NapiReturnToJS(simStateUpdateInfo->env, simStateUpdateInfo->callbackRef, callbackValue);
+    NapiReturnToJS(simStateUpdateInfo->env, simStateUpdateInfo->callbackRef, callbackValue, lock);
 }
 
-void EventListenerHandler::WorkCellInfomationUpdated(uv_work_t *work)
+void EventListenerHandler::WorkCellInfomationUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     std::unique_ptr<CellInfomationContext> cellInfo(static_cast<CellInfomationContext *>(work->data));
     napi_value callbackValue = nullptr;
@@ -694,10 +697,10 @@ void EventListenerHandler::WorkCellInfomationUpdated(uv_work_t *work)
         napi_value val = CellInfoConversion(cellInfo->env, *(cellInfo->cellInfoVec[i]));
         napi_set_element(cellInfo->env, callbackValue, i, val);
     }
-    NapiReturnToJS(cellInfo->env, cellInfo->callbackRef, callbackValue);
+    NapiReturnToJS(cellInfo->env, cellInfo->callbackRef, callbackValue, lock);
 }
 
-void EventListenerHandler::WorkCellularDataConnectStateUpdated(uv_work_t *work)
+void EventListenerHandler::WorkCellularDataConnectStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     std::unique_ptr<CellularDataConnectStateContext> context(
         static_cast<CellularDataConnectStateContext *>(work->data));
@@ -705,17 +708,17 @@ void EventListenerHandler::WorkCellularDataConnectStateUpdated(uv_work_t *work)
     napi_create_object(context->env, &callbackValue);
     SetPropertyToNapiObject(context->env, callbackValue, "state", context->dataState);
     SetPropertyToNapiObject(context->env, callbackValue, "network", context->networkType);
-    NapiReturnToJS(context->env, context->callbackRef, callbackValue);
+    NapiReturnToJS(context->env, context->callbackRef, callbackValue, lock);
 }
 
-void EventListenerHandler::WorkCellularDataFlowUpdated(uv_work_t *work)
+void EventListenerHandler::WorkCellularDataFlowUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     std::unique_ptr<CellularDataFlowContext> dataFlowInfo(static_cast<CellularDataFlowContext *>(work->data));
     napi_value callbackValue = GetNapiValue(dataFlowInfo->env, dataFlowInfo->flowType_);
-    NapiReturnToJS(dataFlowInfo->env, dataFlowInfo->callbackRef, callbackValue);
+    NapiReturnToJS(dataFlowInfo->env, dataFlowInfo->callbackRef, callbackValue, lock);
 }
 
-void EventListenerHandler::WorkCfuIndicatorUpdated(uv_work_t *work)
+void EventListenerHandler::WorkCfuIndicatorUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     if (work == nullptr) {
         TELEPHONY_LOGE("work is null");
@@ -723,10 +726,10 @@ void EventListenerHandler::WorkCfuIndicatorUpdated(uv_work_t *work)
     }
     std::unique_ptr<CfuIndicatorContext> cfuIndicatorInfo(static_cast<CfuIndicatorContext *>(work->data));
     napi_value callbackValue = GetNapiValue(cfuIndicatorInfo->env, cfuIndicatorInfo->cfuResult_);
-    NapiReturnToJS(cfuIndicatorInfo->env, cfuIndicatorInfo->callbackRef, callbackValue);
+    NapiReturnToJS(cfuIndicatorInfo->env, cfuIndicatorInfo->callbackRef, callbackValue, lock);
 }
 
-void EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work)
+void EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     if (work == nullptr) {
         TELEPHONY_LOGE("work is null");
@@ -736,10 +739,10 @@ void EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work)
         static_cast<VoiceMailMsgIndicatorContext *>(work->data));
     napi_value callbackValue =
         GetNapiValue(voiceMailMsgIndicatorInfo->env, voiceMailMsgIndicatorInfo->voiceMailMsgResult_);
-    NapiReturnToJS(voiceMailMsgIndicatorInfo->env, voiceMailMsgIndicatorInfo->callbackRef, callbackValue);
+    NapiReturnToJS(voiceMailMsgIndicatorInfo->env, voiceMailMsgIndicatorInfo->callbackRef, callbackValue, lock);
 }
 
-void EventListenerHandler::WorkIccAccountUpdated(uv_work_t *work)
+void EventListenerHandler::WorkIccAccountUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     if (work == nullptr) {
         TELEPHONY_LOGE("work is null");
@@ -748,7 +751,7 @@ void EventListenerHandler::WorkIccAccountUpdated(uv_work_t *work)
     std::unique_ptr<EventListener> UpdateIccAccount(static_cast<EventListener *>(work->data));
     napi_value callbackValue = nullptr;
     napi_create_object(UpdateIccAccount->env, &callbackValue);
-    NapiReturnToJS(UpdateIccAccount->env, UpdateIccAccount->callbackRef, callbackValue);
+    NapiReturnToJS(UpdateIccAccount->env, UpdateIccAccount->callbackRef, callbackValue, lock);
 }
 } // namespace Telephony
 } // namespace OHOS
