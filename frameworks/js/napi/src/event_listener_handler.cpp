@@ -187,12 +187,12 @@ napi_value DataOfNetworkConversion(napi_env env, const LteCellInformation &info)
 {
     napi_value val = nullptr;
     napi_create_object(env, &val);
-    SetPropertyToNapiObject(env, val, "cgi", 0);
+    SetPropertyToNapiObject(env, val, "cgi", info.GetCellId());
     SetPropertyToNapiObject(env, val, "pci", info.GetPci());
     SetPropertyToNapiObject(env, val, "tac", info.GetTac());
     SetPropertyToNapiObject(env, val, "earfcn", info.GetArfcn());
     SetPropertyToNapiObject(env, val, "bandwith", 0);
-    SetPropertyToNapiObject(env, val, "mcc", info.GetMnc());
+    SetPropertyToNapiObject(env, val, "mcc", info.GetMcc());
     SetPropertyToNapiObject(env, val, "mnc", info.GetMnc());
     SetPropertyToNapiObject(env, val, "isSupportEndc", false);
     return val;
@@ -211,6 +211,19 @@ napi_value DataOfNetworkConversion(napi_env env, const WcdmaCellInformation &inf
     return val;
 }
 
+napi_value DataOfNetworkConversion(napi_env env, const NrCellInformation &info)
+{
+    napi_value val = nullptr;
+    napi_create_object(env, &val);
+    SetPropertyToNapiObject(env, val, "nrArfcn", info.GetArfcn());
+    SetPropertyToNapiObject(env, val, "pci", info.GetPci());
+    SetPropertyToNapiObject(env, val, "tac", info.GetTac());
+    SetPropertyToNapiObject(env, val, "nci", info.GetNci());
+    SetPropertyToNapiObject(env, val, "mcc", info.GetMcc());
+    SetPropertyToNapiObject(env, val, "mnc", info.GetMnc());
+    return val;
+}
+
 napi_value CellInfoConversion(napi_env env, const CellInformation &info)
 {
     napi_value val = nullptr;
@@ -219,7 +232,7 @@ napi_value CellInfoConversion(napi_env env, const CellInformation &info)
     SetPropertyToNapiObject(env, val, "networkType", static_cast<int32_t>(networkType));
     SetPropertyToNapiObject(env, val, "isCamped", info.GetIsCamped());
     SetPropertyToNapiObject(env, val, "timeStamp", static_cast<int64_t>(info.GetTimeStamp()));
-    SetPropertyToNapiObject(env, val, "signalInfomation",
+    SetPropertyToNapiObject(env, val, "signalInformation",
         SignalInfoConversion(env, static_cast<int32_t>(networkType), info.GetSignalLevel()));
 
     switch (networkType) {
@@ -234,6 +247,10 @@ napi_value CellInfoConversion(napi_env env, const CellInformation &info)
         case CellInformation::CellType::CELL_TYPE_WCDMA:
             napi_set_named_property(
                 env, val, "data", DataOfNetworkConversion(env, static_cast<const WcdmaCellInformation &>(info)));
+            break;
+        case CellInformation::CellType::CELL_TYPE_NR:
+            napi_set_named_property(
+                env, val, "data", DataOfNetworkConversion(env, static_cast<const NrCellInformation &>(info)));
             break;
         default:
             break;
