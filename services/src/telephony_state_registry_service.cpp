@@ -582,7 +582,9 @@ bool TelephonyStateRegistryService::PublishCommonEvent(
     EventFwk::CommonEventPublishInfo publishInfo;
     publishInfo.SetOrdered(false);
     bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
-    TELEPHONY_LOGI("PublishCommonEvent end###publishResult = %{public}d\n", publishResult);
+    if (!publishResult) {
+        TELEPHONY_LOGE("PublishCommonEvent fail");
+    }
     return publishResult;
 }
 
