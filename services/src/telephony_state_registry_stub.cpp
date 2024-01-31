@@ -133,7 +133,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateSignalInfo(MessageParcel &data, Mess
     int32_t ret = TELEPHONY_SUCCESS;
     int32_t slotId = data.ReadInt32();
     int32_t size = data.ReadInt32();
-    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateSignalInfo size=%{public}d", size);
+    TELEPHONY_LOGD("TelephonyStateRegistryStub::OnUpdateSignalInfo size=%{public}d", size);
     size = ((size > SignalInformation::MAX_SIGNAL_NUM) ? 0 : size);
     if (size <= 0) {
         ret = TELEPHONY_ERR_FAIL;
@@ -199,7 +199,7 @@ void TelephonyStateRegistryStub::ParseLteNrSignalInfos(
 {
     switch (type) {
         case SignalInformation::NetworkType::LTE: {
-            TELEPHONY_LOGI("TelephonyStateRegistryStub::ParseLteNrSignalInfos NetworkType::LTE");
+            TELEPHONY_LOGD("TelephonyStateRegistryStub::ParseLteNrSignalInfos NetworkType::LTE");
             std::unique_ptr<LteSignalInformation> signal = std::make_unique<LteSignalInformation>();
             if (signal != nullptr) {
                 signal->ReadFromParcel(data);
@@ -208,7 +208,7 @@ void TelephonyStateRegistryStub::ParseLteNrSignalInfos(
             break;
         }
         case SignalInformation::NetworkType::NR: {
-            TELEPHONY_LOGI("TelephonyStateRegistryStub::ParseSignalInfos");
+            TELEPHONY_LOGD("TelephonyStateRegistryStub::ParseSignalInfos");
             std::unique_ptr<NrSignalInformation> signal = std::make_unique<NrSignalInformation>();
             if (signal != nullptr) {
                 signal->ReadFromParcel(data);

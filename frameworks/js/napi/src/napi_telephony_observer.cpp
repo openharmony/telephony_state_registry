@@ -36,7 +36,7 @@ void NapiTelephonyObserver::OnCallStateUpdated(int32_t slotId, int32_t callState
 void NapiTelephonyObserver::OnSignalInfoUpdated(
     int32_t slotId, const std::vector<sptr<SignalInformation>> &signalInfoList)
 {
-    TELEPHONY_LOGI("OnSignalInfoUpdated slotId = %{public}d, signalInfoList.size = %{public}zu", slotId,
+    TELEPHONY_LOGD("OnSignalInfoUpdated slotId = %{public}d, signalInfoList.size = %{public}zu", slotId,
         signalInfoList.size());
     std::unique_ptr<SignalUpdateInfo> infoList = std::make_unique<SignalUpdateInfo>(slotId, signalInfoList);
     if (infoList == nullptr) {
