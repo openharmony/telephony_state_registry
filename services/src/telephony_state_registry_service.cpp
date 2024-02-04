@@ -40,8 +40,13 @@ bool g_registerResult =
 TelephonyStateRegistryService::TelephonyStateRegistryService()
     : SystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID, true)
 {
-    TELEPHONY_LOGI("TelephonyStateRegistryService SystemAbility create");
     slotSize_ = SIM_SLOT_COUNT;
+#ifdef OHOS_BUILD_ENABLE_TELEPHONY_VSIM
+    if (SIM_SLOT_COUNT == DUAL_SLOT_COUNT && VSIM_MODEM_COUNT == MAX_SLOT_COUNT) {
+        slotSize_ = MAX_SLOT_COUNT;
+    }
+#endif
+    TELEPHONY_LOGI("TelephonyStateRegistryService SystemAbility create, slotSize_: %{public}d", slotSize_);
     for (int32_t i = 0; i < slotSize_; i++) {
         callState_[i] = static_cast<int32_t>(CallStatus::CALL_STATUS_UNKNOWN);
     }

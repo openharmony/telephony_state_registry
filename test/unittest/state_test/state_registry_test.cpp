@@ -881,6 +881,46 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_001, Function | Me
     EXPECT_TRUE(service->IsCommonEventServiceAbilityExist());
 }
 
+/**
+ * @tc.number   TelephonyStateRegistrySimCountTest_001
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistrySimCountTest_001, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_001 service is nullptr");
+        return;
+    }
+    service->slotSize_ = MAX_SLOT_COUNT;
+    EXPECT_TRUE(service->VerifySlotId(0));
+    EXPECT_TRUE(service->VerifySlotId(1));
+    EXPECT_TRUE(service->VerifySlotId(2));
+    EXPECT_FALSE(service->VerifySlotId(3));
+    EXPECT_FALSE(service->VerifySlotId(-1));
+}
+
+/**
+ * @tc.number   TelephonyStateRegistrySimCountTest_002
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistrySimCountTest_002, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_001 service is nullptr");
+        return;
+    }
+    service->slotSize_ = DUAL_SLOT_COUNT;
+    EXPECT_TRUE(service->VerifySlotId(0));
+    EXPECT_TRUE(service->VerifySlotId(1));
+    EXPECT_FALSE(service->VerifySlotId(2));
+    EXPECT_FALSE(service->VerifySlotId(3));
+    EXPECT_FALSE(service->VerifySlotId(-1));
+}
+
 #else // TEL_TEST_UNSUPPORT
 /**
  * @tc.number   State_MockTest_001
