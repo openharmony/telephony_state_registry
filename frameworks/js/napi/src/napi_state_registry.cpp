@@ -33,7 +33,7 @@ namespace {
 constexpr const char *OBSERVER_JS_PERMISSION_ERROR_STRING =
     "Permission denied. An attempt was made to Observer "
     "On forbidden by permission : ohos.permission.GET_NETWORK_INFO or ohos.permission.LOCATION ";
-constexpr int32_t ARRAY_SIZE = 64;
+constexpr int32_t ARRAY_SIZE = 255;
 constexpr size_t PARAMETER_COUNT_ONE = 1;
 constexpr size_t PARAMETER_COUNT_TWO = 2;
 constexpr size_t PARAMETER_COUNT_THREE = 3;
