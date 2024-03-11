@@ -27,6 +27,7 @@ ohos_unittest("tel_state_registry_test") {
     "$SOURCE_DIR/frameworks/native/observer/include",
     "$SOURCE_DIR/frameworks/native/common/include",
     "$SOURCE_DIR/services/include",
+    "$SOURCE_DIR/services/telephony_ext_wrapper/include",
   ]
 
   deps = [
