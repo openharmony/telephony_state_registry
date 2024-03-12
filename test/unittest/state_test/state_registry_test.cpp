@@ -19,6 +19,7 @@
 
 #include "core_service_client.h"
 #include "sim_state_type.h"
+#include "telephony_ext_wrapper.h"
 #include "telephony_log_wrapper.h"
 #include "telephony_observer_client.h"
 #include "telephony_observer_proxy.h"
@@ -879,6 +880,423 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_001, Function | Me
         return;
     }
     EXPECT_TRUE(service->IsCommonEventServiceAbilityExist());
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetLockReason(0));
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCellularDataConnectionNetworkType(0));
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCellularDataFlow(0));
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCellularDataConnectionState(0));
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCardType(0));
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCallState(0));
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetSimState(0));
+    service->simReason_[0] = LockReason::SIM_NONE;
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetLockReason(1));
+    EXPECT_NE(TELEPHONY_ERROR, service->GetLockReason(0));
+    service->cellularDataConnectionNetworkType_[0] = 0;
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCellularDataConnectionNetworkType(1));
+    EXPECT_EQ(0, service->GetCellularDataConnectionNetworkType(0));
+    service->cellularDataFlow_[0] = 0;
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCellularDataFlow(1));
+    EXPECT_EQ(0, service->GetCellularDataFlow(0));
+    service->cellularDataConnectionState_[0] = 0;
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCellularDataConnectionState(1));
+    EXPECT_EQ(0, service->GetCellularDataConnectionState(0));
+    service->cardType_[0] = CardType::UNKNOWN_CARD;
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCardType(1));
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCardType(0));
+    service->callState_[0] = 0;
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetCallState(1));
+    EXPECT_EQ(0, service->GetCallState(0));
+    service->simState_[0] = SimState::SIM_STATE_UNKNOWN;
+    EXPECT_EQ(TELEPHONY_ERROR, service->GetSimState(1));
+    EXPECT_EQ(0, service->GetSimState(0));
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_002
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_002, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_002 service is nullptr");
+        return;
+    }
+    int32_t fd = -1;
+    std::vector<std::u16string> args;
+    EXPECT_EQ(TELEPHONY_ERR_FAIL, service->Dump(fd, args));
+    fd = 1;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->Dump(fd, args));
+    sptr<NetworkState> networkState = nullptr;
+    service->SendNetworkStateChanged(0, networkState);
+    TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_ = nullptr;
+    networkState = std::make_unique<NetworkState>().release();
+    service->SendNetworkStateChanged(0, networkState);
+    std::vector<sptr<SignalInformation>> vec;
+    service->SendSignalInfoChanged(0, vec);
+    TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_ = nullptr;
+    vec.push_back(std::make_unique<LteSignalInformation>().release());
+    service->SendSignalInfoChanged(0, vec);
+    std::u16string number = u"123456";
+    service->SendCallStateChanged(0, 0, number);
+    TelephonyStateRegistryRecord record;
+    service->UpdateData(record);
+    record.telephonyObserver_ = std::make_unique<TelephonyObserver>().release();
+    service->UpdateData(record);
+    record.mask_ = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE |
+                   TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE |
+                   TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO |
+                   TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS |
+                   TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE |
+                   TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE |
+                   TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW |
+                   TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR |
+                   TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR |
+                   TelephonyObserverBroker::OBSERVER_MASK_ICC_ACCOUNT;
+    service->UpdateData(record);
+    EXPECT_EQ(Str8ToStr16(""), service->GetCallIncomingNumberForSlotId(record, 0));
+    TELEPHONY_EXT_WRAPPER.InitTelephonyExtWrapper();
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_003
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_003, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_003 service is nullptr");
+        return;
+    }
+    EXPECT_TRUE(service->CheckPermission(0));
+    EXPECT_TRUE(service->CheckCallerIsSystemApp(0));
+    EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE));
+    EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO));
+    EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO));
+    EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR));
+    EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR));
+    uint32_t mask = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, 0, 0));
+    mask = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, 0, 0));
+
+    TelephonyStateRegistryRecord record;
+    service->stateRecords_.push_back(record);
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UnregisterStateChange(0, 0, 0, 0));
+    service->stateRecords_[0].uid_ = 1;
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, 0, 0));
+    service->stateRecords_[0].pid_ = 1;
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, 0, 0));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, 0, 0));
+    service->stateRecords_[0].slotId_ = 1;
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, 0, 0));
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_004
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_004, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_004 service is nullptr");
+        return;
+    }
+    if (service->state_ == ServiceRunningState::STATE_RUNNING) {
+        service->OnStart();
+    }
+    sptr<TelephonyObserverBroker> telephonyObserver = nullptr;
+    uint32_t mask = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED,
+        service->RegisterStateChange(telephonyObserver, 0, mask, "", true, 0, 0));
+    mask = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED,
+        service->RegisterStateChange(telephonyObserver, 0, mask, "", true, 0, 0));
+    TelephonyStateRegistryRecord record;
+    service->stateRecords_.push_back(record);
+    int32_t invalidSlotId = 5;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, invalidSlotId, 0, "", true, 0, 0));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", false, 0, 0));
+    service->stateRecords_[0].uid_ = 1;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
+    service->stateRecords_[0].pid_ = 1;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
+    service->stateRecords_[0].slotId_ = 1;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_005
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_005, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_005 service is nullptr");
+        return;
+    }
+    TelephonyStateRegistryRecord record;
+    service->stateRecords_.push_back(record);
+    int32_t invalidSlotId = 5;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateVoiceMailMsgIndicator(invalidSlotId, true));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateVoiceMailMsgIndicator(0, true));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateIccAccount());
+    service->stateRecords_[0].telephonyObserver_ = std::make_unique<TelephonyObserver>().release();
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateIccAccount());
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_ICC_ACCOUNT;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateIccAccount());
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCfuIndicator(invalidSlotId, true));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCfuIndicator(0, true));
+    sptr<NetworkState> networkState = std::make_unique<NetworkState>().release();
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateNetworkState(invalidSlotId, networkState));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateNetworkState(0, networkState));
+    std::vector<sptr<CellInformation>> vecCellInfo;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCellInfo(invalidSlotId, vecCellInfo));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCellInfo(0, vecCellInfo));
+    std::vector<sptr<SignalInformation>> vecSignalInfo;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateSignalInfo(invalidSlotId, vecSignalInfo));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateSignalInfo(0, vecSignalInfo));
+    CardType type = CardType::UNKNOWN_CARD;
+    SimState state = SimState::SIM_STATE_UNKNOWN;
+    LockReason reason = LockReason::SIM_NONE;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateSimState(invalidSlotId, type, state, reason));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateSimState(0, type, state, reason));
+    std::u16string number = u"123";
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCallStateForSlotId(invalidSlotId, 0, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCallStateForSlotId(0, 0, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCallState(invalidSlotId, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCallState(0, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCellularDataFlow(invalidSlotId, 0));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCellularDataFlow(0, 0));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCellularDataConnectState(invalidSlotId, 0, 0));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCellularDataConnectState(0, 0, 0));
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_006
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_006 service is nullptr");
+        return;
+    }
+    AccessToken token;
+    std::u16string number = u"123";
+    TelephonyStateRegistryRecord record;
+    EXPECT_TRUE(record.IsCanReadCallHistory());
+    service->stateRecords_.push_back(record);
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellularDataConnectState(0, 0, 0));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellularDataFlow(0, 0));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, 0, number));
+    CardType type = CardType::UNKNOWN_CARD;
+    SimState state = SimState::SIM_STATE_UNKNOWN;
+    LockReason reason = LockReason::SIM_NONE;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateSimState(0, type, state, reason));
+
+    service->stateRecords_[0].telephonyObserver_ = std::make_unique<TelephonyObserver>().release();
+    service->stateRecords_[0].slotId_ = 3;
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellularDataConnectState(0, 0, 0));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellularDataFlow(0, 0));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallState(0, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, 0, number));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateSimState(0, type, state, reason));
+
+    service->stateRecords_[0].slotId_ = 0;
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCellularDataConnectState(0, 0, 0));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCellularDataFlow(0, 0));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallState(0, 0, number));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallStateForSlotId(0, 0, 0, number));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateSimState(0, type, state, reason));
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_007
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_007, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_007 service is nullptr");
+        return;
+    }
+    AccessToken token;
+    TelephonyStateRegistryRecord record;
+    service->stateRecords_.push_back(record);
+    sptr<NetworkState> networkState = std::make_unique<NetworkState>().release();
+    std::vector<sptr<SignalInformation>> vecSignalInfo;
+    EXPECT_NE(TELEPHONY_SUCCESS, service->UpdateSignalInfo(0, vecSignalInfo));
+    std::vector<sptr<CellInformation>> vecCellInfo;
+    EXPECT_NE(TELEPHONY_SUCCESS, service->UpdateCellInfo(0, vecCellInfo));
+    EXPECT_NE(TELEPHONY_SUCCESS, service->UpdateNetworkState(0, networkState));
+    EXPECT_NE(TELEPHONY_SUCCESS, service->UpdateCfuIndicator(0, true));
+    EXPECT_NE(TELEPHONY_SUCCESS, service->UpdateVoiceMailMsgIndicator(0, true));
+
+    service->stateRecords_[0].telephonyObserver_ = std::make_unique<TelephonyObserver>().release();
+    service->stateRecords_[0].slotId_ = 3;
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateSignalInfo(0, vecSignalInfo));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellInfo(0, vecCellInfo));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateNetworkState(0, networkState));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCfuIndicator(0, true));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateVoiceMailMsgIndicator(0, true));
+
+    service->stateRecords_[0].slotId_ = 0;
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateSignalInfo(0, vecSignalInfo));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCellInfo(0, vecCellInfo));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateNetworkState(0, networkState));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCfuIndicator(0, true));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateVoiceMailMsgIndicator(0, true));
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_008
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_008, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_008 service is nullptr");
+        return;
+    }
+    AccessToken token;
+    MessageParcel dataParcel;
+    dataParcel.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::GSM));
+    dataParcel.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::CDMA));
+    dataParcel.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::LTE));
+    dataParcel.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::NR));
+    dataParcel.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::WCDMA));
+    dataParcel.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::UNKNOWN));
+    int32_t size = 6;
+    std::vector<sptr<SignalInformation>> result;
+    service->parseSignalInfos(dataParcel, size, result);
+    MessageParcel dataSignal;
+    service->ParseLteNrSignalInfos(dataSignal, result, SignalInformation::NetworkType::UNKNOWN);
+    MessageParcel dataSignalNr;
+    dataSignalNr.WriteInt32(0);
+    dataSignalNr.WriteInt32(0);
+    dataSignalNr.WriteInt32(0);
+    service->ParseLteNrSignalInfos(dataSignalNr, result, SignalInformation::NetworkType::NR);
+    MessageParcel dataSignalLte;
+    dataSignalLte.WriteInt32(0);
+    dataSignalLte.WriteInt32(0);
+    dataSignalLte.WriteInt32(0);
+    dataSignalLte.WriteInt32(0);
+    service->ParseLteNrSignalInfos(dataSignalLte, result, SignalInformation::NetworkType::LTE);
+
+    TelephonyStateRegistryRecord record;
+    std::u16string testNumber = u"123";
+    service->callIncomingNumber_[0] = testNumber;
+    EXPECT_EQ(testNumber, service->GetCallIncomingNumberForSlotId(record, 0));
+    EXPECT_TRUE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE));
+    EXPECT_TRUE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO));
+    EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO));
+    EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR));
+    EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR));
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_009
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_009, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_009 service is nullptr");
+        return;
+    }
+    MessageParcel dataCellInfo;
+    int32_t size = 4;
+    dataCellInfo.WriteInt32(0);
+    dataCellInfo.WriteInt32(size);
+    dataCellInfo.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::GSM));
+    dataCellInfo.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::LTE));
+    dataCellInfo.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::NR));
+    dataCellInfo.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::UNKNOWN));
+    std::vector<sptr<SignalInformation>> result;
+    MessageParcel reply;
+    service->OnUpdateCellInfo(dataCellInfo, reply);
+
+    MessageParcel dataNetworkState;
+    dataNetworkState.WriteInt32(0);
+    service->OnUpdateNetworkState(dataNetworkState, reply);
+    MessageParcel dataRegisterState;
+    dataNetworkState.WriteInt32(0);
+    dataNetworkState.WriteInt32(0);
+    dataNetworkState.WriteBool(true);
+    service->OnRegisterStateChange(dataRegisterState, reply);
+
+    MessageParcel dataRead;
+    sptr<TelephonyObserverBroker> callback = nullptr;
+    EXPECT_NE(TELEPHONY_SUCCESS, service->ReadData(dataRead, reply, callback));
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryServiceTest_010
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_010, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    if (service == nullptr) {
+        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_010 service is nullptr");
+        return;
+    }
+    AccessToken token;
+    TelephonyStateRegistryRecord record;
+    service->stateRecords_.push_back(record);
+    service->stateRecords_[0].telephonyObserver_ = std::make_unique<TelephonyObserver>().release();
+    service->stateRecords_[0].slotId_ = 0;
+    TELEPHONY_EXT_WRAPPER.onSignalInfoUpdated_ = nullptr;
+    std::vector<sptr<SignalInformation>> vecSignalInfo;
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateSignalInfo(0, vecSignalInfo));
+    TELEPHONY_EXT_WRAPPER.onCellInfoUpdated_ = nullptr;
+    std::vector<sptr<CellInformation>> vecCellInfo;
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCellInfo(0, vecCellInfo));
+    TELEPHONY_EXT_WRAPPER.onNetworkStateUpdated_ = nullptr;
+    sptr<NetworkState> networkState = std::make_unique<NetworkState>().release();
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateNetworkState(0, networkState));
+    TELEPHONY_EXT_WRAPPER.InitTelephonyExtWrapper();
 }
 
 /**
