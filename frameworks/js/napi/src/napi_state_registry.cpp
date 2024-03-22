@@ -76,7 +76,6 @@ static void NativeOn(napi_env env, void *data)
         asyncContext->errorCode = ERROR_SLOT_ID_INVALID;
         return;
     }
-    TELEPHONY_LOGI("NativeOn eventType = %{public}d", asyncContext->eventType);
     std::shared_ptr<bool> isDeleting = std::make_shared<bool>(false);
     EventListener listener {
         env,
@@ -137,7 +136,8 @@ static napi_value On(napi_env env, napi_callback_info info)
             napi_value slotId = NapiUtil::GetNamedProperty(env, object, "slotId");
             if (slotId) {
                 NapiValueToCppValue(env, slotId, napi_number, &asyncContext->slotId);
-                TELEPHONY_LOGI("state registry on slotId = %{public}d", asyncContext->slotId);
+                TELEPHONY_LOGI("state registry on slotId = %{public}d, eventType = %{public}d", asyncContext->slotId,
+                    asyncContext->eventType);
             }
         }
     } else {

@@ -46,7 +46,7 @@ void TelephonyObserverProxy::OnCallStateUpdated(
     int code = remote->SendRequest(
         static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_UPDATED),
         dataParcel, replyParcel, option);
-    TELEPHONY_LOGI("TelephonyObserverProxy::OnCallStateUpdated end ##error: %{public}d", code);
+    TELEPHONY_LOGD("TelephonyObserverProxy::OnCallStateUpdated end ##error: %{public}d", code);
 };
 
 void TelephonyObserverProxy::OnSimStateUpdated(
@@ -143,7 +143,7 @@ void TelephonyObserverProxy::OnCellInfoUpdated(
     int code = remote->SendRequest(
         static_cast<uint32_t>(ObserverBrokerCode::ON_CELL_INFO_UPDATED),
         dataParcel, replyParcel, option);
-    TELEPHONY_LOGI("TelephonyObserverProxy::OnCellInfoUpdated##error: %{public}d.", code);
+    TELEPHONY_LOGD("TelephonyObserverProxy::OnCellInfoUpdated##error: %{public}d.", code);
 }
 
 void TelephonyObserverProxy::OnNetworkStateUpdated(
@@ -169,7 +169,7 @@ void TelephonyObserverProxy::OnNetworkStateUpdated(
     int code = remote->SendRequest(
         static_cast<uint32_t>(ObserverBrokerCode::ON_NETWORK_STATE_UPDATED),
         dataParcel, replyParcel, option);
-    TELEPHONY_LOGI("TelephonyObserverProxy::OnNetworkStateUpdated##error: %{public}d.", code);
+    TELEPHONY_LOGD("TelephonyObserverProxy::OnNetworkStateUpdated##error: %{public}d.", code);
 }
 
 void TelephonyObserverProxy::OnCellularDataConnectStateUpdated(
@@ -194,7 +194,7 @@ void TelephonyObserverProxy::OnCellularDataConnectStateUpdated(
     int code = remote->SendRequest(
         static_cast<uint32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_CONNECT_STATE_UPDATED),
         dataParcel, replyParcel, option);
-    TELEPHONY_LOGI("TelephonyObserverProxy::OnCellularDataConnectStateUpdated##error: %{public}d.", code);
+    TELEPHONY_LOGD("TelephonyObserverProxy::OnCellularDataConnectStateUpdated##error: %{public}d.", code);
 }
 
 void TelephonyObserverProxy::OnCellularDataFlowUpdated(
@@ -218,7 +218,7 @@ void TelephonyObserverProxy::OnCellularDataFlowUpdated(
     int code = remote->SendRequest(
         static_cast<uint32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED),
         dataParcel, replyParcel, option);
-    TELEPHONY_LOGI("TelephonyObserverProxy::OnCellularDataFlow##error: %{public}d.", code);
+    TELEPHONY_LOGD("TelephonyObserverProxy::OnCellularDataFlow##error: %{public}d.", code);
 }
 
 void TelephonyObserverProxy::OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult)
