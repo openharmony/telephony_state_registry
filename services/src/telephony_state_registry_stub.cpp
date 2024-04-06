@@ -53,7 +53,7 @@ TelephonyStateRegistryStub::~TelephonyStateRegistryStub()
 int32_t TelephonyStateRegistryStub::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
 {
-    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnRemoteRequest start##code = %{public}u", code);
+    TELEPHONY_LOGD("TelephonyStateRegistryStub::OnRemoteRequest start##code = %{public}u", code);
     std::u16string myToken = TelephonyStateRegistryStub::GetDescriptor();
     std::u16string remoteToken = data.ReadInterfaceToken();
     if (myToken != remoteToken) {
@@ -113,7 +113,9 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellularDataConnectState(MessageParc
     int32_t dataState = data.ReadInt32();
     int32_t networkType = data.ReadInt32();
     int32_t ret = UpdateCellularDataConnectState(slotId, dataState, networkType);
-    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCellularDataConnectState end##ret=%{public}d", ret);
+    if (ret != TELEPHONY_SUCCESS) {
+        TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateCellularDataConnectState end fail##ret=%{public}d", ret);
+    }
     reply.WriteInt32(ret);
     return ret;
 }
@@ -123,7 +125,9 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellularDataFlow(MessageParcel &data
     int32_t slotId = data.ReadInt32();
     int32_t flowData = data.ReadInt32();
     int32_t ret = UpdateCellularDataFlow(slotId, flowData);
-    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCellularDataFlow end##ret=%{public}d", ret);
+    if (ret != TELEPHONY_SUCCESS) {
+        TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateCellularDataFlow end fail##ret=%{public}d", ret);
+    }
     reply.WriteInt32(ret);
     return ret;
 }
@@ -143,7 +147,9 @@ int32_t TelephonyStateRegistryStub::OnUpdateSignalInfo(MessageParcel &data, Mess
     std::vector<sptr<SignalInformation>> result;
     parseSignalInfos(data, size, result);
     ret = UpdateSignalInfo(slotId, result);
-    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateSignalInfo end##ret=%{public}d", ret);
+    if (ret != TELEPHONY_SUCCESS) {
+        TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateSignalInfo end fail##ret=%{public}d", ret);
+    }
     reply.WriteInt32(ret);
     return ret;
 }
@@ -302,7 +308,9 @@ int32_t TelephonyStateRegistryStub::OnRegisterStateChange(MessageParcel &data, M
         return ret;
     }
     ret = RegisterStateChange(callback, slotId, mask, notifyNow);
-    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnRegisterStateChange end##ret=%{public}d", ret);
+    if (ret != TELEPHONY_SUCCESS) {
+        TELEPHONY_LOGE("TelephonyStateRegistryStub::OnRegisterStateChange end fail##ret=%{public}d", ret);
+    }
     reply.WriteInt32(ret);
     return ret;
 }
@@ -312,7 +320,9 @@ int32_t TelephonyStateRegistryStub::OnUnregisterStateChange(MessageParcel &data,
     int32_t slotId = data.ReadInt32();
     int32_t mask = data.ReadInt32();
     int32_t ret = UnregisterStateChange(slotId, mask);
-    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUnregisterStateChange end##ret=%{public}d", ret);
+    if (ret != TELEPHONY_SUCCESS) {
+        TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUnregisterStateChange end fail##ret=%{public}d", ret);
+    }
     reply.WriteInt32(ret);
     return ret;
 }

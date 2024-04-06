@@ -617,7 +617,7 @@ void EventListenerHandler::WorkUpdated(uv_work_t *work, int status)
 {
     std::unique_lock<std::mutex> lock(operatorMutex_);
     EventListener *listener = static_cast<EventListener *>(work->data);
-    TELEPHONY_LOGI("WorkUpdated eventType is %{public}d", listener->eventType);
+    TELEPHONY_LOGD("WorkUpdated eventType is %{public}d", listener->eventType);
     if (listener->isDeleting == nullptr || *(listener->isDeleting)) {
         TELEPHONY_LOGI("listener is deleting");
         delete listener;

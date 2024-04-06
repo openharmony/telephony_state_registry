@@ -23,8 +23,6 @@ namespace Telephony {
 bool TelephonyStateRegistryRecord::IsCanReadCallHistory()
 {
     if (!TelephonyPermission::CheckPermission(Permission::READ_CALL_LOG)) {
-        TELEPHONY_LOGE("Check permission failed,"
-            " you must declare ohos.permission.READ_CALL_LOG permission for number");
         return false;
     }
     return true;

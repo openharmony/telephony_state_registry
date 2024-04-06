@@ -88,8 +88,7 @@ void NapiTelephonyObserver::OnCellInfoUpdated(int32_t slotId, const std::vector<
 void NapiTelephonyObserver::OnCellularDataConnectStateUpdated(
     int32_t slotId, int32_t dataState, int32_t networkType)
 {
-    TELEPHONY_LOGI(
-        "OnCellularDataConnectStateUpdated slotId=%{public}d, dataState=%{public}d, networkType="
+    TELEPHONY_LOGD("OnCellularDataConnectStateUpdated slotId=%{public}d, dataState=%{public}d, networkType="
         "%{public}d",
         slotId, dataState, networkType);
     std::unique_ptr<CellularDataConnectState> cellularDataConnectState =
