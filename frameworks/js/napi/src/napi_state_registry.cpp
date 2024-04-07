@@ -70,6 +70,12 @@ static void NativeOn(napi_env env, void *data)
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
+    if (SIM_SLOT_COUNT == 0) {
+        TELEPHONY_LOGE("The device is not support sim card.");
+        asyncContext->resolved = true;
+        return;
+    }
+
     if (!IsValidSlotId(asyncContext->slotId)) {
         TELEPHONY_LOGE("NativeOn slotId is invalid");
         asyncContext->errorCode = ERROR_SLOT_ID_INVALID;
