@@ -382,14 +382,15 @@ int32_t TelephonyStateRegistryStub::RegisterStateChange(const sptr<TelephonyObse
     int32_t uid = IPCSkeleton::GetCallingUid();
     std::string bundleName = "";
     TelephonyPermission::GetBundleNameByUid(uid, bundleName);
+    int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
     return RegisterStateChange(telephonyObserver, slotId, mask, bundleName, isUpdate,
-        IPCSkeleton::GetCallingPid(), uid);
+        IPCSkeleton::GetCallingPid(), uid, tokenId);
 }
 
 int32_t TelephonyStateRegistryStub::UnregisterStateChange(int32_t slotId, uint32_t mask)
 {
-    int32_t uid = IPCSkeleton::GetCallingUid();
-    return UnregisterStateChange(slotId, mask, IPCSkeleton::GetCallingPid(), uid);
+    int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
+    return UnregisterStateChange(slotId, mask, tokenId);
 }
 } // namespace Telephony
 } // namespace OHOS
