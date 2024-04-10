@@ -57,9 +57,9 @@ public:
     int32_t UpdateCfuIndicator(int32_t slotId, bool cfuResult) override;
     int32_t UpdateVoiceMailMsgIndicator(int32_t slotId, bool voiceMailMsgResult) override;
     int32_t UpdateIccAccount() override;
-    int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
-        uint32_t mask, const std::string &bundleName, bool notifyNow, pid_t pid, int32_t uid) override;
-    int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, pid_t pid, int32_t uid) override;
+    int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId, uint32_t mask,
+        const std::string &bundleName, bool notifyNow, pid_t pid, int32_t uid, int32_t tokenId) override;
+    int32_t UnregisterStateChange(int32_t slotId, uint32_t mask, int32_t tokenId) override;
     int32_t GetServiceRunningState();
     int32_t GetSimState(int32_t slotId);
     int32_t GetCallState(int32_t slotId);

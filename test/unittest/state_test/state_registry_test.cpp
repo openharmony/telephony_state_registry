@@ -978,21 +978,23 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_003, Function | Me
     EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR));
     EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR));
     uint32_t mask = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, 0, 0));
+    int32_t tokenId = 123456789;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, tokenId));
     mask = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, 0, 0));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, tokenId));
 
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UnregisterStateChange(0, 0, 0, 0));
-    service->stateRecords_[0].uid_ = 1;
-    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, 0, 0));
-    service->stateRecords_[0].pid_ = 1;
-    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, 0, 0));
+    service->stateRecords_[0].tokenId_ = 123456789;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UnregisterStateChange(0, 0, tokenId));
+    service->stateRecords_[0].tokenId_ = 123456788;
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId));
+    service->stateRecords_[0].tokenId_ = -1;
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
-    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, 0, 0));
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId));
     service->stateRecords_[0].slotId_ = 1;
-    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, 0, 0));
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId));
 }
 
 /**
@@ -1013,24 +1015,24 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_004, Function | Me
     sptr<TelephonyObserverBroker> telephonyObserver = nullptr;
     uint32_t mask = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED,
-        service->RegisterStateChange(telephonyObserver, 0, mask, "", true, 0, 0));
+        service->RegisterStateChange(telephonyObserver, 0, mask, "", true, 0, 0, 0));
     mask = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED,
-        service->RegisterStateChange(telephonyObserver, 0, mask, "", true, 0, 0));
+        service->RegisterStateChange(telephonyObserver, 0, mask, "", true, 0, 0, 0));
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
     int32_t invalidSlotId = 5;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, invalidSlotId, 0, "", true, 0, 0));
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", false, 0, 0));
-    service->stateRecords_[0].uid_ = 1;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
-    service->stateRecords_[0].pid_ = 1;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, invalidSlotId, 0, "", true, 0, 0, 0));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0, 0));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", false, 0, 0, 0));
+    service->stateRecords_[0].tokenId_ = 1;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0, 0));
+    service->stateRecords_[0].tokenId_ = 123456789;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0, 0));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0, 0));
     service->stateRecords_[0].slotId_ = 1;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0, 0));
 }
 
 /**
