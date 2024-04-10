@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-import {Callback} from "./basic";
-import radio from "./@ohos.telephony.radio";
-import data from "./@ohos.telephony.data";
-import call from "./@ohos.telephony.call";
-import sim from "./@ohos.telephony.sim";
+import {Callback} from './basic';
+import radio from './@ohos.telephony.radio';
+import data from './@ohos.telephony.data';
+import call from './@ohos.telephony.call';
+import sim from './@ohos.telephony.sim';
 
 /**
  * Monitors telephony state updates of a device, including updates of the network state,
