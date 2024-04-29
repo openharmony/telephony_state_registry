@@ -128,7 +128,13 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE) &&
             (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
-            record.telephonyObserver_->OnCellularDataConnectStateUpdated(slotId, dataState, networkType);
+            if (TELEPHONY_EXT_WRAPPER.onCellularDataConnectStateUpdated_ != nullptr) {
+                int32_t networkTypeExt = networkType;
+                TELEPHONY_EXT_WRAPPER.onCellularDataConnectStateUpdated_(slotId, record, networkTypeExt);
+                record.telephonyObserver_->OnCellularDataConnectStateUpdated(slotId, dataState, networkTypeExt);
+            } else {
+                record.telephonyObserver_->OnCellularDataConnectStateUpdated(slotId, dataState, networkType);
+            }
             result = TELEPHONY_SUCCESS;
         }
     }

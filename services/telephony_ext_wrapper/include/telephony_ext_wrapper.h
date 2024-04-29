@@ -35,12 +35,15 @@ public:
          std::vector<sptr<SignalInformation>> &targetVec, const std::vector<sptr<SignalInformation>> &vec);
     typedef void (*ON_CELL_INFO_UPDATE)(int32_t slotId, TelephonyStateRegistryRecord record,
         std::vector<sptr<CellInformation>> &targetVec, const std::vector<sptr<CellInformation>> &vec);
+    typedef void (*ON_CELLULAR_DATA_CONNECT_STATE_UPDATE)(int32_t slotId, TelephonyStateRegistryRecord record,
+        int32_t &networkType);
     typedef void (*SEND_NETWORK_STATE_CHANGED)(int32_t slotId, const sptr<NetworkState> &networkState);
     typedef void (*SEND_SIGNAL_INFO_CHANGED)(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec);
 
     ON_NETWORK_STATE_UPDATE onNetworkStateUpdated_ = nullptr;
     ON_SIGNAL_INFO_UPDATE onSignalInfoUpdated_ = nullptr;
     ON_CELL_INFO_UPDATE onCellInfoUpdated_ = nullptr;
+    ON_CELLULAR_DATA_CONNECT_STATE_UPDATE onCellularDataConnectStateUpdated_ = nullptr;
     SEND_NETWORK_STATE_CHANGED sendNetworkStateChanged_ = nullptr;
     SEND_SIGNAL_INFO_CHANGED sendSignalInfoChanged_ = nullptr;
 

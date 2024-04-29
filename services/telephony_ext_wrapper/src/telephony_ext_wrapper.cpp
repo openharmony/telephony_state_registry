@@ -43,13 +43,16 @@ void TelephonyExtWrapper::InitTelephonyExtWrapper()
     onNetworkStateUpdated_ = (ON_NETWORK_STATE_UPDATE)dlsym(telephonyExtWrapperHandle_, "OnNetworkStateUpdatedExt");
     onSignalInfoUpdated_ = (ON_SIGNAL_INFO_UPDATE)dlsym(telephonyExtWrapperHandle_, "OnSignalInfoUpdatedExt");
     onCellInfoUpdated_ = (ON_CELL_INFO_UPDATE)dlsym(telephonyExtWrapperHandle_, "OnCellInfoUpdatedExt");
+    onCellularDataConnectStateUpdated_ = (ON_CELLULAR_DATA_CONNECT_STATE_UPDATE)
+        dlsym(telephonyExtWrapperHandle_, "OnCellularDataConnectStateUpdatedExt");
 
     sendNetworkStateChanged_ = (SEND_NETWORK_STATE_CHANGED)dlsym(telephonyExtWrapperHandle_,
         "SendNetworkStateChangedExt");
     sendSignalInfoChanged_ = (SEND_SIGNAL_INFO_CHANGED)dlsym(telephonyExtWrapperHandle_, "SendSignalInfoChangedExt");
     // Check whether all function pointers are empty.
     if (onNetworkStateUpdated_ == nullptr || onSignalInfoUpdated_ == nullptr || onCellInfoUpdated_ == nullptr
-        || sendNetworkStateChanged_ == nullptr || sendSignalInfoChanged_ == nullptr) {
+        || onCellularDataConnectStateUpdated_ == nullptr || sendNetworkStateChanged_ == nullptr
+        || sendSignalInfoChanged_ == nullptr) {
         TELEPHONY_LOGE("telephony ext wrapper symbol failed, error: %{public}s", dlerror());
         return;
     }
