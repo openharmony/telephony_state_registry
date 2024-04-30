@@ -659,7 +659,7 @@ void EventListenerHandler::WorkSignalUpdated(uv_work_t *work, std::unique_lock<s
         napi_create_object(env, &info);
         SetPropertyToNapiObject(env, info, "signalType", WrapNetworkType(infoItem->GetNetworkType()));
         SetPropertyToNapiObject(env, info, "signalLevel", infoItem->GetSignalLevel());
-        SetPropertyToNapiObject(env, info, "dbm", infoItem->GetSignalIdentity());
+        SetPropertyToNapiObject(env, info, "dbm", infoItem->GetSignalIntensity());
         napi_set_element(env, callbackValue, i, info);
     }
     NapiReturnToJS(env, infoListUpdateInfo->callbackRef, callbackValue, lock);
