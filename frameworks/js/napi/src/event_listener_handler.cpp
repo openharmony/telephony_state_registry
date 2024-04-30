@@ -70,6 +70,8 @@ int32_t WrapCallState(int32_t callState)
         case (int32_t)Telephony::CallStatus::CALL_STATUS_DISCONNECTED:
         case (int32_t)Telephony::CallStatus::CALL_STATUS_IDLE:
             return static_cast<int32_t>(CallState::CALL_STATE_IDLE);
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_ANSWERED:
+            return static_cast<int32_t>(CallState::CALL_STATE_ANSWERED);
         default:
             return static_cast<int32_t>(CallState::CALL_STATE_UNKNOWN);
     }

@@ -181,14 +181,14 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t slotId, int32_t c
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
-            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+            (record.slotId_ == slotId || record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
             std::u16string phoneNumberStr;
             if (record.IsCanReadCallHistory()) {
                 phoneNumberStr = number;
             } else {
                 phoneNumberStr = Str8ToStr16("");
             }
-            record.telephonyObserver_->OnCallStateUpdated(slotId, callState, phoneNumberStr);
+            record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState, phoneNumberStr);
             result = TELEPHONY_SUCCESS;
         }
     }
@@ -215,9 +215,9 @@ int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
-            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+            (record.slotId_ == slotId || record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
             incomingNumberStr = GetCallIncomingNumberForSlotId(record, slotId);
-            record.telephonyObserver_->OnCallStateUpdated(slotId, callState, incomingNumberStr);
+            record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState, incomingNumberStr);
             result = TELEPHONY_SUCCESS;
         }
     }

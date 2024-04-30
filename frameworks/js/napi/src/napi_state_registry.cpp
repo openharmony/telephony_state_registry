@@ -57,11 +57,6 @@ TelephonyUpdateEventType GetEventType(std::string_view event)
 }
 } // namespace
 
-static inline bool IsValidSlotId(int32_t slotId)
-{
-    return ((slotId >= DEFAULT_SIM_SLOT_ID) && (slotId < SIM_SLOT_COUNT));
-}
-
 static void NativeOn(napi_env env, void *data)
 {
     if (data == nullptr) {
@@ -76,11 +71,6 @@ static void NativeOn(napi_env env, void *data)
         return;
     }
 
-    if (!IsValidSlotId(asyncContext->slotId)) {
-        TELEPHONY_LOGE("NativeOn slotId is invalid");
-        asyncContext->errorCode = ERROR_SLOT_ID_INVALID;
-        return;
-    }
     std::shared_ptr<bool> isDeleting = std::make_shared<bool>(false);
     EventListener listener {
         env,

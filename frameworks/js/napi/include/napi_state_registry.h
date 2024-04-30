@@ -60,11 +60,16 @@ enum class CallState : int32_t {
      * Indicates that a least one call is in the dialing, active, or hold state,
      * and there is no new incoming call ringing or waiting.
      */
-    CALL_STATE_OFFHOOK = 2
+    CALL_STATE_OFFHOOK = 2,
+
+    /**
+     * Indicates that an incoming call is answered.
+     */
+    CALL_STATE_ANSWERED = 3
 };
 
 struct ObserverContext : BaseContext {
-    int32_t slotId = DEFAULT_SIM_SLOT_ID;
+    int32_t slotId = -1;
     TelephonyUpdateEventType eventType = TelephonyUpdateEventType::NONE_EVENT_TYPE;
     int32_t errorCode = 0;
     std::list<EventListener> removeListenerList {};

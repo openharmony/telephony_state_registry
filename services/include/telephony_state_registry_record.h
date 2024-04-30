@@ -39,7 +39,7 @@ public:
     int32_t uid_ = 0;
     pid_t pid_ = 0;
     unsigned int mask_ = 0;
-    int slotId_ = 0;
+    int slotId_ = -1;
     sptr<TelephonyObserverBroker> telephonyObserver_ = nullptr;
 };
 } // namespace Telephony
