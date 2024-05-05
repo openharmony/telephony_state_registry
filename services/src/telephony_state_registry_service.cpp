@@ -168,7 +168,6 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataFlow(int32_t slotId, in
 
 int32_t TelephonyStateRegistryService::UpdateCallState(int32_t slotId, int32_t callState, const std::u16string &number)
 {
-    std::u16string incomingNumberStr = number;
     if (!VerifySlotId(slotId)) {
         TELEPHONY_LOGE("UpdateCallState##VerifySlotId failed ##slotId = %{public}d", slotId);
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
@@ -185,19 +184,19 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t slotId, int32_t c
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
             (record.slotId_ == slotId || record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
-            incomingNumberStr = GetCallIncomingNumberForSlotId(record, slotId);
-            record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState, incomingNumberStr);
+            std::u16string phoneNumber = GetCallIncomingNumberForSlotId(record, slotId);
+            record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState, phoneNumber);
             result = TELEPHONY_SUCCESS;
         }
     }
-    SendCallStateChanged(slotId, callState, incomingNumberStr);
+    SendCallStateChanged(slotId, callState, number);
     return result;
 }
 
 int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
-    int32_t slotId, int32_t callId, int32_t callState, const std::u16string &incomingNumber)
+    int32_t slotId, int32_t callId, int32_t callState, const std::u16string &phoneNumber)
 {
-    return UpdateCallState(slotId, callState, incomingNumber);
+    return UpdateCallState(slotId, callState, phoneNumber);
 }
 
 int32_t TelephonyStateRegistryService::UpdateSimState(int32_t slotId, CardType type, SimState state, LockReason reason)
