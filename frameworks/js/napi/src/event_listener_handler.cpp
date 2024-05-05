@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Huawei Device Co., Ltd.
+ * Copyright (C) 2021-2024 Huawei Device Co., Ltd.
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -575,7 +575,16 @@ void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
                 break;
             }
             work->data = static_cast<void *>(context);
-            uv_queue_work_with_qos(loop, work, [](uv_work_t *) {}, WorkUpdated, uv_qos_default);
+            int32_t resultCode =
+                uv_queue_work_with_qos(loop, work, [](uv_work_t *) {}, WorkUpdated, uv_qos_default);
+            if (resultCode != 0) {
+                delete context;
+                context = nullptr;
+                TELEPHONY_LOGE("HandleCallbackInfoUpdate failed, result: %{public}d", resultCode);
+                delete work;
+                work = nullptr;
+                return;
+            }
         }
     }
 }
@@ -608,7 +617,16 @@ void EventListenerHandler::HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent
             listener->callbackRef = listen.callbackRef;
             listener->isDeleting = listen.isDeleting;
             work->data = static_cast<void *>(listener);
-            uv_queue_work_with_qos(loop, work, [](uv_work_t *) {}, WorkUpdated, uv_qos_default);
+            int32_t retVal =
+                uv_queue_work_with_qos(loop, work, [](uv_work_t *) {}, WorkUpdated, uv_qos_default);
+            if (retVal != 0) {
+                delete listener;
+                listener = nullptr;
+                TELEPHONY_LOGE("HandleCallbackVoidUpdate failed, result: %{public}d", retVal);
+                delete work;
+                work = nullptr;
+                return;
+            }
         }
     }
 }
