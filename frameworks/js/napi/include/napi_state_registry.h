@@ -69,7 +69,7 @@ enum class CallState : int32_t {
 };
 
 struct ObserverContext : BaseContext {
-    int32_t slotId = -1;
+    int32_t slotId = DEFAULT_SIM_SLOT_ID;
     TelephonyUpdateEventType eventType = TelephonyUpdateEventType::NONE_EVENT_TYPE;
     int32_t errorCode = 0;
     std::list<EventListener> removeListenerList {};
