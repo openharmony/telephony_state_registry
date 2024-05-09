@@ -456,7 +456,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     TelephonyStateRegistryRecord record;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         record = stateRecords_[i];
-        if (record.slotId_ == slotId && record.mask_ == mask && record.tokenId_ == tokenId) {
+        if (record.slotId_ == slotId && record.mask_ == mask && record.tokenId_ == tokenId && record.pid_ == pid) {
             isExist = true;
             break;
         }
@@ -481,7 +481,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     return TELEPHONY_SUCCESS;
 }
 
-int32_t TelephonyStateRegistryService::UnregisterStateChange(int32_t slotId, uint32_t mask, int32_t tokenId)
+int32_t TelephonyStateRegistryService::UnregisterStateChange(int32_t slotId, uint32_t mask, int32_t tokenId, pid_t pid)
 {
     if (!CheckCallerIsSystemApp(mask)) {
         return TELEPHONY_ERR_ILLEGAL_USE_OF_SYSTEM_API;
@@ -493,7 +493,7 @@ int32_t TelephonyStateRegistryService::UnregisterStateChange(int32_t slotId, uin
     int32_t result = TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST;
     std::vector<TelephonyStateRegistryRecord>::iterator it;
     for (it = stateRecords_.begin(); it != stateRecords_.end(); ++it) {
-        if (it->slotId_ == slotId && it->mask_ == mask && it->tokenId_ == tokenId) {
+        if (it->slotId_ == slotId && it->mask_ == mask && it->tokenId_ == tokenId && it->pid_ == pid) {
             stateRecords_.erase(it);
             result = TELEPHONY_SUCCESS;
             break;

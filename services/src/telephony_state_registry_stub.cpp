@@ -390,7 +390,7 @@ int32_t TelephonyStateRegistryStub::RegisterStateChange(const sptr<TelephonyObse
 int32_t TelephonyStateRegistryStub::UnregisterStateChange(int32_t slotId, uint32_t mask)
 {
     int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
-    return UnregisterStateChange(slotId, mask, tokenId);
+    return UnregisterStateChange(slotId, mask, tokenId, IPCSkeleton::GetCallingPid());
 }
 } // namespace Telephony
 } // namespace OHOS

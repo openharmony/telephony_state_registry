@@ -979,22 +979,24 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_003, Function | Me
     EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR));
     uint32_t mask = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
     int32_t tokenId = 123456789;
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, tokenId));
+    pid_t pid = 1234;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, tokenId, pid));
     mask = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, tokenId));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UnregisterStateChange(0, mask, tokenId, pid));
 
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
     service->stateRecords_[0].tokenId_ = 123456789;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UnregisterStateChange(0, 0, tokenId));
+    service->stateRecords_[0].pid_ = 1234;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UnregisterStateChange(0, 0, tokenId, pid));
     service->stateRecords_[0].tokenId_ = 123456788;
-    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId));
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId, pid));
     service->stateRecords_[0].tokenId_ = -1;
-    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId));
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId, pid));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
-    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId));
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId, pid));
     service->stateRecords_[0].slotId_ = 1;
-    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId));
+    EXPECT_EQ(TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST, service->UnregisterStateChange(0, 0, tokenId, pid));
 }
 
 /**
