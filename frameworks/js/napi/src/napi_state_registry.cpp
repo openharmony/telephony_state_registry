@@ -57,9 +57,13 @@ TelephonyUpdateEventType GetEventType(std::string_view event)
 }
 } // namespace
 
-static inline bool IsValidSlotId(int32_t slotId)
+static inline bool IsValidSlotId(TelephonyUpdateEventType eventType, int32_t slotId)
 {
-    return ((slotId >= -1) && (slotId < SIM_SLOT_COUNT));
+    int32_t defaultSlotId = DEFAULT_SIM_SLOT_ID;
+    if (eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) {
+        defaultSlotId = -1;
+    }
+    return ((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT));
 }
 
 static void NativeOn(napi_env env, void *data)
@@ -76,7 +80,7 @@ static void NativeOn(napi_env env, void *data)
         return;
     }
 
-    if (!IsValidSlotId(asyncContext->slotId)) {
+    if (!IsValidSlotId(asyncContext->eventType, asyncContext->slotId)) {
         TELEPHONY_LOGE("NativeOn slotId is invalid");
         asyncContext->errorCode = ERROR_SLOT_ID_INVALID;
         return;
