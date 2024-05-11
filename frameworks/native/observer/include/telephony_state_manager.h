@@ -66,6 +66,10 @@ enum class CallStatus {
      * Indicates the call is idle.
      */
     CALL_STATUS_IDLE,
+    /**
+     * Indicates the call is answered.
+     */
+    CALL_STATUS_ANSWERED,
 };
 
 class TelephonyObserverBroker;

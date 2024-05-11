@@ -60,7 +60,12 @@ enum class CallState : int32_t {
      * Indicates that a least one call is in the dialing, active, or hold state,
      * and there is no new incoming call ringing or waiting.
      */
-    CALL_STATE_OFFHOOK = 2
+    CALL_STATE_OFFHOOK = 2,
+
+    /**
+     * Indicates that an incoming call is answered.
+     */
+    CALL_STATE_ANSWERED = 3
 };
 
 struct ObserverContext : BaseContext {

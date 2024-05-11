@@ -177,18 +177,15 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t slotId, int32_t c
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     std::lock_guard<std::mutex> guard(lock_);
+    callState_[slotId] = callState;
+    callIncomingNumber_[slotId] = number;
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
-            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
-            std::u16string phoneNumberStr;
-            if (record.IsCanReadCallHistory()) {
-                phoneNumberStr = number;
-            } else {
-                phoneNumberStr = Str8ToStr16("");
-            }
-            record.telephonyObserver_->OnCallStateUpdated(slotId, callState, phoneNumberStr);
+            (record.slotId_ == slotId || record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
+            std::u16string phoneNumber = GetCallIncomingNumberForSlotId(record, slotId);
+            record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState, phoneNumber);
             result = TELEPHONY_SUCCESS;
         }
     }
@@ -197,32 +194,9 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t slotId, int32_t c
 }
 
 int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
-    int32_t slotId, int32_t callId, int32_t callState, const std::u16string &incomingNumber)
+    int32_t slotId, int32_t callId, int32_t callState, const std::u16string &phoneNumber)
 {
-    std::u16string incomingNumberStr = incomingNumber;
-    if (!VerifySlotId(slotId)) {
-        TELEPHONY_LOGE("UpdateCallStateForSlotId##VerifySlotId failed ##slotId = %{public}d", slotId);
-        return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
-    }
-    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
-        TELEPHONY_LOGE("Check permission failed.");
-        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
-    }
-    std::lock_guard<std::mutex> guard(lock_);
-    callState_[slotId] = callState;
-    callIncomingNumber_[slotId] = incomingNumber;
-    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
-    for (size_t i = 0; i < stateRecords_.size(); i++) {
-        TelephonyStateRegistryRecord record = stateRecords_[i];
-        if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
-            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
-            incomingNumberStr = GetCallIncomingNumberForSlotId(record, slotId);
-            record.telephonyObserver_->OnCallStateUpdated(slotId, callState, incomingNumberStr);
-            result = TELEPHONY_SUCCESS;
-        }
-    }
-    SendCallStateChanged(slotId, callState, incomingNumberStr);
-    return result;
+    return UpdateCallState(slotId, callState, phoneNumber);
 }
 
 int32_t TelephonyStateRegistryService::UpdateSimState(int32_t slotId, CardType type, SimState state, LockReason reason)
