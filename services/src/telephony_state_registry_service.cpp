@@ -352,6 +352,10 @@ int32_t TelephonyStateRegistryService::UpdateCfuIndicator(int32_t slotId, bool c
 
 int32_t TelephonyStateRegistryService::UpdateIccAccount()
 {
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
     std::lock_guard<std::mutex> guard(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
