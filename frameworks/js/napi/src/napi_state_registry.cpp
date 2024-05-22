@@ -147,14 +147,15 @@ static napi_value On(napi_env env, napi_callback_info info)
                 NapiValueToCppValue(env, slotId, napi_number, &asyncContext->slotId);
                 TELEPHONY_LOGI("state registry on slotId = %{public}d, eventType = %{public}d", asyncContext->slotId,
                     asyncContext->eventType);
-            } else if (GetEventType(eventType.data()) == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) {
-                TELEPHONY_LOGI("state registry observer has no slotId");
-                asyncContext->slotId = -1;
             }
         }
     } else {
         auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef);
         errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
+        if (GetEventType(eventType.data()) == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) {
+            TELEPHONY_LOGI("state registry observer has no slotId");
+            asyncContext->slotId = -1;
+        }
     }
 
     if (errCode.has_value()) {
