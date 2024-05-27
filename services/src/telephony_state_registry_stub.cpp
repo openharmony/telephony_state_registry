@@ -80,7 +80,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateCallState(MessageParcel &data, Messa
     int32_t ret = UpdateCallState(slotId, callState, phoneNumber);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCallState end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnUpdateSimState(MessageParcel &data, MessageParcel &reply)
@@ -92,7 +92,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateSimState(MessageParcel &data, Messag
     int32_t ret = UpdateSimState(slotId, type, state, reason);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateSimState end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnUpdateCallStateForSlotId(MessageParcel &data, MessageParcel &reply)
@@ -104,7 +104,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateCallStateForSlotId(MessageParcel &da
     int32_t ret = UpdateCallStateForSlotId(slotId, callId, callState, incomingNumber);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCallStateForSlotId end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnUpdateCellularDataConnectState(MessageParcel &data, MessageParcel &reply)
@@ -117,7 +117,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellularDataConnectState(MessageParc
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateCellularDataConnectState end fail##ret=%{public}d", ret);
     }
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnUpdateCellularDataFlow(MessageParcel &data, MessageParcel &reply)
@@ -129,7 +129,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellularDataFlow(MessageParcel &data
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateCellularDataFlow end fail##ret=%{public}d", ret);
     }
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnUpdateSignalInfo(MessageParcel &data, MessageParcel &reply)
@@ -151,7 +151,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateSignalInfo(MessageParcel &data, Mess
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateSignalInfo end fail##ret=%{public}d", ret);
     }
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 void TelephonyStateRegistryStub::parseSignalInfos(
@@ -275,7 +275,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellInfo(MessageParcel &data, Messag
     ret = UpdateCellInfo(slotId, cells);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCellInfo end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnUpdateNetworkState(MessageParcel &data, MessageParcel &reply)
@@ -291,7 +291,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateNetworkState(MessageParcel &data, Me
     ret = UpdateNetworkState(slotId, result);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateNetworkState end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnRegisterStateChange(MessageParcel &data, MessageParcel &reply)
@@ -305,14 +305,14 @@ int32_t TelephonyStateRegistryStub::OnRegisterStateChange(MessageParcel &data, M
     if (ret != TELEPHONY_SUCCESS) {
         reply.WriteInt32(ret);
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnRegisterStateChange ReadData failed");
-        return ret;
+        return NO_ERROR;
     }
     ret = RegisterStateChange(callback, slotId, mask, notifyNow);
     if (ret != TELEPHONY_SUCCESS) {
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnRegisterStateChange end fail##ret=%{public}d", ret);
     }
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnUnregisterStateChange(MessageParcel &data, MessageParcel &reply)
@@ -324,7 +324,7 @@ int32_t TelephonyStateRegistryStub::OnUnregisterStateChange(MessageParcel &data,
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUnregisterStateChange end fail##ret=%{public}d", ret);
     }
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::ReadData(
@@ -355,7 +355,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateCfuIndicator(MessageParcel &data, Me
     int32_t ret = UpdateCfuIndicator(slotId, cfuResult);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCfuIndicator end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnUpdateVoiceMailMsgIndicator(MessageParcel &data, MessageParcel &reply)
@@ -365,7 +365,7 @@ int32_t TelephonyStateRegistryStub::OnUpdateVoiceMailMsgIndicator(MessageParcel 
     int32_t ret = UpdateVoiceMailMsgIndicator(slotId, voiceMailMsgResult);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateVoiceMailMsgIndicator end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::OnIccAccountUpdated(MessageParcel &data, MessageParcel &reply)
@@ -373,7 +373,7 @@ int32_t TelephonyStateRegistryStub::OnIccAccountUpdated(MessageParcel &data, Mes
     int32_t ret = UpdateIccAccount();
     TELEPHONY_LOGI("end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
-    return ret;
+    return NO_ERROR;
 }
 
 int32_t TelephonyStateRegistryStub::RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver,
