@@ -83,6 +83,7 @@ private:
     static void WorkCfuIndicatorUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
     static void WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
     static void WorkIccAccountUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void CallBackByFFRT(std::function<void()> &&func);
 
     template<typename T, typename D, TelephonyUpdateEventType eventType>
     void HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent::Pointer &event);
