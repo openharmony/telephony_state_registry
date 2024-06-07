@@ -381,7 +381,7 @@ int32_t EventListenerHandler::RegisterEventListener(EventListener &eventListener
         }
         int32_t addResult = TelephonyStateManager::AddStateObserver(
             observer, eventListener.slotId, ToUint32t(eventListener.eventType),
-                eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE);
+            eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE);
         if (addResult != TELEPHONY_SUCCESS) {
             TELEPHONY_LOGE("AddStateObserver failed, ret=%{public}d!", addResult);
             return addResult;
