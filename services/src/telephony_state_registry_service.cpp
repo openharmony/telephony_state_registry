@@ -179,6 +179,9 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t slotId, int32_t c
     std::lock_guard<std::mutex> guard(lock_);
     callState_[slotId] = callState;
     callIncomingNumber_[slotId] = number;
+    // -1 means observe all slot
+    callState_[-1] = callState;
+    callIncomingNumber_[-1] = number;
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -451,7 +454,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
         stateRecords_.push_back(record);
     }
 
-    if (isUpdate && VerifySlotId(slotId)) {
+    if (isUpdate) {
         UpdateData(record);
     }
     TELEPHONY_LOGD("[slot%{public}d] Register successfully, callback list size is %{public}zu", slotId,
