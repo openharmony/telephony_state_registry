@@ -183,7 +183,7 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
             (record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
             std::u16string phoneNumber;
-            if (record.IsCanReadCallHistory) {
+            if (record.IsCanReadCallHistory()) {
                 phoneNumber = number;
             } else {
                 phoneNumber = Str8ToStr16("");
