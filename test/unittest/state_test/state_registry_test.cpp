@@ -140,7 +140,7 @@ void StateRegistryTest::UpdateCallState(int32_t slotId)
     std::string phoneNumber("137xxxxxxxx");
     std::u16string number = Str8ToStr16(phoneNumber);
     int32_t ret =
-        DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCallState(slotId, callState, number);
+        DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCallState(callState, number);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCallState ret = %{public}d", ret);
     EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
 }
@@ -149,11 +149,10 @@ void StateRegistryTest::UpdateCallStateForSlotId(int32_t slotId)
 {
     AccessToken token;
     int32_t callState = 16;
-    int32_t callId = 0;
     std::string phoneNumber("137xxxxxxxx");
     std::u16string number = Str8ToStr16(phoneNumber);
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCallStateForSlotId(
-        slotId, callId, callState, number);
+        slotId, callState, number);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCallStateForSlotId ret = %{public}d", ret);
     EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
 }
@@ -1076,10 +1075,10 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_005, Function | Me
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateSimState(invalidSlotId, type, state, reason));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateSimState(0, type, state, reason));
     std::u16string number = u"123";
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCallStateForSlotId(invalidSlotId, 0, 0, number));
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCallStateForSlotId(0, 0, 0, number));
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCallState(invalidSlotId, 0, number));
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCallState(0, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCallStateForSlotId(invalidSlotId, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCallStateForSlotId(0, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCallState(0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCallState(0, number));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCellularDataFlow(invalidSlotId, 0));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCellularDataFlow(0, 0));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCellularDataConnectState(invalidSlotId, 0, 0));
@@ -1105,7 +1104,7 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
     service->stateRecords_.push_back(record);
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellularDataConnectState(0, 0, 0));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellularDataFlow(0, 0));
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, number));
     CardType type = CardType::UNKNOWN_CARD;
     SimState state = SimState::SIM_STATE_UNKNOWN;
     LockReason reason = LockReason::SIM_NONE;
@@ -1118,8 +1117,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellularDataFlow(0, 0));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE;
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallState(0, 0, number));
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, 0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallState(0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, number));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateSimState(0, type, state, reason));
 
@@ -1129,8 +1128,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
     EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCellularDataFlow(0, 0));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallState(0, 0, number));
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallStateForSlotId(0, 0, 0, number));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallState(0, number));
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallStateForSlotId(0, 0, number));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
     EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateSimState(0, type, state, reason));
 }
