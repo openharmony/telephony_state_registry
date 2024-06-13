@@ -74,10 +74,9 @@ int32_t TelephonyStateRegistryStub::OnRemoteRequest(
 
 int32_t TelephonyStateRegistryStub::OnUpdateCallState(MessageParcel &data, MessageParcel &reply)
 {
-    int32_t slotId = data.ReadInt32();
     int32_t callState = data.ReadInt32();
     std::u16string phoneNumber = data.ReadString16();
-    int32_t ret = UpdateCallState(slotId, callState, phoneNumber);
+    int32_t ret = UpdateCallState(callState, phoneNumber);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCallState end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
     return NO_ERROR;
@@ -98,10 +97,9 @@ int32_t TelephonyStateRegistryStub::OnUpdateSimState(MessageParcel &data, Messag
 int32_t TelephonyStateRegistryStub::OnUpdateCallStateForSlotId(MessageParcel &data, MessageParcel &reply)
 {
     int32_t slotId = data.ReadInt32();
-    int32_t callId = data.ReadInt32();
     int32_t callState = data.ReadInt32();
     std::u16string incomingNumber = data.ReadString16();
-    int32_t ret = UpdateCallStateForSlotId(slotId, callId, callState, incomingNumber);
+    int32_t ret = UpdateCallStateForSlotId(slotId, callState, incomingNumber);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCallStateForSlotId end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
     return NO_ERROR;
