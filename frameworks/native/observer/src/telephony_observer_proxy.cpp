@@ -87,7 +87,7 @@ void TelephonyObserverProxy::OnSignalInfoUpdated(
         return;
     }
     int32_t size = static_cast<int32_t>(vec.size());
-    if (size <= 0 || size > SignalInformation::MAX_SIGNAL_NUM) {
+    if (size < 0 || size > SignalInformation::MAX_SIGNAL_NUM) {
         TELEPHONY_LOGE("TelephonyObserverProxy::OnSignalInfoUpdated size error!");
         return;
     }

@@ -139,9 +139,9 @@ int32_t TelephonyStateRegistryStub::OnUpdateSignalInfo(MessageParcel &data, Mess
     int32_t size = data.ReadInt32();
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateSignalInfo size=%{public}d", size);
     size = ((size > SignalInformation::MAX_SIGNAL_NUM) ? 0 : size);
-    if (size <= 0) {
+    if (size < 0) {
         ret = TELEPHONY_ERR_FAIL;
-        TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateSignalInfo size <= 0");
+        TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateSignalInfo size < 0");
         return ret;
     }
     std::vector<sptr<SignalInformation>> result;
