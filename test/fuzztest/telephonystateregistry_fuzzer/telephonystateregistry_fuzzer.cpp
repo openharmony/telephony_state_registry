@@ -148,11 +148,9 @@ void UpdateCallState(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
     int32_t callState = static_cast<int32_t>(size);
     std::string phoneNumber(reinterpret_cast<const char *>(data), size);
     MessageParcel dataMessageParcel;
-    dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteInt32(callState);
     dataMessageParcel.WriteString16(Str8ToStr16(phoneNumber));
     dataMessageParcel.RewindRead(0);
@@ -166,12 +164,10 @@ void UpdateCallStateForSlotId(const uint8_t *data, size_t size)
         return;
     }
     int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
-    int32_t callId = static_cast<int32_t>(size);
     int32_t callState = static_cast<int32_t>(size);
     std::string incomingNumber(reinterpret_cast<const char *>(data), size);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
-    dataMessageParcel.WriteInt32(callId);
     dataMessageParcel.WriteInt32(callState);
     dataMessageParcel.WriteString16(Str8ToStr16(incomingNumber));
     dataMessageParcel.RewindRead(0);

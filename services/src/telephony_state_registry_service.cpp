@@ -50,6 +50,7 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
     for (int32_t i = 0; i < slotSize_; i++) {
         callState_[i] = static_cast<int32_t>(CallStatus::CALL_STATUS_UNKNOWN);
     }
+    callState_[-1] = static_cast<int32_t>(CallStatus::CALL_STATUS_UNKNOWN);
 }
 
 TelephonyStateRegistryService::~TelephonyStateRegistryService()
@@ -166,7 +167,37 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataFlow(int32_t slotId, in
     return result;
 }
 
-int32_t TelephonyStateRegistryService::UpdateCallState(int32_t slotId, int32_t callState, const std::u16string &number)
+int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const std::u16string &number)
+{
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
+    std::lock_guard<std::mutex> guard(lock_);
+    // -1 means observe all slot
+    callState_[-1] = callState;
+    callIncomingNumber_[-1] = number;
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    for (size_t i = 0; i < stateRecords_.size(); i++) {
+        TelephonyStateRegistryRecord record = stateRecords_[i];
+        if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
+            (record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
+            std::u16string phoneNumber;
+            if (record.IsCanReadCallHistory()) {
+                phoneNumber = number;
+            } else {
+                phoneNumber = Str8ToStr16("");
+            }
+            record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState, phoneNumber);
+            result = TELEPHONY_SUCCESS;
+        }
+    }
+    SendCallStateChanged(-1, callState, number);
+    return result;
+}
+
+int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
+    int32_t slotId, int32_t callState, const std::u16string &number)
 {
     if (!VerifySlotId(slotId)) {
         TELEPHONY_LOGE("UpdateCallState##VerifySlotId failed ##slotId = %{public}d", slotId);
@@ -179,27 +210,18 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t slotId, int32_t c
     std::lock_guard<std::mutex> guard(lock_);
     callState_[slotId] = callState;
     callIncomingNumber_[slotId] = number;
-    // -1 means observe all slot
-    callState_[-1] = callState;
-    callIncomingNumber_[-1] = number;
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) &&
-            (record.slotId_ == slotId || record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
+            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
             std::u16string phoneNumber = GetCallIncomingNumberForSlotId(record, slotId);
-            record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState, phoneNumber);
+            record.telephonyObserver_->OnCallStateUpdated(slotId, callState, phoneNumber);
             result = TELEPHONY_SUCCESS;
         }
     }
     SendCallStateChanged(slotId, callState, number);
     return result;
-}
-
-int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
-    int32_t slotId, int32_t callId, int32_t callState, const std::u16string &phoneNumber)
-{
-    return UpdateCallState(slotId, callState, phoneNumber);
 }
 
 int32_t TelephonyStateRegistryService::UpdateSimState(int32_t slotId, CardType type, SimState state, LockReason reason)

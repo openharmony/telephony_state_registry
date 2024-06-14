@@ -47,9 +47,9 @@ public:
     std::string GetBindSpendTime();
     int32_t UpdateCellularDataConnectState(int32_t slotId, int32_t dataState, int32_t networkType) override;
     int32_t UpdateCellularDataFlow(int32_t slotId, int32_t dataFlowType) override;
-    int32_t UpdateCallState(int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
+    int32_t UpdateCallState(int32_t callState, const std::u16string &number) override;
     int32_t UpdateCallStateForSlotId(
-        int32_t slotId, int32_t callId, int32_t callState, const std::u16string &phoneNumber) override;
+        int32_t slotId, int32_t callState, const std::u16string &number) override;
     int32_t UpdateSignalInfo(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec) override;
     int32_t UpdateNetworkState(int32_t slotId, const sptr<NetworkState> &networkState) override;
     int32_t UpdateSimState(int32_t slotId, CardType type, SimState state, LockReason reason) override;
