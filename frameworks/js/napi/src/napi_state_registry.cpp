@@ -57,13 +57,14 @@ TelephonyUpdateEventType GetEventType(std::string_view event)
 }
 } // namespace
 
-static inline bool IsValidSlotId(TelephonyUpdateEventType eventType, int32_t slotId)
+static inline bool IsValidSlotIdEx(TelephonyUpdateEventType eventType, int32_t slotId)
 {
     int32_t defaultSlotId = DEFAULT_SIM_SLOT_ID;
     if (eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) {
         defaultSlotId = -1;
     }
-    return ((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT));
+    // One more slot for VSim.
+    return ((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT + 1));
 }
 
 static void NativeOn(napi_env env, void *data)
@@ -80,7 +81,7 @@ static void NativeOn(napi_env env, void *data)
         return;
     }
 
-    if (!IsValidSlotId(asyncContext->eventType, asyncContext->slotId)) {
+    if (!IsValidSlotIdEx(asyncContext->eventType, asyncContext->slotId)) {
         TELEPHONY_LOGE("NativeOn slotId is invalid");
         asyncContext->errorCode = ERROR_SLOT_ID_INVALID;
         return;
