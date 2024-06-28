@@ -18,7 +18,6 @@
 #include <cinttypes>
 
 #include "event_listener_manager.h"
-#include "ffrt.h"
 #include "inner_event.h"
 #include "napi_parameter_util.h"
 #include "napi_radio_types.h"
@@ -544,16 +543,6 @@ bool EventListenerHandler::IsCallBackRegister(napi_env env, napi_ref ref, napi_r
     return result;
 }
 
-void EventListenerHandler::CallBackByFFRT(std::function<void()> &&func)
-{
-    ffrt_queue_t queueHandle = ffrt_get_main_queue();
-    ffrt_task_handle_t task =
-        ffrt_queue_submit_h(queueHandle, ffrt::create_function_wrapper(func, ffrt_function_kind_queue), nullptr);
-    ffrt_task_handle_destroy(task);
-    ffrt_queue_destroy(queueHandle);
-    TELEPHONY_LOGD("EventListenerHandler - CallBackByFFRT complete");
-}
-
 template<typename T, typename D, TelephonyUpdateEventType eventType>
 void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent::Pointer &event)
 {
@@ -589,10 +578,16 @@ void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
                 break;
             }
             work->data = static_cast<void *>(context);
-            CallBackByFFRT([work]() {
-                TELEPHONY_LOGD("HandleCallbackInfoUpdate - Go WorkUpdated");
-                WorkUpdated(work, 0);
-            });
+            int32_t resultCode =
+                uv_queue_work_with_qos(loop, work, [](uv_work_t *) {}, WorkUpdated, uv_qos_default);
+            if (resultCode != 0) {
+                delete context;
+                context = nullptr;
+                TELEPHONY_LOGE("HandleCallbackInfoUpdate failed, result: %{public}d", resultCode);
+                delete work;
+                work = nullptr;
+                return;
+            }
         }
     }
 }
