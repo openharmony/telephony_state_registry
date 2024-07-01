@@ -163,12 +163,13 @@ napi_status NapiReturnToJS(
     return status;
 }
 
-napi_value SignalInfoConversion(napi_env env, int32_t type, int32_t level)
+napi_value SignalInfoConversion(napi_env env, int32_t type, int32_t level, int32_t signalIntensity)
 {
     napi_value val = nullptr;
     napi_create_object(env, &val);
     SetPropertyToNapiObject(env, val, "signalType", type);
     SetPropertyToNapiObject(env, val, "signalLevel", level);
+    SetPropertyToNapiObject(env, val, "dBm", signalIntensity);
     return val;
 }
 
@@ -235,7 +236,7 @@ napi_value CellInfoConversion(napi_env env, const CellInformation &info)
     SetPropertyToNapiObject(env, val, "isCamped", info.GetIsCamped());
     SetPropertyToNapiObject(env, val, "timeStamp", static_cast<int64_t>(info.GetTimeStamp()));
     SetPropertyToNapiObject(env, val, "signalInformation",
-        SignalInfoConversion(env, static_cast<int32_t>(networkType), info.GetSignalLevel()));
+        SignalInfoConversion(env, static_cast<int32_t>(networkType), info.GetSignalLevel(), info.GetSignalIntensity()));
 
     switch (networkType) {
         case CellInformation::CellType::CELL_TYPE_GSM:
