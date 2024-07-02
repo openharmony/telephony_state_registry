@@ -121,7 +121,7 @@ public:
     virtual void OnIccAccountUpdated() override;
 
 private:
-    using TelephonyObserverFunc = void (TelephonyObserver::*)(MessageParcel &data, MessageParcel &reply);
+    using TelephonyObserverFunc = std::function<void(MessageParcel &data, MessageParcel &reply)>;
 
     void ConvertSignalInfoList(MessageParcel &data, std::vector<sptr<SignalInformation>> &signalInfos);
     void ConvertLteNrSignalInfoList(

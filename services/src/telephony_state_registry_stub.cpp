@@ -26,23 +26,32 @@ namespace OHOS {
 namespace Telephony {
 TelephonyStateRegistryStub::TelephonyStateRegistryStub()
 {
-    memberFuncMap_[StateNotifyInterfaceCode::CELL_INFO] = &TelephonyStateRegistryStub::OnUpdateCellInfo;
-    memberFuncMap_[StateNotifyInterfaceCode::SIM_STATE] = &TelephonyStateRegistryStub::OnUpdateSimState;
-    memberFuncMap_[StateNotifyInterfaceCode::SIGNAL_INFO] = &TelephonyStateRegistryStub::OnUpdateSignalInfo;
-    memberFuncMap_[StateNotifyInterfaceCode::NET_WORK_STATE] = &TelephonyStateRegistryStub::OnUpdateNetworkState;
-    memberFuncMap_[StateNotifyInterfaceCode::CALL_STATE] = &TelephonyStateRegistryStub::OnUpdateCallState;
+    memberFuncMap_[StateNotifyInterfaceCode::CELL_INFO] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateCellInfo(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::SIM_STATE] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateSimState(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::SIGNAL_INFO] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateSignalInfo(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::NET_WORK_STATE] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateNetworkState(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::CALL_STATE] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateCallState(data, reply); };
     memberFuncMap_[StateNotifyInterfaceCode::CALL_STATE_FOR_ID] =
-        &TelephonyStateRegistryStub::OnUpdateCallStateForSlotId;
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateCallStateForSlotId(data, reply); };
     memberFuncMap_[StateNotifyInterfaceCode::CELLULAR_DATA_STATE] =
-        &TelephonyStateRegistryStub::OnUpdateCellularDataConnectState;
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateCellularDataConnectState(data, reply); };
     memberFuncMap_[StateNotifyInterfaceCode::CELLULAR_DATA_FLOW] =
-        &TelephonyStateRegistryStub::OnUpdateCellularDataFlow;
-    memberFuncMap_[StateNotifyInterfaceCode::ADD_OBSERVER] = &TelephonyStateRegistryStub::OnRegisterStateChange;
-    memberFuncMap_[StateNotifyInterfaceCode::REMOVE_OBSERVER] = &TelephonyStateRegistryStub::OnUnregisterStateChange;
-    memberFuncMap_[StateNotifyInterfaceCode::CFU_INDICATOR] = &TelephonyStateRegistryStub::OnUpdateCfuIndicator;
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateCellularDataFlow(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::ADD_OBSERVER] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnRegisterStateChange(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::REMOVE_OBSERVER] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUnregisterStateChange(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::CFU_INDICATOR] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateCfuIndicator(data, reply); };
     memberFuncMap_[StateNotifyInterfaceCode::VOICE_MAIL_MSG_INDICATOR] =
-        &TelephonyStateRegistryStub::OnUpdateVoiceMailMsgIndicator;
-    memberFuncMap_[StateNotifyInterfaceCode::ICC_ACCOUNT_CHANGE] = &TelephonyStateRegistryStub::OnIccAccountUpdated;
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateVoiceMailMsgIndicator(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::ICC_ACCOUNT_CHANGE] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnIccAccountUpdated(data, reply); };
 }
 
 TelephonyStateRegistryStub::~TelephonyStateRegistryStub()
@@ -64,7 +73,7 @@ int32_t TelephonyStateRegistryStub::OnRemoteRequest(
     if (itFunc != memberFuncMap_.end()) {
         auto memberFunc = itFunc->second;
         if (memberFunc != nullptr) {
-            return (this->*memberFunc)(data, reply);
+            return memberFunc(data, reply);
         }
     }
     int ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);

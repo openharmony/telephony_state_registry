@@ -50,25 +50,25 @@ void TelephonyObserver::OnIccAccountUpdated() {}
 TelephonyObserver::TelephonyObserver()
 {
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_UPDATED)] =
-        &TelephonyObserver::OnCallStateUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnCallStateUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_SIGNAL_INFO_UPDATED)] =
-        &TelephonyObserver::OnSignalInfoUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnSignalInfoUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CELL_INFO_UPDATED)] =
-        &TelephonyObserver::OnCellInfoUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnCellInfoUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_NETWORK_STATE_UPDATED)] =
-        &TelephonyObserver::OnNetworkStateUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnNetworkStateUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_SIM_STATE_UPDATED)] =
-        &TelephonyObserver::OnSimStateUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnSimStateUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_CONNECT_STATE_UPDATED)] =
-        &TelephonyObserver::OnCellularDataConnectStateUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnCellularDataConnectStateUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED)] =
-        &TelephonyObserver::OnCellularDataFlowUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnCellularDataFlowUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CFU_INDICATOR_UPDATED)] =
-        &TelephonyObserver::OnCfuIndicatorUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnCfuIndicatorUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_VOICE_MAIL_MSG_INDICATOR_UPDATED)] =
-        &TelephonyObserver::OnVoiceMailMsgIndicatorUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnVoiceMailMsgIndicatorUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_ICC_ACCOUNT_UPDATED)] =
-        &TelephonyObserver::OnIccAccountUpdatedInner;
+        [this](MessageParcel &data, MessageParcel &reply) { OnIccAccountUpdatedInner(data, reply); };
 }
 
 TelephonyObserver::~TelephonyObserver()
@@ -88,7 +88,7 @@ int32_t TelephonyObserver::OnRemoteRequest(
     if (itFunc != memberFuncMap_.end()) {
         auto memberFunc = itFunc->second;
         if (memberFunc != nullptr) {
-            (this->*memberFunc)(data, reply);
+            memberFunc(data, reply);
             return OHOS::NO_ERROR;
         }
     }
