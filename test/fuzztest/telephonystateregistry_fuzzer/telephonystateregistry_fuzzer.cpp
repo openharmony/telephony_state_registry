@@ -181,9 +181,12 @@ void CreateGsmSignalInfo(std::unique_ptr<GsmSignalInformation> &signal, const ui
     if (signal == nullptr) {
         return;
     }
-    signal->signalBar_ = static_cast<int32_t>(size);
-    signal->gsmRxlev_ = static_cast<int32_t>(size);
-    signal->gsmBer_ = static_cast<int32_t>(size);
+    int32_t offset = 0;
+    signal->signalBar_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->gsmRxlev_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->gsmBer_ = static_cast<int32_t>(*data + offset);
 }
 
 void CreateCDMASignalInfo(std::unique_ptr<CdmaSignalInformation> &signal, const uint8_t *data, size_t size)
@@ -191,9 +194,12 @@ void CreateCDMASignalInfo(std::unique_ptr<CdmaSignalInformation> &signal, const 
     if (signal == nullptr) {
         return;
     }
-    signal->signalBar_ = static_cast<int32_t>(size);
-    signal->cdmaRssi_ = static_cast<int32_t>(size);
-    signal->cdmaEcno_ = static_cast<int32_t>(size);
+    int32_t offset = 0;
+    signal->signalBar_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->cdmaRssi_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->cdmaEcno_ = static_cast<int32_t>(*data + offset);
 }
 
 void CreateLTESignalInfo(std::unique_ptr<LteSignalInformation> &signal, const uint8_t *data, size_t size)
@@ -201,11 +207,16 @@ void CreateLTESignalInfo(std::unique_ptr<LteSignalInformation> &signal, const ui
     if (signal == nullptr) {
         return;
     }
-    signal->signalBar_ = static_cast<int32_t>(size);
-    signal->rxlev_ = static_cast<int32_t>(size);
-    signal->lteRsrp_ = static_cast<int32_t>(size);
-    signal->lteRsrq_ = static_cast<int32_t>(size);
-    signal->lteSnr_ = static_cast<int32_t>(size);
+    int32_t offset = 0;
+    signal->signalBar_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->rxlev_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->lteRsrp_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->lteRsrq_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->lteSnr_ = static_cast<int32_t>(*data + offset);
 }
 
 void CreateWCDMASignalInfo(std::unique_ptr<WcdmaSignalInformation> &signal, const uint8_t *data, size_t size)
@@ -213,11 +224,16 @@ void CreateWCDMASignalInfo(std::unique_ptr<WcdmaSignalInformation> &signal, cons
     if (signal == nullptr) {
         return;
     }
-    signal->signalBar_ = static_cast<int32_t>(size);
-    signal->wcdmaRxlev_ = static_cast<int32_t>(size);
-    signal->wcdmaRscp_ = static_cast<int32_t>(size);
-    signal->wcdmaEcio_ = static_cast<int32_t>(size);
-    signal->wcdmaBer_ = static_cast<int32_t>(size);
+    int32_t offset = 0;
+    signal->signalBar_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->wcdmaRxlev_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->wcdmaRscp_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->wcdmaEcio_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->wcdmaBer_ = static_cast<int32_t>(*data + offset);
 }
 
 void CreateNRSignalInfo(std::unique_ptr<NrSignalInformation> &signal, const uint8_t *data, size_t size)
@@ -225,10 +241,14 @@ void CreateNRSignalInfo(std::unique_ptr<NrSignalInformation> &signal, const uint
     if (signal == nullptr) {
         return;
     }
-    signal->signalBar_ = static_cast<int32_t>(size);
-    signal->nrRsrp_ = static_cast<int32_t>(size);
-    signal->nrRsrq_ = static_cast<int32_t>(size);
-    signal->nrSinr_ = static_cast<int32_t>(size);
+    int32_t offset = 0;
+    signal->signalBar_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->nrRsrp_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->nrRsrq_ = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    signal->nrSinr_ = static_cast<int32_t>(*data + offset);
 }
 
 void UpdateLteNrSignalInfo(const uint8_t *data, size_t size, MessageParcel &dataMessageParcel,
@@ -342,8 +362,10 @@ void UpdateCellularDataConnectState(const uint8_t *data, size_t size)
         return;
     }
     int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
-    int32_t dataState = static_cast<int32_t>(size);
-    int32_t networkType = static_cast<int32_t>(size);
+    int32_t offset = 0;
+    int32_t dataState = static_cast<int32_t>(*data + offset);
+    offset += sizeof(int32_t);
+    int32_t networkType = static_cast<int32_t>(*data + offset);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteInt32(dataState);
