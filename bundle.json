@@ -40,7 +40,8 @@
                 "ipc",
                 "napi",
                 "safwk",
-                "samgr"
+                "samgr",
+                "access_token"
             ],
             "third_party": [
                 "libuv"

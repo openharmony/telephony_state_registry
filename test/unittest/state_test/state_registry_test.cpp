@@ -937,7 +937,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_002, Function | Me
     vec.push_back(std::make_unique<LteSignalInformation>().release());
     service->SendSignalInfoChanged(0, vec);
     std::u16string number = u"123456";
-    service->SendCallStateChanged(0, 0, number);
+    service->SendCallStateChanged(0, 0);
+    service->SendCallStateChangedAsUserMultiplePermission(0, 0, number);
     TelephonyStateRegistryRecord record;
     service->UpdateData(record);
     record.telephonyObserver_ = std::make_unique<TelephonyObserver>().release();
