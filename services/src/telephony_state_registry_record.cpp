@@ -17,12 +17,15 @@
 
 #include "telephony_permission.h"
 #include "telephony_log_wrapper.h"
+#include "accesstoken_kit.h"
+#include "access_token.h"
 
 namespace OHOS {
 namespace Telephony {
+using namespace OHOS::Security::AccessToken;
 bool TelephonyStateRegistryRecord::IsCanReadCallHistory()
 {
-    if (!TelephonyPermission::CheckPermission(Permission::READ_CALL_LOG)) {
+    if (AccessTokenKit::VerifyAccessToken(tokenId_, Permission::READ_CALL_LOG) == PERMISSION_DENIED) {
         return false;
     }
     return true;

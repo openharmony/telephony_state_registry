@@ -79,7 +79,8 @@ private:
     bool VerifySlotId(int32_t slotId);
     std::u16string GetCallIncomingNumberForSlotId(TelephonyStateRegistryRecord record, int32_t slotId);
     bool PublishCommonEvent(const AAFwk::Want &want, int32_t eventCode, const std::string &eventData);
-    void SendCallStateChanged(int32_t slotId, int32_t state, const std::u16string &number);
+    void SendCallStateChanged(int32_t slotId, int32_t state);
+    void SendCallStateChangedAsUserMultiplePermission(int32_t slotId, int32_t state, const std::u16string &number);
     void SendSignalInfoChanged(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec);
     void SendNetworkStateChanged(int32_t slotId, const sptr<NetworkState> &networkState);
     void SendSimStateChanged(int32_t slotId, CardType type, SimState state, LockReason reason);
