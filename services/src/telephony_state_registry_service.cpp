@@ -193,7 +193,7 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
         }
     }
     SendCallStateChanged(-1, callState);
-    SendCallStateChangedAsUserMultiplePermission(-1, callState, phoneNumber);
+    SendCallStateChangedAsUserMultiplePermission(-1, callState, number);
     return result;
 }
 
