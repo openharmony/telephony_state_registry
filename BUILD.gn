@@ -42,6 +42,7 @@ ohos_shared_library("tel_state_registry") {
 
   external_deps = [
     "ability_base:want",
+    "access_token:libaccesstoken_sdk",
     "c_utils:utils",
     "common_event_service:cesfwk_innerkits",
     "core_service:libtel_common",
@@ -51,7 +52,6 @@ ohos_shared_library("tel_state_registry") {
     "ipc:ipc_core",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
-    "access_token:libaccesstoken_sdk",
   ]
 
   defines = [
