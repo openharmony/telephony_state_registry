@@ -88,7 +88,7 @@ void TelephonyStateRegistryService::OnStart()
         if (IsCommonEventServiceAbilityExist()) {
             for (int32_t i = 0; i < slotSize_; i++) {
                 TELEPHONY_LOGI("TelephonyStateRegistryService send disconnected call state.");
-                SendCallStateChanged(i, static_cast<int32_t>(CallStatus::CALL_STATUS_DISCONNECTED), u"");
+                SendCallStateChanged(i, static_cast<int32_t>(CallStatus::CALL_STATUS_DISCONNECTED));
             }
         }
     });
@@ -192,7 +192,8 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
             result = TELEPHONY_SUCCESS;
         }
     }
-    SendCallStateChanged(-1, callState, number);
+    SendCallStateChanged(-1, callState);
+    SendCallStateChangedAsUserMultiplePermission(-1, callState, number);
     return result;
 }
 
@@ -220,7 +221,8 @@ int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
             result = TELEPHONY_SUCCESS;
         }
     }
-    SendCallStateChanged(slotId, callState, number);
+    SendCallStateChanged(slotId, callState);
+    SendCallStateChangedAsUserMultiplePermission(slotId, callState, number);
     return result;
 }
 
@@ -605,7 +607,28 @@ bool TelephonyStateRegistryService::PublishCommonEvent(
     return publishResult;
 }
 
-void TelephonyStateRegistryService::SendCallStateChanged(int32_t slotId, int32_t state, const std::u16string &number)
+void TelephonyStateRegistryService::SendCallStateChanged(int32_t slotId, int32_t state)
+{
+    AAFwk::Want want;
+    want.SetParam("slotId", slotId);
+    want.SetParam("state", state);
+    want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_CALL_STATE_CHANGED);
+
+    EventFwk::CommonEventData data;
+    data.SetWant(want);
+    EventFwk::CommonEventPublishInfo publishInfo;
+    publishInfo.SetOrdered(false);
+    std::vector<std::string> callPermissions;
+    callPermissions.emplace_back(Permission::GET_TELEPHONY_STATE);
+    publishInfo.SetSubscriberPermissions(callPermissions);
+    bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
+    if (!publishResult) {
+        TELEPHONY_LOGE("SendCallStateChanged PublishBroadcastEvent result fail");
+    }
+}
+
+void TelephonyStateRegistryService::SendCallStateChangedAsUserMultiplePermission(
+    int32_t slotId, int32_t state, const std::u16string &number)
 {
     AAFwk::Want want;
     want.SetParam("slotId", slotId);
@@ -619,10 +642,11 @@ void TelephonyStateRegistryService::SendCallStateChanged(int32_t slotId, int32_t
     publishInfo.SetOrdered(false);
     std::vector<std::string> callPermissions;
     callPermissions.emplace_back(Permission::GET_TELEPHONY_STATE);
+    callPermissions.emplace_back(Permission::READ_CALL_LOG);
     publishInfo.SetSubscriberPermissions(callPermissions);
     bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
     if (!publishResult) {
-        TELEPHONY_LOGE("SendCallStateChanged PublishBroadcastEvent result fail");
+        TELEPHONY_LOGE("SendCallStateChangedAsUserMultiplePermission PublishBroadcastEvent result fail");
     }
 }
 
