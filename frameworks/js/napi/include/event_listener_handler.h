@@ -54,7 +54,7 @@ public:
     void UnRegisterAllListener(napi_env env);
 
 private:
-    using HandleFuncType = void (EventListenerHandler::*)(const AppExecFwk::InnerEvent::Pointer &event);
+    using HandleFuncType = std::function<void(const AppExecFwk::InnerEvent::Pointer &event)>;
     std::map<TelephonyCallbackEventId, HandleFuncType> handleFuncMap_;
     static std::map<TelephonyUpdateEventType,
         void (*)(uv_work_t *work, std::unique_lock<std::mutex> &lock)> workFuncMap_;
@@ -62,6 +62,9 @@ private:
     std::list<EventListener> listenerList_;
 
 private:
+    void AddBasicHandlerToMap();
+    void AddNetworkHandlerToMap();
+    void AddWorkFuncToMap();
     bool IsCallBackRegister(napi_env env, napi_ref ref, napi_ref registeredRef) const;
     bool CheckEventTypeExist(int32_t slotId, TelephonyUpdateEventType eventType);
     void RemoveEventListenerRegister(napi_env env, TelephonyUpdateEventType eventType, napi_ref ref,

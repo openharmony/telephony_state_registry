@@ -50,7 +50,7 @@ private:
         MessageParcel &data, std::vector<sptr<SignalInformation>> &result, SignalInformation::NetworkType type);
 
 private:
-    using TelephonyStateFunc = int32_t (TelephonyStateRegistryStub::*)(MessageParcel &data, MessageParcel &reply);
+    using TelephonyStateFunc = std::function<int32_t(MessageParcel &data, MessageParcel &reply)>;
 
     int32_t OnUpdateCellInfo(MessageParcel &data, MessageParcel &reply);
     int32_t OnUpdateCallState(MessageParcel &data, MessageParcel &reply);

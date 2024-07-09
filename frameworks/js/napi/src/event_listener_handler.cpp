@@ -280,36 +280,77 @@ std::mutex EventListenerHandler::operatorMutex_;
 
 EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecFwk::EventRunner::Create())
 {
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CALL_STATE_UPDATE] =
-        &EventListenerHandler::HandleCallbackInfoUpdate<CallStateContext, CallStateUpdateInfo,
-            TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE>;
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_SIGNAL_INFO_UPDATE] =
-        &EventListenerHandler::HandleCallbackInfoUpdate<SignalListContext, SignalUpdateInfo,
-            TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE>;
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_NETWORK_STATE_UPDATE] =
-        &EventListenerHandler::HandleCallbackInfoUpdate<NetworkStateContext, NetworkStateUpdateInfo,
-            TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE>;
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_SIM_STATE_UPDATE] =
-        &EventListenerHandler::HandleCallbackInfoUpdate<SimStateContext, SimStateUpdateInfo,
-            TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE>;
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELL_INFOMATION_UPDATE] =
-        &EventListenerHandler::HandleCallbackInfoUpdate<CellInfomationContext, CellInfomationUpdate,
-            TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE>;
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_CONNECTION_UPDATE] =
-        &EventListenerHandler::HandleCallbackInfoUpdate<CellularDataConnectStateContext, CellularDataConnectState,
-            TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE>;
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_FLOW_UPDATE] =
-        &EventListenerHandler::HandleCallbackInfoUpdate<CellularDataFlowContext, CellularDataFlowUpdate,
-            TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE>;
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CFU_INDICATOR_UPDATE] =
-        &EventListenerHandler::HandleCallbackInfoUpdate<CfuIndicatorContext, CfuIndicatorUpdate,
-            TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE>;
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE] =
-        &EventListenerHandler::HandleCallbackInfoUpdate<VoiceMailMsgIndicatorContext, VoiceMailMsgIndicatorUpdate,
-            TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE>;
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_ICC_ACCOUNT_UPDATE] =
-        &EventListenerHandler::HandleCallbackVoidUpdate<TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE>;
+    AddBasicHandlerToMap();
+    AddNetworkHandlerToMap();
+    AddWorkFuncToMap();
+}
 
+EventListenerHandler::~EventListenerHandler()
+{
+    handleFuncMap_.clear();
+    workFuncMap_.clear();
+    listenerList_.clear();
+}
+
+void EventListenerHandler::AddBasicHandlerToMap()
+{
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CALL_STATE_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<CallStateContext, CallStateUpdateInfo,
+                TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE>(event);
+        };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_SIM_STATE_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<SimStateContext, SimStateUpdateInfo,
+                TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE>(event);
+        };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_CONNECTION_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<CellularDataConnectStateContext, CellularDataConnectState,
+                TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE>(event);
+        };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_FLOW_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<CellularDataFlowContext, CellularDataFlowUpdate,
+                TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE>(event);
+        };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CFU_INDICATOR_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<CfuIndicatorContext, CfuIndicatorUpdate,
+                TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE>(event);
+        };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<VoiceMailMsgIndicatorContext, VoiceMailMsgIndicatorUpdate,
+                TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE>(event);
+        };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_ICC_ACCOUNT_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackVoidUpdate<TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE>(event);
+        };
+}
+
+void EventListenerHandler::AddNetworkHandlerToMap()
+{
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_SIGNAL_INFO_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<SignalListContext, SignalUpdateInfo,
+                TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE>(event);
+        };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_NETWORK_STATE_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<NetworkStateContext, NetworkStateUpdateInfo,
+                TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE>(event);
+        };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CELL_INFOMATION_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<CellInfomationContext, CellInfomationUpdate,
+                TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE>(event);
+        };
+}
+
+void EventListenerHandler::AddWorkFuncToMap()
+{
     workFuncMap_[TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE] = &EventListenerHandler::WorkCallStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE] = &EventListenerHandler::WorkSignalUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE] = &EventListenerHandler::WorkNetworkStateUpdated;
@@ -325,13 +366,6 @@ EventListenerHandler::EventListenerHandler() : AppExecFwk::EventHandler(AppExecF
     workFuncMap_[TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE] = &EventListenerHandler::WorkIccAccountUpdated;
 }
 
-EventListenerHandler::~EventListenerHandler()
-{
-    handleFuncMap_.clear();
-    workFuncMap_.clear();
-    listenerList_.clear();
-}
-
 void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
 {
     if (event == nullptr) {
@@ -340,7 +374,7 @@ void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &e
     }
     auto itor = handleFuncMap_.find(static_cast<TelephonyCallbackEventId>(event->GetInnerEventId()));
     if (itor != handleFuncMap_.end()) {
-        (this->*(itor->second))(event);
+        itor->second(event);
     }
 }
 
