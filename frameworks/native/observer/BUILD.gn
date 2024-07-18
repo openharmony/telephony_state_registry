@@ -54,6 +54,12 @@ ohos_shared_library("tel_state_registry_api") {
     "TELEPHONY_LOG_TAG = \"StateRegistryApi\"",
     "LOG_DOMAIN = 0xD001F07",
   ]
+
+  cflags_cc = [
+    "-O2",
+    "-D_FORTIFY_SOURCE=2",
+  ]
+
   install_images = [ system_base_dir ]
   relative_install_dir = "platformsdk"
   innerapi_tags = [ "platformsdk" ]
