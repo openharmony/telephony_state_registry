@@ -65,9 +65,14 @@ private:
     int32_t OnUpdateCfuIndicator(MessageParcel &data, MessageParcel &reply);
     int32_t OnUpdateVoiceMailMsgIndicator(MessageParcel &data, MessageParcel &reply);
     int32_t OnIccAccountUpdated(MessageParcel &data, MessageParcel &reply);
+    int32_t SetTimer(uint32_t code);
+    void CancelTimer(int32_t id);
 
 private:
     std::map<StateNotifyInterfaceCode, TelephonyStateFunc> memberFuncMap_;
+    std::map<uint32_t, std::string> collieCodeStringMap_ = {
+        { uint32_t(StateNotifyInterfaceCode::ADD_OBSERVER), "ADD_OBSERVER" },
+    };
 };
 } // namespace Telephony
 } // namespace OHOS

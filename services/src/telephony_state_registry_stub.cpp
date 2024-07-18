@@ -22,6 +22,12 @@
 #include "state_registry_errors.h"
 #include "telephony_permission.h"
 
+#ifdef HICOLLIE_ENABLE
+#include "xcollie/xcollie.h"
+#include "xcollie/xcollie_define.h"
+#define XCOLLIE_TIMEOUT_SECONDS 30
+#endif
+
 namespace OHOS {
 namespace Telephony {
 TelephonyStateRegistryStub::TelephonyStateRegistryStub()
@@ -73,12 +79,51 @@ int32_t TelephonyStateRegistryStub::OnRemoteRequest(
     if (itFunc != memberFuncMap_.end()) {
         auto memberFunc = itFunc->second;
         if (memberFunc != nullptr) {
-            return memberFunc(data, reply);
+            int32_t idTimer = SetTimer(code);
+            int32_t result = memberFunc(data, reply);
+            CancelTimer(idTimer);
+            return result;
         }
     }
     int ret = IPCObjectStub::OnRemoteRequest(code, data, reply, option);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnRemoteRequest end##ret=%{public}d", ret);
     return ret;
+}
+
+int32_t TelephonyStateRegistryStub::SetTimer(uint32_t code)
+{
+#ifdef HICOLLIE_ENABLE
+    int32_t idTimer = HiviewDFX::INVALID_ID;
+    std::map<uint32_t, std::string>::iterator itCollieId = collieCodeStringMap_.find(code);
+    if (itCollieId != collieCodeStringMap_.end()) {
+        std::string collieStr = itCollieId->second;
+        std::string collieName = "TelephonyStateRegistryStub: " + collieStr;
+        unsigned int flag = HiviewDFX::XCOLLIE_FLAG_NOOP;
+        auto TimerCallback = [collieStr](void *) {
+            TELEPHONY_LOGE("OnRemoteRequest timeout func: %{public}s", collieStr.c_str());
+        };
+        idTimer = HiviewDFX::XCollie::GetInstance().SetTimer(
+            collieName, XCOLLIE_TIMEOUT_SECONDS, TimerCallback, nullptr, flag);
+        TELEPHONY_LOGD("SetTimer id: %{public}d, name: %{public}s.", idTimer, collieStr.c_str());
+    }
+    return idTimer;
+#else
+    TELEPHONY_LOGD("No HICOLLIE_ENABLE");
+    return -1;
+#endif
+}
+
+void TelephonyStateRegistryStub::CancelTimer(int32_t id)
+{
+#ifdef HICOLLIE_ENABLE
+    if (id == HiviewDFX::INVALID_ID) {
+        return;
+    }
+    TELEPHONY_LOGD("CancelTimer id: %{public}d.", id);
+    HiviewDFX::XCollie::GetInstance().CancelTimer(id);
+#else
+    return;
+#endif
 }
 
 int32_t TelephonyStateRegistryStub::OnUpdateCallState(MessageParcel &data, MessageParcel &reply)
