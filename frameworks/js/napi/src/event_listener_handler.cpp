@@ -62,11 +62,11 @@ int32_t WrapCallState(int32_t callState)
         case (int32_t)Telephony::CallStatus::CALL_STATUS_HOLDING:
         case (int32_t)Telephony::CallStatus::CALL_STATUS_DIALING:
         case (int32_t)Telephony::CallStatus::CALL_STATUS_ALERTING:
-        case (int32_t)Telephony::CallStatus::CALL_STATUS_DISCONNECTING:
             return static_cast<int32_t>(CallState::CALL_STATE_OFFHOOK);
         case (int32_t)Telephony::CallStatus::CALL_STATUS_WAITING:
         case (int32_t)Telephony::CallStatus::CALL_STATUS_INCOMING:
             return static_cast<int32_t>(CallState::CALL_STATE_RINGING);
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_DISCONNECTING:
         case (int32_t)Telephony::CallStatus::CALL_STATUS_DISCONNECTED:
         case (int32_t)Telephony::CallStatus::CALL_STATUS_IDLE:
             return static_cast<int32_t>(CallState::CALL_STATE_IDLE);
