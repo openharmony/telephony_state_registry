@@ -64,5 +64,10 @@ ohos_shared_library("tel_state_registry") {
     "LOG_DOMAIN = 0xD001F07",
   ]
 
+  if (telephony_hicollie_able) {
+    external_deps += [ "hicollie:libhicollie" ]
+    defines += [ "HICOLLIE_ENABLE" ]
+  }
+
   defines += telephony_extra_defines
 }
