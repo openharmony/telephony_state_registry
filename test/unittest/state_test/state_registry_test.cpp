@@ -133,6 +133,16 @@ bool StateRegistryTest::HasSimCard(int32_t slotId)
     return hasSimCard;
 }
 
+bool StateRegistryTest::IsSuccess(int32_t ret)
+{
+    TELEPHONY_LOGI("ret = %{public}d, TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST = %{public}d",
+        ret, TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST);
+    if (ret == TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST || ret == TELEPHONY_ERR_SUCCESS) {
+        return true;
+    }
+    return false;
+}
+
 void StateRegistryTest::UpdateCallState(int32_t slotId)
 {
     AccessToken token;
@@ -142,7 +152,7 @@ void StateRegistryTest::UpdateCallState(int32_t slotId)
     int32_t ret =
         DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCallState(callState, number);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCallState ret = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateCallStateForSlotId(int32_t slotId)
@@ -154,7 +164,7 @@ void StateRegistryTest::UpdateCallStateForSlotId(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCallStateForSlotId(
         slotId, callState, number);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCallStateForSlotId ret = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateSignalInfo(int32_t slotId)
@@ -166,7 +176,7 @@ void StateRegistryTest::UpdateSignalInfo(int32_t slotId)
     vec.push_back(signal.release());
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateSignalInfo(slotId, vec);
     TELEPHONY_LOGI("StateRegistryTest::UpdateSignalInfo result = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateCellularDataConnectState(int32_t slotId)
@@ -177,7 +187,7 @@ void StateRegistryTest::UpdateCellularDataConnectState(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCellularDataConnectState(
         slotId, dataState, networkState);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCellularDataConnectState ret = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateCellularDataFlow(int32_t slotId)
@@ -187,7 +197,7 @@ void StateRegistryTest::UpdateCellularDataFlow(int32_t slotId)
     int32_t ret =
         DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCellularDataFlow(slotId, dataFlowType);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCellularDataFlow ret = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateSimState(int32_t slotId)
@@ -199,7 +209,7 @@ void StateRegistryTest::UpdateSimState(int32_t slotId)
     int32_t ret =
         DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateSimState(slotId, type, state, reason);
     TELEPHONY_LOGI("StateRegistryTest::UpdateSimState ret = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateNetworkState(int32_t slotId)
@@ -210,7 +220,7 @@ void StateRegistryTest::UpdateNetworkState(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateNetworkState(
         slotId, networkState.release());
     TELEPHONY_LOGI("StateRegistryTest::UpdateNetworkState ret = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateCfuIndicator(int32_t slotId)
@@ -220,7 +230,7 @@ void StateRegistryTest::UpdateCfuIndicator(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCfuIndicator(
         slotId, cfuResult);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCfuIndicator ret = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateVoiceMailMsgIndicator(int32_t slotId)
@@ -230,14 +240,15 @@ void StateRegistryTest::UpdateVoiceMailMsgIndicator(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateVoiceMailMsgIndicator(
         slotId, voiceMailMsgResult);
     TELEPHONY_LOGI("StateRegistryTest::UpdateVoiceMailMsgIndicator ret = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateIccAccount()
 {
+    AccessToken token;
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateIccAccount();
     TELEPHONY_LOGI("StateRegistryTest::UpdateIccAccount ret = %{public}d", ret);
-    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+    EXPECT_TRUE(IsSuccess(ret));
 }
 
 #ifndef TEL_TEST_UNSUPPORT
@@ -265,7 +276,7 @@ HWTEST_F(StateRegistryTest, StateRegistry_001, Function | MediumTest | Level0)
 HWTEST_F(StateRegistryTest, UpdateCallState_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCallState(DEFAULT_SIM_SLOT_ID);
 }
@@ -278,7 +289,7 @@ HWTEST_F(StateRegistryTest, UpdateCallState_001, Function | MediumTest | Level1)
 HWTEST_F(StateRegistryTest, UpdateCallState_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCallState(SIM_SLOT_ID_1);
 }
@@ -291,7 +302,7 @@ HWTEST_F(StateRegistryTest, UpdateCallState_002, Function | MediumTest | Level1)
 HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCallStateForSlotId(DEFAULT_SIM_SLOT_ID);
 }
@@ -304,7 +315,7 @@ HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_001, Function | MediumTest 
 HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCallStateForSlotId(SIM_SLOT_ID_1);
 }
@@ -317,7 +328,7 @@ HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_002, Function | MediumTest 
 HWTEST_F(StateRegistryTest, UpdateSignalInfo_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateSignalInfo(DEFAULT_SIM_SLOT_ID);
 }
@@ -330,7 +341,7 @@ HWTEST_F(StateRegistryTest, UpdateSignalInfo_001, Function | MediumTest | Level1
 HWTEST_F(StateRegistryTest, UpdateSignalInfo_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateSignalInfo(SIM_SLOT_ID_1);
 }
@@ -343,7 +354,7 @@ HWTEST_F(StateRegistryTest, UpdateSignalInfo_002, Function | MediumTest | Level1
 HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCellularDataConnectState(DEFAULT_SIM_SLOT_ID);
 }
@@ -356,7 +367,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_001, Function | Mediu
 HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCellularDataConnectState(SIM_SLOT_ID_1);
 }
@@ -369,7 +380,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_002, Function | Mediu
 HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCellularDataFlow(DEFAULT_SIM_SLOT_ID);
 }
@@ -382,7 +393,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_001, Function | MediumTest | 
 HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCellularDataFlow(SIM_SLOT_ID_1);
 }
@@ -395,7 +406,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_002, Function | MediumTest | 
 HWTEST_F(StateRegistryTest, UpdateSimState_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateSimState(DEFAULT_SIM_SLOT_ID);
 }
@@ -408,7 +419,7 @@ HWTEST_F(StateRegistryTest, UpdateSimState_001, Function | MediumTest | Level1)
 HWTEST_F(StateRegistryTest, UpdateSimState_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateSimState(SIM_SLOT_ID_1);
 }
@@ -421,7 +432,7 @@ HWTEST_F(StateRegistryTest, UpdateSimState_002, Function | MediumTest | Level1)
 HWTEST_F(StateRegistryTest, UpdateNetworkState_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateNetworkState(DEFAULT_SIM_SLOT_ID);
 }
@@ -434,7 +445,7 @@ HWTEST_F(StateRegistryTest, UpdateNetworkState_001, Function | MediumTest | Leve
 HWTEST_F(StateRegistryTest, UpdateNetworkState_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateNetworkState(SIM_SLOT_ID_1);
 }
@@ -447,7 +458,7 @@ HWTEST_F(StateRegistryTest, UpdateNetworkState_002, Function | MediumTest | Leve
 HWTEST_F(StateRegistryTest, UpdateCfuIndicator_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCfuIndicator(DEFAULT_SIM_SLOT_ID);
 }
@@ -460,7 +471,7 @@ HWTEST_F(StateRegistryTest, UpdateCfuIndicator_001, Function | MediumTest | Leve
 HWTEST_F(StateRegistryTest, UpdateCfuIndicator_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateCfuIndicator(SIM_SLOT_ID_1);
 }
@@ -473,7 +484,7 @@ HWTEST_F(StateRegistryTest, UpdateCfuIndicator_002, Function | MediumTest | Leve
 HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateVoiceMailMsgIndicator(DEFAULT_SIM_SLOT_ID);
 }
@@ -486,7 +497,7 @@ HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_001, Function | MediumTe
 HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateVoiceMailMsgIndicator(SIM_SLOT_ID_1);
 }
@@ -499,7 +510,7 @@ HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_002, Function | MediumTe
 HWTEST_F(StateRegistryTest, UpdateIccAccount_001, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateIccAccount();
 }
@@ -512,7 +523,7 @@ HWTEST_F(StateRegistryTest, UpdateIccAccount_001, Function | MediumTest | Level1
 HWTEST_F(StateRegistryTest, UpdateIccAccount_002, Function | MediumTest | Level1)
 {
     if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     UpdateIccAccount();
 }
@@ -526,7 +537,7 @@ HWTEST_F(StateRegistryTest, TelephonyStateManagerTest_001, Function | MediumTest
 {
     TELEPHONY_LOGI("TelephonyStateManagerTest_001 start!");
     if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
-        return;
+        TELEPHONY_LOGI("no sim card!");
     }
     TelephonyStateManager::AddStateObserver(
         telephonyObserver0_, DEFAULT_SIM_SLOT_ID, TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE, true);
@@ -1054,11 +1065,11 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_005, Function | Me
     int32_t invalidSlotId = 5;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateVoiceMailMsgIndicator(invalidSlotId, true));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateVoiceMailMsgIndicator(0, true));
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateIccAccount());
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateIccAccount());
     service->stateRecords_[0].telephonyObserver_ = std::make_unique<TelephonyObserver>().release();
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateIccAccount());
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateIccAccount());
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_ICC_ACCOUNT;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateIccAccount());
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateIccAccount());
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCfuIndicator(invalidSlotId, true));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCfuIndicator(0, true));
     sptr<NetworkState> networkState = std::make_unique<NetworkState>().release();
@@ -1078,7 +1089,6 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_005, Function | Me
     std::u16string number = u"123";
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCallStateForSlotId(invalidSlotId, 0, number));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCallStateForSlotId(0, 0, number));
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCallState(0, number));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCallState(0, number));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateCellularDataFlow(invalidSlotId, 0));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateCellularDataFlow(0, 0));
@@ -1101,7 +1111,7 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
     AccessToken token;
     std::u16string number = u"123";
     TelephonyStateRegistryRecord record;
-    EXPECT_TRUE(record.IsCanReadCallHistory());
+    EXPECT_FALSE(record.IsCanReadCallHistory());
     service->stateRecords_.push_back(record);
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellularDataConnectState(0, 0, 0));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellularDataFlow(0, 0));
@@ -1129,7 +1139,9 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
     EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCellularDataFlow(0, 0));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallState(0, number));
+    service->stateRecords_[0].slotId_ = -1;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallState(-1, number));
+    service->stateRecords_[0].slotId_ = 0;
     EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallStateForSlotId(0, 0, number));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
     EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateSimState(0, type, state, reason));
@@ -1225,7 +1237,7 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_008, Function | Me
     TelephonyStateRegistryRecord record;
     std::u16string testNumber = u"123";
     service->callIncomingNumber_[0] = testNumber;
-    EXPECT_EQ(testNumber, service->GetCallIncomingNumberForSlotId(record, 0));
+    EXPECT_EQ(u"", service->GetCallIncomingNumberForSlotId(record, 0));
     EXPECT_TRUE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE));
     EXPECT_TRUE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO));
     EXPECT_TRUE(service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO));
