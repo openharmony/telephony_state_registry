@@ -197,6 +197,7 @@ public:
 private:
     static void InitTelephonyObserver();
     static void DisableTelephonyObserver();
+    bool IsSuccess(int32_t ret);
 
 private:
     static sptr<StateRegistryObserver> telephonyObserver0_;
