@@ -602,6 +602,11 @@ bool TelephonyStateRegistryService::PublishCommonEvent(
     data.SetData(eventData);
     EventFwk::CommonEventPublishInfo publishInfo;
     publishInfo.SetOrdered(false);
+    if (want.GetAction() == EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED) {
+        std::vector<std::string> permissions;
+        permissions.emplace_back(Permission::GET_NETWORK_INFO);
+        publishInfo.SetSubscriberPermissions(permissions);
+    }
     bool publishResult = EventFwk::CommonEventManager::PublishCommonEvent(data, publishInfo, nullptr);
     TELEPHONY_LOGI("PublishCommonEvent end###publishResult = %{public}d\n", publishResult);
     return publishResult;
