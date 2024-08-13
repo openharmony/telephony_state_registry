@@ -337,9 +337,9 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const 
             r.telephonyObserver_ != nullptr) {
             if (TELEPHONY_EXT_WRAPPER.onNetworkStateUpdated_ != nullptr) {
                 sptr<NetworkState> networkStateExt = new NetworkState();
-                MessagePacel data;
+                MessageParcel data;
                 networkState->Marshalling(data);
-                networkStateExt->ReadFromPacel(data);
+                networkStateExt->ReadFromParcel(data);
                 TELEPHONY_EXT_WRAPPER.onNetworkStateUpdated_(slotId, r, networkStateExt, networkState);
                 r.telephonyObserver_->OnNetworkStateUpdated(slotId, networkStateExt);
             } else {
