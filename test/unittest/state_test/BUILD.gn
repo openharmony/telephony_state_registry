@@ -62,7 +62,8 @@ ohos_unittest("tel_state_registry_branch_test") {
   test_module = "tel_state_registry_test"
   module_out_path = part_name + "/" + test_module
 
-  sources = [ "$SOURCE_DIR/test/unittest/state_test/state_registry_branch_test.cpp" ]
+  sources =
+      [ "$SOURCE_DIR/test/unittest/state_test/state_registry_branch_test.cpp" ]
 
   include_dirs = [
     "$SOURCE_DIR/interfaces/innerkits/notify",
