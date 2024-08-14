@@ -238,7 +238,7 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_CheckCallerIsSystemApp_001, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, Service_CheckCallerIsSystemApp_001, Function | MediumTest | Level0)
 {
     SecurityToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
@@ -250,7 +250,7 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_CheckCallerIsSys
     result = service->CheckCallerIsSystemApp(TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR);
     ASSERT_EQ(result, false);
     pid_t pid = -1;
-    auto ret = service->UnregisterStateChange(0, TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO, 0 , pid);
+    auto ret = service->UnregisterStateChange(0, TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO, 0, pid);
     ASSERT_EQ(ret, TELEPHONY_ERR_ILLEGAL_USE_OF_SYSTEM_API);
 }
 
@@ -259,7 +259,7 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_CheckCallerIsSys
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UnregisterStateChange_001, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, Service_UnregisterStateChange_001, Function | MediumTest | Level0)
 {
     AccessToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
@@ -268,11 +268,11 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UnregisterStateC
     service->stateRecords_.push_back(record);
     service->stateRecords_[0].slotId_ = 1;
     pid_t pid = -1;
-    auto result = service->UnregisterStateChange(0, TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO, 0 , pid);
+    auto result = service->UnregisterStateChange(0, TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO, 0, pid);
     ASSERT_EQ(result, TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST);
     service->stateRecords_[0].slotId_ = 0;
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
-    result = service->UnregisterStateChange(0, TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO, 0 , pid);
+    result = service->UnregisterStateChange(0, TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO, 0, pid);
     ASSERT_EQ(result, TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST);
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO;
     service->stateRecords_[0].tokenId_ = 1234;
@@ -282,8 +282,6 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UnregisterStateC
     result = service->UnregisterStateChange(0, TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO, 1234, pid);
     ASSERT_EQ(result, TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST);
 }
-
-
 
 /**
  * @tc.number   TelephonyStateRegistryService_UnregisterStateChange_001
