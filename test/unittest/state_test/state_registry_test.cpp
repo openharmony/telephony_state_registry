@@ -628,9 +628,6 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_003, Function | MediumTest | L
     std::unique_ptr<LteSignalInformation> lteSignal = std::make_unique<LteSignalInformation>();
     ASSERT_TRUE(lteSignal != nullptr);
     vec.push_back(lteSignal.release());
-    std::unique_ptr<NrSignalInformation> nrSignal = std::make_unique<NrSignalInformation>();
-    ASSERT_TRUE(nrSignal != nullptr);
-    vec.push_back(nrSignal.release());
     int32_t size = static_cast<int32_t>(vec.size());
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
     dataParcel.WriteInt32(size);
@@ -875,6 +872,39 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_011, Function | MediumTest | L
     telephonyObserverProxy->OnIccAccountUpdated();
     EXPECT_TRUE(telephonyObserver != nullptr);
     EXPECT_TRUE(telephonyObserverProxy != nullptr);
+}
+
+/**
+ * @tc.number   TelephonyObserverTest_012
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyObserverTest_012, Function | MediumTest | Level1)
+{
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverTest_003 WriteInterfaceToken failed!");
+        return;
+    }
+    std::vector<sptr<SignalInformation>> vec;
+    std::unique_ptr<NrSignalInformation> nrSignal = std::make_unique<NrSignalInformation>();
+    ASSERT_TRUE(nrSignal != nullptr);
+    vec.push_back(nrSignal.release());
+    int32_t size = static_cast<int32_t>(vec.size());
+    dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
+    dataParcel.WriteInt32(size);
+    for (const auto &v : vec) {
+        v->Marshalling(dataParcel);
+    }
+    std::vector<sptr<SignalInformation>> signalInfos;
+    telephonyObserver.ConvertLteNrSignalInfoList(dataParcel, signalInfos, SignalInformation::NetworkType::GSM);
+    int32_t ret = telephonyObserver.OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_SIGNAL_INFO_UPDATED), dataParcel, reply,
+        option);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
 }
 
 /**
