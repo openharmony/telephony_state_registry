@@ -56,7 +56,53 @@ ohos_unittest("tel_state_registry_test") {
   ]
 }
 
+ohos_unittest("tel_state_registry_branch_test") {
+  part_name = "state_registry"
+  subsystem_name = "telephony"
+  test_module = "tel_state_registry_test"
+  module_out_path = part_name + "/" + test_module
+
+  sources =
+      [ "$SOURCE_DIR/test/unittest/state_test/state_registry_branch_test.cpp" ]
+
+  include_dirs = [
+    "$SOURCE_DIR/interfaces/innerkits/notify",
+    "$SOURCE_DIR/frameworks/native/observer/include",
+    "$SOURCE_DIR/frameworks/native/common/include",
+    "$SOURCE_DIR/services/include",
+    "$SOURCE_DIR/services/telephony_ext_wrapper/include",
+  ]
+
+  deps = [
+    "$SOURCE_DIR:tel_state_registry",
+    "$SOURCE_DIR/frameworks/native/observer:tel_state_registry_api",
+  ]
+
+  external_deps = [
+    "ability_base:want",
+    "access_token:libaccesstoken_sdk",
+    "access_token:libnativetoken",
+    "access_token:libtoken_setproc",
+    "c_utils:utils",
+    "core_service:libtel_common",
+    "core_service:tel_core_service_api",
+    "hilog:libhilog",
+    "init:libbegetutil",
+    "ipc:ipc_core",
+    "safwk:system_ability_fwk",
+    "samgr:samgr_proxy",
+  ]
+
+  defines = [
+    "TELEPHONY_LOG_TAG = \"StateRegistryTest\"",
+    "LOG_DOMAIN = 0xD000F00",
+  ]
+}
+
 group("unittest") {
   testonly = true
-  deps = [ ":tel_state_registry_test" ]
+  deps = [
+    ":tel_state_registry_branch_test",
+    ":tel_state_registry_test",
+  ]
 }
