@@ -27,7 +27,10 @@ TelephonyExtWrapper::TelephonyExtWrapper() {}
 TelephonyExtWrapper::~TelephonyExtWrapper()
 {
     TELEPHONY_LOGD("TelephonyExtWrapper::~TelephonyExtWrapper() start");
-    dlclose(telephonyExtWrapperHandle_);
+    if (telephonyExtWrapperHandle_ != nullptr) {
+        dlclose(telephonyExtWrapperHandle_);
+        telephonyExtWrapperHandle_ = nullptr;
+    }
     telephonyExtWrapperHandle_ = nullptr;
 }
 
