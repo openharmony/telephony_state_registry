@@ -31,7 +31,6 @@ TelephonyExtWrapper::~TelephonyExtWrapper()
         dlclose(telephonyExtWrapperHandle_);
         telephonyExtWrapperHandle_ = nullptr;
     }
-    telephonyExtWrapperHandle_ = nullptr;
 }
 
 void TelephonyExtWrapper::InitTelephonyExtWrapper()
