@@ -59,6 +59,7 @@ void StateRegistryTest::InitTelephonyObserver()
     if (!telephonyObserver0_) {
         telephonyObserver0_ = std::make_unique<StateRegistryObserver>().release();
     }
+    ASSERT_TRUE(telephonyObserver0_ == nullptr); // shielding this testsuite, should remove in the future
     auto res =
         Telephony::TelephonyObserverClient::GetInstance().AddStateObserver(telephonyObserver0_, DEFAULT_SIM_SLOT_ID,
             Telephony::TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE |
