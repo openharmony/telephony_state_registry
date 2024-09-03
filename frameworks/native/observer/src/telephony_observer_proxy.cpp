@@ -81,7 +81,7 @@ void TelephonyObserverProxy::OnSignalInfoUpdated(
     MessageOption option;
     MessageParcel dataParcel;
     MessageParcel replyParcel;
-    option.SetFlags(MessageOption::TF_ASYNC);
+    option.SetFlags(MessageOption::TF_ASYNC | MessageOption::TF_ASYNC_WAKEUP_LATER);
     if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
         TELEPHONY_LOGE("TelephonyObserverProxy::OnSignalInfoUpdated WriteInterfaceToken failed!");
         return;
@@ -152,7 +152,7 @@ void TelephonyObserverProxy::OnNetworkStateUpdated(
     MessageOption option;
     MessageParcel dataParcel;
     MessageParcel replyParcel;
-    option.SetFlags(MessageOption::TF_ASYNC);
+    option.SetFlags(MessageOption::TF_ASYNC | MessageOption::TF_ASYNC_WAKEUP_LATER);
     if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
         TELEPHONY_LOGE("TelephonyObserverProxy::OnNetworkStateUpdated WriteInterfaceToken failed!");
         return;
