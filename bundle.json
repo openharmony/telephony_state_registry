@@ -54,7 +54,8 @@
                 ],
                 "fwk_group": [
                     "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api",
-                    "//base/telephony/state_registry/frameworks/js/napi:observer"
+                    "//base/telephony/state_registry/frameworks/js/napi:observer",
+                    "//base/telephony/state_registry/frameworks/cj:cj_observer_ffi"
                 ],
                 "service_group": [
                     "//base/telephony/state_registry:tel_state_registry",
