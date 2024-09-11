@@ -34,7 +34,7 @@ namespace Telephony {
     {
         std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> convert;
         // 将std::u16string转换为std::string
-        std::string result = convert.to_bytes(u16str);
+        std::string result = convert.to_bytes(str16);
         return result;
     }
 }

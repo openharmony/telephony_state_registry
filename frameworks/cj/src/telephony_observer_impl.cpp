@@ -22,6 +22,7 @@
 #include "cj_lambda.h"
 #include "state_registry_errors.h"
 #include "telephony_errors.h"
+#include "telephony_napi_common_error.h"
 #include "telephony_observer_impl.h"
 
 namespace OHOS {
@@ -137,7 +138,7 @@ static int32_t UnregisterEventListener(const TelephonyUpdateEventType eventType,
 
 static void NativeOn(EventListener listener, int32_t &errCode)
 {
-    errCode = TELEPHONY_SUCCESS
+    errCode = TELEPHONY_SUCCESS;
     if (SIM_SLOT_COUNT == 0) {
         TELEPHONY_LOGE("The device is not support sim card.");
         return;

@@ -13,8 +13,11 @@
  * limitations under the License.
  */
 
+#include "napi_radio_types.h"
 #include "observer_event_handler.h"
+#include "telephony_errors.h"
 #include "telephony_observer_impl.h"
+#include "telephony_state_manager.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -147,42 +150,42 @@ void ObserverEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &e
     }
     auto eventId = static_cast<TelephonyCallbackEventId>(event->GetInnerEventId());
     switch (eventId) {
-        case EVENT_ON_CALL_STATE_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_CALL_STATE_UPDATE:
             HandleCallbackInfoUpdate<CallStateUpdateInfo,
                 TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE>(event);
                 break;
-        case EVENT_ON_SIM_STATE_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_SIM_STATE_UPDATE:
             HandleCallbackInfoUpdate<SimStateUpdateInfo,
                 TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE>(event);
             break;
-        case EVENT_ON_CELLULAR_DATA_CONNECTION_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_CONNECTION_UPDATE:
             HandleCallbackInfoUpdate<CellularDataConnectState,
                 TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE>(event);
             break;
-        case EVENT_ON_CELLULAR_DATA_FLOW_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_CELLULAR_DATA_FLOW_UPDATE:
             HandleCallbackInfoUpdate<CellularDataFlowUpdate,
                 TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE>(event);
             break;
-        case EVENT_ON_CFU_INDICATOR_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_CFU_INDICATOR_UPDATE:
             HandleCallbackInfoUpdate<CfuIndicatorUpdate,
                 TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE>(event);
             break;
-        case EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE:
             HandleCallbackInfoUpdate<VoiceMailMsgIndicatorUpdate,
                 TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE>(event);
             break;
-        case EVENT_ON_ICC_ACCOUNT_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_ICC_ACCOUNT_UPDATE:
             HandleCallbackVoidUpdate<TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE>(event);
             break;
-        case EVENT_ON_SIGNAL_INFO_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_SIGNAL_INFO_UPDATE:
             HandleCallbackInfoUpdate<SignalUpdateInfo,
                 TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE>(event);
             break;
-        case EVENT_ON_NETWORK_STATE_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_NETWORK_STATE_UPDATE:
             HandleCallbackInfoUpdate<NetworkStateUpdateInfo,
                 TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE>(event);
             break;
-        case EVENT_ON_CELL_INFOMATION_UPDATE:
+        case TelephonyCallbackEventId::EVENT_ON_CELL_INFOMATION_UPDATE:
             HandleCallbackInfoUpdate<CellInfomationUpdate,
                 TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE>(event);
             break;
@@ -237,7 +240,7 @@ int32_t ObserverEventHandler::RegisterEventListener(EventListener &eventListener
         }
     }
     listenerList_.push_back(eventListener);
-    TELEPHONY_LOGI("EventListenerHandler::RegisterEventListener listenerList_ size=%{public}d",
+    TELEPHONY_LOGI("ObserverEventHandler::RegisterEventListener listenerList_ size=%{public}d",
         static_cast<int32_t>(listenerList_.size()));
     return TELEPHONY_SUCCESS;
 }
@@ -281,7 +284,7 @@ void ObserverEventHandler::CheckRemoveStateObserver(TelephonyUpdateEventType eve
     if (!CheckEventTypeExist(slotId, eventType)) {
         int32_t removeRet = TelephonyStateManager::RemoveStateObserver(slotId, static_cast<uint32_t>(eventType));
         if (removeRet != TELEPHONY_SUCCESS) {
-            TELEPHONY_LOGE("EventListenerHandler::RemoveStateObserver slotId %{public}d, eventType %{public}d fail!",
+            TELEPHONY_LOGE("ObserverEventHandler::RemoveStateObserver slotId %{public}d, eventType %{public}d fail!",
                 slotId, static_cast<int32_t>(eventType));
             result = removeRet;
         }
@@ -303,7 +306,7 @@ int32_t ObserverEventHandler::UnregisterEventListener(
     for (int32_t slotId : soltIdSet) {
         CheckRemoveStateObserver(eventType, slotId, result);
     }
-    TELEPHONY_LOGI("EventListenerHandler::UnregisterEventListener listenerList_ size=%{public}d",
+    TELEPHONY_LOGI("ObserverEventHandler::UnregisterEventListener listenerList_ size=%{public}d",
         static_cast<int32_t>(listenerList_.size()));
     return result;
 }
@@ -330,14 +333,16 @@ void ObserverEventHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
                 TELEPHONY_LOGE("make work failed");
                 break;
             }
-            work->data = static_cast<void *>(info);
-            int32_t resultCode = WorkUpdated(listen, work);
-            if (resultCode != 0) {
-                TELEPHONY_LOGE("HandleCallbackInfoUpdate failed, result: %{public}d", resultCode);
-                delete work;
-                work = nullptr;
-                return;
+            std::unique_ptr<D> context = std::move(info);
+            D* data = context.release();
+             if (data == nullptr) {
+                TELEPHONY_LOGE("make work failed");
+                break;
             }
+            work->data = static_cast<void *>(data);
+            WorkUpdated(listen, work, lock);
+            delete work;
+            work = nullptr;
         }
     }
 }
@@ -364,63 +369,56 @@ void ObserverEventHandler::HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent
             listener->callbackRef = listen.callbackRef;
             listener->isDeleting = listen.isDeleting;
             work->data = static_cast<void *>(listener);
-            int32_t retVal = WorkUpdated(listen, work);
-            if (retVal != 0) {
-                delete listener;
-                listener = nullptr;
-                TELEPHONY_LOGE("HandleCallbackVoidUpdate failed, result: %{public}d", retVal);
-                delete work;
-                work = nullptr;
-                return;
-            }
+            WorkUpdated(listen, work, lock);
+            delete listener;
+            delete work;
         }
     }
 }
 
 void ObserverEventHandler::WorkUpdated(const EventListener &listener, uv_work_t *work)
 {
-    std::unique_lock<std::mutex> lock(operatorMutex_);
-    TELEPHONY_LOGD("WorkUpdated eventType is %{public}d", listener->eventType);
-    if (listener->isDeleting == nullptr || *(listener->isDeleting)) {
+    TELEPHONY_LOGD("ObserverEventHandler::WorkUpdated eventType is %{public}d", *(listener.eventType));
+    if (listener.isDeleting == nullptr || *(listener.isDeleting)) {
         TELEPHONY_LOGI("listener is deleting");
         return;
     }
 
-    switch (listener->eventType) {
-        case EVENT_CALL_STATE_UPDATE:
+    switch (listener.eventType) {
+        case TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE:
             WorkCallStateUpdated(listener, work, lock);
             break;
-        case EVENT_SIGNAL_STRENGTHS_UPDATE:
+        case TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE:
             WorkSignalUpdated(listener, work, lock);
             break;
-        case EVENT_NETWORK_STATE_UPDATE:
+        case TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE:
             WorkNetworkStateUpdated(listener, work, lock);
             break;
-        case EVENT_SIM_STATE_UPDATE:
+        case TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE:
             WorkSimStateUpdated(listener, work, lock);
             break;
-        case EVENT_CELL_INFO_UPDATE:
+        case TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE:
             WorkCellInfomationUpdated(listener, work, lock);
             break;
-        case EVENT_DATA_CONNECTION_UPDATE:
+        case TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE:
             WorkCellularDataConnectStateUpdated(listener, work, lock);
             break;
-        case EVENT_CELLULAR_DATA_FLOW_UPDATE:
+        case TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE:
             WorkCellularDataFlowUpdated(listener, work, lock);
             break;
-        case EVENT_CFU_INDICATOR_UPDATE:
+        case TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE:
             WorkCfuIndicatorUpdated(listener, work, lock);
             break;
-        case EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE:
+        case TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE:
             WorkVoiceMailMsgIndicatorUpdated(listener, work, lock);
             break;
-        case EVENT_ICC_ACCOUNT_CHANGE:
+        case TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE:
             WorkIccAccountUpdated(listener, work, lock);
             break;
         default:
           TELEPHONY_LOGE("ObserverEventHandler::WorkUpdated Unkonw Telephony UpdateEventType");
           return;
-    }    
+    }
 }
 
 void ObserverEventHandler::WorkCallStateUpdated(const EventListener &listener,
@@ -433,7 +431,7 @@ void ObserverEventHandler::WorkCallStateUpdated(const EventListener &listener,
     std::unique_ptr<CallStateUpdateInfo> callStateInfo(static_cast<CallStateUpdateInfo *>(work->data));
     std::string phoneNumber = ToUtf8(callStateInfo->phoneNumber_);
     CCallStateInfo callbackValue = {
-        .state = WrapCallState(callStateInfo->callState),
+        .state = WrapCallState(callStateInfo->callState_),
         .number = MallocCString(phoneNumber)
     };
     lock.unlock();
@@ -449,7 +447,7 @@ void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
         return;
     }
     std::unique_ptr<SignalUpdateInfo> infoListUpdateInfo(static_cast<SignalUpdateInfo *>(work->data));
-    size_t infoSize = infoListUpdateInfo->signalInfoList.size();
+    size_t infoSize = infoListUpdateInfo->signalInfoList_.size();
     CSignalInformation* head =
         reinterpret_cast<CSignalInformation *>(malloc(sizeof(CSignalInformation) * infoSize));
     if (head == nullptr) {
@@ -458,7 +456,7 @@ void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
     }
     CArraySignalInformation signalInformations = { .head = nullptr, .size = 0 };
     for (size_t i = 0; i < infoSize; i++) {
-        sptr<SignalInformation> infoItem = infoListUpdateInfo->signalInfoList[i];
+        sptr<SignalInformation> infoItem = infoListUpdateInfo->signalInfoList_[i];
         head[i].signalType = WrapNetworkType(infoItem->GetNetworkType());
         head[i].signalLevel = infoItem->GetSignalLevel();
         head[i].dBm = infoItem->GetSignalIntensity();

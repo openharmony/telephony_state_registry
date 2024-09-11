@@ -40,6 +40,7 @@
                 "hilog",
                 "init",
                 "ipc",
+                "libuv",
                 "napi",
                 "safwk",
                 "samgr"

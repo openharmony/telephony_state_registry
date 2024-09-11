@@ -26,8 +26,15 @@ ohos_shared_library("cj_observer_ffi") {
     [ "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer/include" ]
 
   sources = [
+<<<<<<< HEAD
     "src/tel_cellular_data_ffi.cpp",
     "src/tel_cellular_data_impl.cpp",
+=======
+    "src/observer_event_handler.cpp",
+    "src/telephony_observer_ffi.cpp",
+    "src/telephony_observer_impl.cpp",
+    "src/telephony_observer_utils.cpp",
+>>>>>>> c09ae0ef2a2fb8e7e43e578a346d42209faa6119
   ]
 
   deps =
@@ -44,6 +51,10 @@ ohos_shared_library("cj_observer_ffi") {
     "libuv:uv",
     "napi:ace_napi",
     "napi:cj_bind_ffi",
+<<<<<<< HEAD
+=======
+    "napi:cj_bind_native",
+>>>>>>> c09ae0ef2a2fb8e7e43e578a346d42209faa6119
   ]
 
   innerapi_tags = [ "platformsdk" ]

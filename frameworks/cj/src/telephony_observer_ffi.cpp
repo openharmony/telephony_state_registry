@@ -24,12 +24,12 @@ extern "C" {
 
     int32_t FfiTelephonyObserverOnNetworkStateChange(ObserverOptions options, int64_t funcId)
     {
-        return TelephonyObserverImpl::OnNetworkStateChange(ObserverOptions options, int64_t funcId);
+        return TelephonyObserverImpl::OnNetworkStateChange(options, funcId);
     }
 
     int32_t FfiTelephonyObserverOffNetworkStateChange(int64_t funcId)
     {
-        return TelephonyObserverImpl::OffNetworkStateChange(int64_t funcId);
+        return TelephonyObserverImpl::OffNetworkStateChange(funcId);
     }
 
     int32_t FfiTelephonyObserverOffAllNetworkStateChange()
@@ -39,12 +39,12 @@ extern "C" {
 
     int32_t FfiTelephonyObserverOnSignalInfoChange(ObserverOptions options, int64_t funcId)
     {
-        return TelephonyObserverImpl::OnSignalInfoChange(ObserverOptions options, int64_t funcId);
+        return TelephonyObserverImpl::OnSignalInfoChange(options, funcId);
     }
 
     int32_t FfiTelephonyObserverOffSignalInfoChange(int64_t funcId)
     {
-        return TelephonyObserverImpl::OffSignalInfoChange(int64_t funcId);
+        return TelephonyObserverImpl::OffSignalInfoChange(funcId);
     }
 
     int32_t FfiTelephonyObserverOffAllSignalInfoChange()
@@ -54,12 +54,12 @@ extern "C" {
 
     int32_t FfiTelephonyObserverOnCallStateChange(ObserverOptions options, int64_t funcId)
     {
-        return TelephonyObserverImpl::OnCallStateChange(ObserverOptions options, int64_t funcId);
+        return TelephonyObserverImpl::OnCallStateChange(options, funcId);
     }
 
     int32_t FfiTelephonyObserverOffCallStateChange(int64_t funcId)
     {
-        return TelephonyObserverImpl::OffCallStateChange(int64_t funcId);
+        return TelephonyObserverImpl::OffCallStateChange(funcId);
     }
 
     int32_t FfiTelephonyObserverOffAllCallStateChange()
@@ -71,12 +71,12 @@ extern "C" {
         ObserverOptions options,
         int64_t funcId)
     {
-        return TelephonyObserverImpl::OnCellularDataConnectionStateChange(ObserverOptions options, int64_t funcId);
+        return TelephonyObserverImpl::OnCellularDataConnectionStateChange(options, funcId);
     }
 
     int32_t FfiTelephonyObserverOffCellularDataConnectionStateChange(int64_t funcId)
     {
-        return TelephonyObserverImpl::OffCellularDataConnectionStateChange(int64_t funcId);
+        return TelephonyObserverImpl::OffCellularDataConnectionStateChange(funcId);
     }
 
     int32_t FfiTelephonyObserverOffAllCellularDataConnectionStateChange()
@@ -86,12 +86,12 @@ extern "C" {
 
     int32_t FfiTelephonyObserverOnCellularDataFlowChange(ObserverOptions options, int64_t funcId)
     {
-        return TelephonyObserverImpl::OnCellularDataFlowChange(ObserverOptions options, int64_t funcId);
+        return TelephonyObserverImpl::OnCellularDataFlowChange(options, funcId);
     }
 
     int32_t FfiTelephonyObserverOffCellularDataFlowChange(int64_t funcId)
     {
-        return TelephonyObserverImpl::OffCellularDataFlowChange(int64_t funcId);
+        return TelephonyObserverImpl::OffCellularDataFlowChange(funcId);
     }
 
     int32_t FfiTelephonyObserverOffAllCellularDataFlowChange()
@@ -101,12 +101,12 @@ extern "C" {
 
     int32_t FfiTelephonyObserverOnSimStateChange(ObserverOptions options, int64_t funcId)
     {
-        return TelephonyObserverImpl::OnSimStateChange(ObserverOptions options, int64_t funcId);
+        return TelephonyObserverImpl::OnSimStateChange(options, funcId);
     }
 
     int32_t FfiTelephonyObserverOffSimStateChange(int64_t funcId)
     {
-        return TelephonyObserverImpl::OffSimStateChange(int64_t funcId);
+        return TelephonyObserverImpl::OffSimStateChange(funcId);
     }
 
     int32_t FfiTelephonyObserverOffAllSimStateChange()
@@ -116,20 +116,18 @@ extern "C" {
 
     int32_t FfiTelephonyObserverOnIccAccountInfoChange(ObserverOptions options, int64_t funcId)
     {
-        return TelephonyObserverImpl::OnIccAccountInfoChange(ObserverOptions options, int64_t funcId);
+        return TelephonyObserverImpl::OnIccAccountInfoChange(options, funcId);
     }
 
     int32_t FfiTelephonyObserverOffIccAccountInfoChange(int64_t funcId)
     {
-        return TelephonyObserverImpl::OffIccAccountInfoChange(int64_t funcId);
+        return TelephonyObserverImpl::OffIccAccountInfoChange(funcId);
     }
 
     int32_t FfiTelephonyObserverOffAllIccAccountInfoChange()
     {
         return TelephonyObserverImpl::OffAllIccAccountInfoChange();
     }
-
-
 }
 }  // namespace Telephony
 }  // namespace OHOS

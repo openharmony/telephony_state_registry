@@ -29,6 +29,7 @@
 #include "signal_information.h"
 #include "sim_state_type.h"
 #include "telephony_log_wrapper.h"
+#include "telephony_observer_broker.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -98,6 +99,38 @@ namespace Telephony {
         CJ_ERROR_ILLEGAL_USE_OF_SYSTEM_API = 202,
     };
 
+<<<<<<< HEAD
+=======
+    enum class CallState : int32_t {
+        /**
+         * Indicates an invalid state, which is used when the call state fails to be
+         * obtained.
+         */
+        CALL_STATE_UNKNOWN = -1,
+
+        /**
+         * Indicates that there is no ongoing call.
+         */
+        CALL_STATE_IDLE = 0,
+
+        /**
+         * Indicates that an incoming call is ringing or waiting.
+         */
+        CALL_STATE_RINGING = 1,
+
+        /**
+         * Indicates that a least one call is in the dialing, active, or hold state,
+         * and there is no new incoming call ringing or waiting.
+         */
+        CALL_STATE_OFFHOOK = 2,
+
+        /**
+         * Indicates that an incoming call is answered.
+         */
+        CALL_STATE_ANSWERED = 3
+    };
+
+>>>>>>> c09ae0ef2a2fb8e7e43e578a346d42209faa6119
     enum class TelephonyUpdateEventType {
         NONE_EVENT_TYPE = 0,
         EVENT_NETWORK_STATE_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE,
