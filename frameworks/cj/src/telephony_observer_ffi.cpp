@@ -114,8 +114,9 @@ extern "C" {
         return TelephonyObserverImpl::OffAllSimStateChange();
     }
 
-    int32_t FfiTelephonyObserverOnIccAccountInfoChange(ObserverOptions options, int64_t funcId)
+    int32_t FfiTelephonyObserverOnIccAccountInfoChange(int64_t funcId)
     {
+        ObserverOptions options;
         return TelephonyObserverImpl::OnIccAccountInfoChange(options, funcId);
     }
 

@@ -144,10 +144,6 @@ ObserverEventHandler::~ObserverEventHandler()
 
 void ObserverEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
 {
-    if (event == nullptr) {
-        TELEPHONY_LOGE("EventListenerHandler::ProcessEvent event is nullptr");
-        return;
-    }
     auto eventId = static_cast<TelephonyCallbackEventId>(event->GetInnerEventId());
     switch (eventId) {
         case TelephonyCallbackEventId::EVENT_ON_CALL_STATE_UPDATE:
@@ -190,8 +186,8 @@ void ObserverEventHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &e
                 TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE>(event);
             break;
         default:
-          TELEPHONY_LOGE("ObserverEventHandler::ProcessEvent Unkonw Telephony CallbackEventId");
-          return;
+            TELEPHONY_LOGE("ObserverEventHandler::ProcessEvent Unkonw Telephony CallbackEventId");
+            return;
     }
 }
 
@@ -255,7 +251,7 @@ void ObserverEventHandler::SetEventListenerDeleting(std::shared_ptr<bool> isDele
 }
 
 void ObserverEventHandler::RemoveEventListenerRegister(const TelephonyUpdateEventType eventType, int64_t funcId,
-        std::set<int32_t> &soltIdSet)
+    std::set<int32_t> &soltIdSet)
 {
     std::list<EventListener>::iterator it = listenerList_.begin();
     while (it != listenerList_.end()) {
@@ -335,7 +331,7 @@ void ObserverEventHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
             }
             std::unique_ptr<D> context = std::move(info);
             D* data = context.release();
-             if (data == nullptr) {
+            if (data == nullptr) {
                 TELEPHONY_LOGE("make work failed");
                 break;
             }
@@ -376,9 +372,10 @@ void ObserverEventHandler::HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent
     }
 }
 
-void ObserverEventHandler::WorkUpdated(const EventListener &listener, uv_work_t *work)
+void ObserverEventHandler::WorkUpdated(const EventListener &listener,
+    uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
-    TELEPHONY_LOGD("ObserverEventHandler::WorkUpdated eventType is %{public}d", *(listener.eventType));
+    TELEPHONY_LOGD("ObserverEventHandler::WorkUpdated eventType is %{public}d", listener.eventType);
     if (listener.isDeleting == nullptr || *(listener.isDeleting)) {
         TELEPHONY_LOGI("listener is deleting");
         return;
@@ -416,8 +413,8 @@ void ObserverEventHandler::WorkUpdated(const EventListener &listener, uv_work_t 
             WorkIccAccountUpdated(listener, work, lock);
             break;
         default:
-          TELEPHONY_LOGE("ObserverEventHandler::WorkUpdated Unkonw Telephony UpdateEventType");
-          return;
+            TELEPHONY_LOGE("ObserverEventHandler::WorkUpdated Unkonw Telephony UpdateEventType");
+            return;
     }
 }
 
@@ -448,6 +445,10 @@ void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
     }
     std::unique_ptr<SignalUpdateInfo> infoListUpdateInfo(static_cast<SignalUpdateInfo *>(work->data));
     size_t infoSize = infoListUpdateInfo->signalInfoList_.size();
+    if (infoSize < 0) {
+        TELEPHONY_LOGE("signalInfoList_ size error");
+        return;
+    }
     CSignalInformation* head =
         reinterpret_cast<CSignalInformation *>(malloc(sizeof(CSignalInformation) * infoSize));
     if (head == nullptr) {

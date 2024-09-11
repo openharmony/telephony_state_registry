@@ -99,8 +99,6 @@ namespace Telephony {
         CJ_ERROR_ILLEGAL_USE_OF_SYSTEM_API = 202,
     };
 
-<<<<<<< HEAD
-=======
     enum class CallState : int32_t {
         /**
          * Indicates an invalid state, which is used when the call state fails to be
@@ -130,7 +128,6 @@ namespace Telephony {
         CALL_STATE_ANSWERED = 3
     };
 
->>>>>>> c09ae0ef2a2fb8e7e43e578a346d42209faa6119
     enum class TelephonyUpdateEventType {
         NONE_EVENT_TYPE = 0,
         EVENT_NETWORK_STATE_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE,
@@ -272,4 +269,5 @@ namespace Telephony {
     };
 }
 }
+
 #endif

@@ -48,9 +48,6 @@ public:
         return handler->SendEvent(innerEventId);
     }
 
-    // static int32_t RegisterEventListener(EventListener &eventListener);
-    // static int32_t UnregisterEventListener(const TelephonyUpdateEventType eventType, int64_t funcId);
-
     static int32_t OnNetworkStateChange(ObserverOptions options, int64_t funcId);
     static int32_t OffNetworkStateChange(int64_t funcId);
     static int32_t OffAllNetworkStateChange();
@@ -78,10 +75,9 @@ public:
     static int32_t OnIccAccountInfoChange(ObserverOptions options, int64_t funcId);
     static int32_t OffIccAccountInfoChange(int64_t funcId);
     static int32_t OffAllIccAccountInfoChange();
-
 };
 
-class FfiTelephonyObserver: public TelephonyObserver {
+class FfiTelephonyObserver : public TelephonyObserver {
 public:
     void OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
     void OnSignalInfoUpdated(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec) override;

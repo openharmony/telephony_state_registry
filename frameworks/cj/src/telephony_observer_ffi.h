@@ -42,7 +42,7 @@ extern "C" {
     FFI_EXPORT int32_t FfiTelephonyObserverOnSimStateChange(ObserverOptions options, int64_t funcId);
     FFI_EXPORT int32_t FfiTelephonyObserverOffSimStateChange(int64_t funcId);
     FFI_EXPORT int32_t FfiTelephonyObserverOffAllSimStateChange();
-    FFI_EXPORT int32_t FfiTelephonyObserverOnIccAccountInfoChange(ObserverOptions options, int64_t funcId);
+    FFI_EXPORT int32_t FfiTelephonyObserverOnIccAccountInfoChange(int64_t funcId);
     FFI_EXPORT int32_t FfiTelephonyObserverOffIccAccountInfoChange(int64_t funcId);
     FFI_EXPORT int32_t FfiTelephonyObserverOffAllIccAccountInfoChange();
 }
