@@ -50,6 +50,11 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
     for (int32_t i = 0; i < slotSize_; i++) {
         callState_[i] = static_cast<int32_t>(CallStatus::CALL_STATUS_UNKNOWN);
     }
+
+    // slotSize_ == 0 means wifionly product.
+    if (slotSize_ == 0) {
+        callState_[0] = static_cast<int32_t>(CallStatus::CALL_STATUS_UNKNOWN);
+    }
     callState_[-1] = static_cast<int32_t>(CallStatus::CALL_STATUS_UNKNOWN);
 }
 
