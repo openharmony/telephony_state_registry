@@ -144,8 +144,16 @@ int32_t WrapRadioTech(int32_t radioTechType)
 napi_status NapiReturnToJS(
     napi_env env, napi_ref callbackRef, napi_value callbackVal, std::unique_lock<std::mutex> &lock)
 {
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        return napi_ok;
+    }
     if (callbackRef == nullptr) {
         TELEPHONY_LOGE("NapiReturnToJS callbackRef is nullptr");
+        napi_close_handle_scope(env, scope);
         return napi_ok;
     }
     napi_value callbackFunc = nullptr;
@@ -160,6 +168,7 @@ napi_status NapiReturnToJS(
     if (status != napi_ok) {
         TELEPHONY_LOGE("NapiReturnToJS napi_call_function return error : %{public}d", status);
     }
+    napi_close_handle_scope(env, scope);
     return status;
 }
 
