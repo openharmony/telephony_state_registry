@@ -75,7 +75,7 @@ static void NativeOn(napi_env env, void *data)
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
-    if (SIM_SLOT_COUNT == 0) {
+    if (SIM_SLOT_COUNT == 0 && (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE)) {
         TELEPHONY_LOGE("The device is not support sim card.");
         asyncContext->resolved = true;
         return;
