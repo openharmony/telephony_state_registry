@@ -71,10 +71,7 @@ TelephonyObserver::TelephonyObserver()
         [this](MessageParcel &data, MessageParcel &reply) { OnIccAccountUpdatedInner(data, reply); };
 }
 
-TelephonyObserver::~TelephonyObserver()
-{
-    memberFuncMap_.clear();
-}
+TelephonyObserver::~TelephonyObserver() {}
 
 int32_t TelephonyObserver::OnRemoteRequest(
     uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option)
