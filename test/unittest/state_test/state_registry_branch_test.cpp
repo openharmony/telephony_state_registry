@@ -331,5 +331,6 @@ HWTEST_F(StateRegistryBranchTest, UpdateCellularDataConnectState_001, Function |
     result = proxy->UpdateIccAccount();
     ASSERT_EQ(result, TELEPHONY_SUCCESS);
 }
+
 } // namespace Telephony
 } // namespace OHOS
