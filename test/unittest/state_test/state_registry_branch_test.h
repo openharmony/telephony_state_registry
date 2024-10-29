@@ -149,6 +149,7 @@ SecurityToken::~SecurityToken()
     AccessTokenKit::DeleteToken(accessID_);
     SetSelfTokenID(currentID_);
 }
+
 } // namespace Telephony
 } // namespace OHOS
 #endif // OHOS_STATE_REGISTRY_BRANCH_TEST_H
