@@ -381,7 +381,13 @@ void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &e
         TELEPHONY_LOGE("EventListenerHandler::ProcessEvent event is nullptr");
         return;
     }
-    auto itor = handleFuncMap_.find(static_cast<TelephonyCallbackEventId>(event->GetInnerEventId()));
+    auto EventId = static_cast<TelephonyCallbackEventId>(event->GetInnerEventId());
+    if (eventId == TelephonyCallbackEventId::EVENT_ON_SIGNAL_INFO_UPDATE) {
+        TELEPHONY_LOGD("process event %{public}d", eventId);
+    } else {
+        TELEPHONY_LOGI("process event %{public}d", eventId);
+    }
+    auto itor = handleFuncMap_.find(EventId);
     if (itor != handleFuncMap_.end()) {
         itor->second(event);
     }
@@ -682,7 +688,11 @@ void EventListenerHandler::WorkUpdated(uv_work_t *work, int status)
 {
     std::unique_lock<std::mutex> lock(operatorMutex_);
     EventListener *listener = static_cast<EventListener *>(work->data);
-    TELEPHONY_LOGD("WorkUpdated eventType is %{public}d", listener->eventType);
+    if (listener->eventType == TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE) {
+        TELEPHONY_LOGD("WorkUpdated eventType is %{public}d", listener->eventType);
+    } else {
+        TELEPHONY_LOGI("WorkUpdated eventType is %{public}d", listener->eventType);
+    }
     if (listener->isDeleting == nullptr || *(listener->isDeleting)) {
         TELEPHONY_LOGI("listener is deleting");
         delete listener;
