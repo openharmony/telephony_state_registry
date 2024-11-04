@@ -381,7 +381,7 @@ void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &e
         TELEPHONY_LOGE("EventListenerHandler::ProcessEvent event is nullptr");
         return;
     }
-    auto EventId = static_cast<TelephonyCallbackEventId>(event->GetInnerEventId());
+    auto eventId = static_cast<TelephonyCallbackEventId>(event->GetInnerEventId());
     if (eventId == TelephonyCallbackEventId::EVENT_ON_SIGNAL_INFO_UPDATE) {
         TELEPHONY_LOGD("process event %{public}d", eventId);
     } else {
