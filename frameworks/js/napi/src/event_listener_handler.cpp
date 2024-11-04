@@ -387,7 +387,7 @@ void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &e
     } else {
         TELEPHONY_LOGI("process event %{public}d", eventId);
     }
-    auto itor = handleFuncMap_.find(EventId);
+    auto itor = handleFuncMap_.find(eventId);
     if (itor != handleFuncMap_.end()) {
         itor->second(event);
     }
