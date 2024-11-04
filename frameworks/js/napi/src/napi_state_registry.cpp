@@ -209,6 +209,7 @@ static void OffCallback(napi_env env, void *data)
     for (auto listener : asyncContext->removeListenerList) {
         if (env == listener.env && listener.env != nullptr && listener.callbackRef != nullptr) {
             napi_delete_reference(listener.env, listener.callbackRef);
+            listener.callbackRef = nullptr;
         }
     }
     asyncContext->removeListenerList.clear();

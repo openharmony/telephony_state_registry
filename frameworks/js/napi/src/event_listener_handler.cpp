@@ -545,6 +545,9 @@ void EventListenerHandler::UnRegisterAllListener(napi_env env)
     if (listenerList_.empty()) {
         TELEPHONY_LOGI("UnRegisterAllListener listener list is empty.");
         return;
+    } else {
+        TELEPHONY_LOGI("UnRegisterAllListener listener list size start: %{public}d",
+               static_cast<int32_t>(listenerList_.size()));
     }
     std::map<int32_t, std::set<TelephonyUpdateEventType>> removeTypeMap;
     listenerList_.remove_if([&](EventListener listener) -> bool {
@@ -560,6 +563,7 @@ void EventListenerHandler::UnRegisterAllListener(napi_env env)
             }
             if (listener.env != nullptr && listener.callbackRef != nullptr) {
                 napi_delete_reference(listener.env, listener.callbackRef);
+                listener.callbackRef = nullptr;
             }
         }
 
