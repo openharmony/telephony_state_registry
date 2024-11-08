@@ -547,7 +547,7 @@ void EventListenerHandler::UnRegisterAllListener(napi_env env)
         return;
     } else {
         TELEPHONY_LOGI("UnRegisterAllListener listener list size start: %{public}d",
-                       static_cast<int32_t>(listenerList_.size()));
+            static_cast<int32_t>(listenerList_.size()));
     }
     std::map<int32_t, std::set<TelephonyUpdateEventType>> removeTypeMap;
     listenerList_.remove_if([&](EventListener listener) -> bool {
