@@ -27,6 +27,7 @@ ohos_fuzztest("TelephonyStateRegistryFuzzTest") {
     "$SUBSYSTEM_DIR/state_registry/interfaces/innerkits/observer",
     "$SUBSYSTEM_DIR/state_registry/services/include",
     "$SUBSYSTEM_DIR/state_registry/test/fuzztest/common_fuzzer",
+    "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer/include",
   ]
 
   deps = [
