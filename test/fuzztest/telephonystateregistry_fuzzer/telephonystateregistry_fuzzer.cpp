@@ -20,19 +20,20 @@
 #define private public
 #define protected public
 #include "addstateregistrytoken_fuzzer.h"
+#include <fuzzer/FuzzedDataProvider.h>
 #include "if_system_ability_manager.h"
 #include "iservice_registry.h"
 #include "securec.h"
+#include "state_registry_ipc_interface_code.h"
 #include "system_ability_definition.h"
 #include "telephony_observer.h"
+#include "telephony_state_manager.h"
 #include "telephony_state_registry_service.h"
 #include "telephony_state_registry_stub.h"
 
 using namespace OHOS::Telephony;
 namespace OHOS {
 static bool g_isInited = false;
-constexpr int32_t BOOL_NUM = 2;
-constexpr int32_t SLOT_NUM = 2;
 constexpr int32_t ROAMING_NUM = 4;
 constexpr int32_t REG_NUM = 6;
 constexpr int32_t CELL_NUM = 7;
@@ -40,6 +41,15 @@ constexpr int32_t SIGNAL_NUM = 6;
 constexpr int32_t SIGNAL_PLUS = 1;
 constexpr int32_t NR_NUM = 7;
 constexpr int32_t RADIO_NUM = 13;
+constexpr int32_t MIN_SLOT_ID = -1;
+constexpr int32_t MAX_SLOT_ID = 4;
+constexpr int32_t MAX_LOOP_SIZE = 1000;
+
+int32_t GetRandomInt(int min, int max, const uint8_t *data, size_t size)
+{
+    FuzzedDataProvider fdp(data, size);
+    return fdp.ConsumeIntegralInRange<int32_t>(min, max);
+}
 
 bool IsServiceInited()
 {
@@ -64,7 +74,8 @@ void OnRemoteRequest(const uint8_t *data, size_t size)
     }
     dataMessageParcel.WriteBuffer(data, size);
     dataMessageParcel.RewindRead(0);
-    uint32_t code = static_cast<uint32_t>(size);
+    int32_t maxCode = static_cast<int32_t>(StateNotifyInterfaceCode::ICC_ACCOUNT_CHANGE) + 1;
+    uint32_t code = static_cast<uint32_t>(GetRandomInt(0, maxCode, data, size));
     MessageParcel reply;
     MessageOption option;
     DelayedSingleton<TelephonyStateRegistryService>::GetInstance()->OnRemoteRequest(
@@ -76,18 +87,18 @@ void CreateGsmCellInfo(std::unique_ptr<GsmCellInformation> &cell, const uint8_t 
     if (cell == nullptr) {
         return;
     }
-    cell->lac_ = static_cast<int32_t>(size);
-    cell->bsic_ = static_cast<int32_t>(size);
-    cell->arfcn_ = static_cast<int32_t>(size);
+    cell->lac_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->bsic_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->arfcn_ = GetRandomInt(0, INT32_MAX, data, size);
     std::string mcc(reinterpret_cast<const char *>(data), size);
     cell->mcc_ = mcc;
     std::string mnc(reinterpret_cast<const char *>(data), size);
     cell->mnc_ = mnc;
-    cell->cellId_ = static_cast<int32_t>(size);
-    cell->timeStamp_ = static_cast<uint64_t>(size);
-    cell->signalIntensity_ = static_cast<int32_t>(size);
-    cell->signalLevel_ = static_cast<int32_t>(size);
-    cell->isCamped_ = static_cast<int32_t>(size % BOOL_NUM);
+    cell->cellId_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->timeStamp_ = static_cast<uint64_t>(GetRandomInt(0, INT32_MAX, data, size));
+    cell->signalIntensity_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->signalLevel_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->isCamped_ = GetRandomInt(0, 1, data, size);
 }
 
 void CreateLteCellInfo(std::unique_ptr<LteCellInformation> &cell, const uint8_t *data, size_t size)
@@ -95,18 +106,18 @@ void CreateLteCellInfo(std::unique_ptr<LteCellInformation> &cell, const uint8_t 
     if (cell == nullptr) {
         return;
     }
-    cell->pci_ = static_cast<int32_t>(size);
-    cell->tac_ = static_cast<int32_t>(size);
-    cell->earfcn_ = static_cast<int32_t>(size);
+    cell->pci_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->tac_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->earfcn_ = GetRandomInt(0, INT32_MAX, data, size);
     std::string mcc(reinterpret_cast<const char *>(data), size);
     cell->mcc_ = mcc;
     std::string mnc(reinterpret_cast<const char *>(data), size);
     cell->mnc_ = mnc;
-    cell->cellId_ = static_cast<int32_t>(size);
-    cell->timeStamp_ = static_cast<uint64_t>(size);
-    cell->signalIntensity_ = static_cast<int32_t>(size);
-    cell->signalLevel_ = static_cast<int32_t>(size);
-    cell->isCamped_ = static_cast<int32_t>(size % BOOL_NUM);
+    cell->cellId_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->timeStamp_ = static_cast<uint64_t>(GetRandomInt(0, INT32_MAX, data, size));
+    cell->signalIntensity_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->signalLevel_ = GetRandomInt(0, INT32_MAX, data, size);
+    cell->isCamped_ = GetRandomInt(0, 1, data, size);
 }
 
 void UpdateCellInfo(const uint8_t *data, size_t size)
@@ -114,8 +125,8 @@ void UpdateCellInfo(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
-    int32_t loopSize = static_cast<int32_t>(size);
+    int32_t slotId = GetRandomInt(MIN_SLOT_ID, MAX_SLOT_ID, data, size);
+    int32_t loopSize = GetRandomInt(0, MAX_LOOP_SIZE, data, size);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteInt32(loopSize);
@@ -148,7 +159,8 @@ void UpdateCallState(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t callState = static_cast<int32_t>(size);
+    int32_t maxState = static_cast<int32_t>(Telephony::CallStatus::CALL_STATUS_ANSWERED) + 1;
+    int32_t callState = GetRandomInt(-1, maxState, data, size);
     std::string phoneNumber(reinterpret_cast<const char *>(data), size);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(callState);
@@ -163,8 +175,9 @@ void UpdateCallStateForSlotId(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
-    int32_t callState = static_cast<int32_t>(size);
+    int32_t slotId = GetRandomInt(MIN_SLOT_ID, MAX_SLOT_ID, data, size);
+    int32_t maxState = static_cast<int32_t>(Telephony::CallStatus::CALL_STATUS_ANSWERED) + 1;
+    int32_t callState = GetRandomInt(-1, maxState, data, size);
     std::string incomingNumber(reinterpret_cast<const char *>(data), size);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
@@ -277,8 +290,8 @@ void UpdateSignalInfo(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
-    int32_t loopSize = static_cast<int32_t>(size);
+    int32_t slotId = GetRandomInt(MIN_SLOT_ID, MAX_SLOT_ID, data, size);
+    int32_t loopSize = GetRandomInt(0, MAX_LOOP_SIZE, data, size);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteInt32(loopSize);
@@ -323,14 +336,14 @@ void UpdateNetworkState(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
+    int32_t slotId = GetRandomInt(MIN_SLOT_ID, MAX_SLOT_ID, data, size);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     auto networkState = std::make_unique<NetworkState>();
     if (networkState == nullptr) {
         return;
     }
-    networkState->isEmergency_ = static_cast<int32_t>(size % BOOL_NUM);
+    networkState->isEmergency_ = static_cast<bool>(GetRandomInt(0, 1, data, size));
     std::string mOperatorNumeric(reinterpret_cast<const char *>(data), size);
     std::string mFullName(reinterpret_cast<const char *>(data), size);
     std::string mShortName(reinterpret_cast<const char *>(data), size);
@@ -340,16 +353,16 @@ void UpdateNetworkState(const uint8_t *data, size_t size)
     networkState->csOperatorInfo_.operatorNumeric = mOperatorNumeric;
     networkState->csOperatorInfo_.fullName = mFullName;
     networkState->csOperatorInfo_.shortName = mShortName;
-    networkState->csRoaming_ = static_cast<RoamingType>(size % ROAMING_NUM);
-    networkState->psRoaming_ = static_cast<RoamingType>(size % ROAMING_NUM);
-    networkState->psRegStatus_ = static_cast<RegServiceState>(size % REG_NUM);
-    networkState->csRegStatus_ = static_cast<RegServiceState>(size % REG_NUM);
-    networkState->psRadioTech_ = static_cast<RadioTech>(size % RADIO_NUM);
-    networkState->lastPsRadioTech_ = static_cast<RadioTech>(size % RADIO_NUM);
-    networkState->lastCfgTech_ = static_cast<RadioTech>(size % RADIO_NUM);
-    networkState->csRadioTech_ = static_cast<RadioTech>(size % RADIO_NUM);
-    networkState->cfgTech_ = static_cast<RadioTech>(size % RADIO_NUM);
-    networkState->nrState_ = static_cast<NrState>(size % NR_NUM);
+    networkState->csRoaming_ = static_cast<RoamingType>(GetRandomInt(0, ROAMING_NUM, data, size));
+    networkState->psRoaming_ = static_cast<RoamingType>(GetRandomInt(0, ROAMING_NUM, data, size));
+    networkState->psRegStatus_ = static_cast<RegServiceState>(GetRandomInt(0, REG_NUM, data, size));
+    networkState->csRegStatus_ = static_cast<RegServiceState>(GetRandomInt(0, REG_NUM, data, size));
+    networkState->psRadioTech_ = static_cast<RadioTech>(GetRandomInt(0, RADIO_NUM, data, size));
+    networkState->lastPsRadioTech_ = static_cast<RadioTech>(GetRandomInt(0, RADIO_NUM, data, size));
+    networkState->lastCfgTech_ = static_cast<RadioTech>(GetRandomInt(0, RADIO_NUM, data, size));
+    networkState->csRadioTech_ = static_cast<RadioTech>(GetRandomInt(0, RADIO_NUM, data, size));
+    networkState->cfgTech_ = static_cast<RadioTech>(GetRandomInt(0, RADIO_NUM, data, size));
+    networkState->nrState_ = static_cast<NrState>(GetRandomInt(0, NR_NUM, data, size));
     networkState->Marshalling(dataMessageParcel);
     dataMessageParcel.RewindRead(0);
     MessageParcel reply;
@@ -361,7 +374,7 @@ void UpdateCellularDataConnectState(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
+    int32_t slotId = GetRandomInt(MIN_SLOT_ID, MAX_SLOT_ID, data, size);
     int32_t offset = 0;
     int32_t dataState = static_cast<int32_t>(*data + offset);
     offset += sizeof(int32_t);
@@ -381,8 +394,8 @@ void UpdateCellularDataFlow(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
-    int32_t flowData = static_cast<int32_t>(size);
+    int32_t slotId = GetRandomInt(MIN_SLOT_ID, MAX_SLOT_ID, data, size);
+    int32_t flowData = GetRandomInt(0, INT32_MAX, data, size);
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteInt32(flowData);
@@ -396,8 +409,8 @@ void UpdateCfuIndicator(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
-    bool cfuResult = static_cast<bool>(size % BOOL_NUM);
+    int32_t slotId = GetRandomInt(MIN_SLOT_ID, MAX_SLOT_ID, data, size);
+    bool cfuResult = static_cast<bool>(GetRandomInt(0, 1, data, size));
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteBool(cfuResult);
@@ -411,8 +424,8 @@ void UpdateVoiceMailMsgIndicator(const uint8_t *data, size_t size)
     if (!IsServiceInited()) {
         return;
     }
-    int32_t slotId = static_cast<int32_t>(size % SLOT_NUM);
-    bool voiceMailMsgResult = static_cast<bool>(size % BOOL_NUM);
+    int32_t slotId = GetRandomInt(MIN_SLOT_ID, MAX_SLOT_ID, data, size);
+    bool voiceMailMsgResult = static_cast<bool>(GetRandomInt(0, 1, data, size));
     MessageParcel dataMessageParcel;
     dataMessageParcel.WriteInt32(slotId);
     dataMessageParcel.WriteBool(voiceMailMsgResult);
