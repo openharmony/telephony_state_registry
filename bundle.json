@@ -44,9 +44,6 @@
                 "napi",
                 "safwk",
                 "samgr"
-            ],
-            "third_party": [
-                "libuv"
             ]
         },
         "build": {
