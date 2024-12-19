@@ -42,7 +42,9 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
 {
     slotSize_ = SIM_SLOT_COUNT;
 #ifdef OHOS_BUILD_ENABLE_TELEPHONY_VSIM
-    if (SIM_SLOT_COUNT == DUAL_SLOT_COUNT && VSIM_MODEM_COUNT == MAX_SLOT_COUNT) {
+    // two modem device also has 3 slot (2sim + 1vsim)
+    if (SIM_SLOT_COUNT == DUAL_SLOT_COUNT &&
+        (VSIM_MODEM_COUNT == MAX_SLOT_COUNT || VSIM_MODEM_COUNT == DUAL_SLOT_COUNT)) {
         slotSize_ = MAX_SLOT_COUNT;
     }
 #endif
