@@ -62,6 +62,7 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
 
 TelephonyStateRegistryService::~TelephonyStateRegistryService()
 {
+    std::lock_guard<std::mutex> guard(lock_);
     stateRecords_.clear();
     callState_.clear();
     callIncomingNumber_.clear();
