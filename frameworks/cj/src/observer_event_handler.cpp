@@ -445,7 +445,7 @@ void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
     }
     std::unique_ptr<SignalUpdateInfo> infoListUpdateInfo(static_cast<SignalUpdateInfo *>(work->data));
     size_t infoSize = infoListUpdateInfo->signalInfoList_.size();
-    if (infoSize < 0) {
+    if (infoSize <= 0) {
         TELEPHONY_LOGE("signalInfoList_ size error");
         return;
     }
