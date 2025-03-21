@@ -52,8 +52,7 @@
                 ],
                 "fwk_group": [
                     "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api",
-                    "//base/telephony/state_registry/frameworks/js/napi:observer",
-                    "//base/telephony/state_registry/frameworks/cj:cj_observer_ffi"
+                    "//base/telephony/state_registry/frameworks/js/napi:observer"
                 ],
                 "service_group": [
                     "//base/telephony/state_registry:tel_state_registry",
@@ -68,6 +67,13 @@
                         "header_base": "//base/telephony/core_service/interfaces/innerkits/include"
                     },
                     "name": "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api"
+                },
+                {
+                    "header": {
+                        "header_files": [],
+                        "header_base": "//base/telephony/state_registry/frameworks/cj/src"
+                    },
+                    "name": "//base/telephony/state_registry/frameworks/cj:cj_observer_ffi"
                 }
             ],
             "test": [
