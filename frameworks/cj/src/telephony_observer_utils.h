@@ -206,7 +206,7 @@ namespace Telephony {
     };
 
     struct CellularDataConnectState : public UpdateInfo {
-        int32_t dataStat_ = 0;
+        int32_t dataState = 0;
         int32_t networkType = 0;
         CellularDataConnectState(int32_t slotId, int32_t dataState, int32_t networkType)
             : UpdateInfo(slotId), dataState(dataState), networkType(networkType) {}
