@@ -169,15 +169,15 @@ namespace Telephony {
     };
 
     struct UpdateInfo {
-        int32_t slotId_ = 0;
-        explicit UpdateInfo(int32_t slotId) : slotId_(slotId) {}
+        int32_t slotId = 0;
+        explicit UpdateInfo(int32_t slotId) : slotId(slotId) {}
     };
 
     struct CallStateUpdateInfo : public UpdateInfo {
-        int32_t callState_ = 0;
+        int32_t callState = 0;
         std::u16string phoneNumber_ = u"";
         CallStateUpdateInfo(int32_t slotId, int32_t callStateParam, std::u16string phoneNumberParam)
-            : UpdateInfo(slotId), callState_(callStateParam), phoneNumber_(phoneNumberParam) {}
+            : UpdateInfo(slotId), callState(callStateParam), phoneNumber_(phoneNumberParam) {}
     };
 
     struct SignalUpdateInfo : public UpdateInfo {
@@ -206,15 +206,15 @@ namespace Telephony {
     };
 
     struct CellularDataConnectState : public UpdateInfo {
-        int32_t dataState_ = 0;
-        int32_t networkType_ = 0;
+        int32_t dataState = 0;
+        int32_t networkType = 0;
         CellularDataConnectState(int32_t slotId, int32_t dataState, int32_t networkType)
-            : UpdateInfo(slotId), dataState_(dataState), networkType_(networkType) {}
+            : UpdateInfo(slotId), dataState(dataState), networkType(networkType) {}
     };
 
     struct CellularDataFlowUpdate : public UpdateInfo {
-        int32_t flowType_ = 0;
-        CellularDataFlowUpdate(int32_t slotId, int32_t flowType) : UpdateInfo(slotId), flowType_(flowType) {}
+        int32_t flowType = 0;
+        CellularDataFlowUpdate(int32_t slotId, int32_t flowType) : UpdateInfo(slotId), flowType(flowType) {}
     };
 
     struct CfuIndicatorUpdate : public UpdateInfo {

@@ -323,7 +323,7 @@ void ObserverEventHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
 
     std::unique_lock<std::mutex> lock(operatorMutex_);
     for (const EventListener &listen : listenerList_) {
-        if ((listen.eventType == eventType) && (listen.slotId == info->slotId_)) {
+        if ((listen.eventType == eventType) && (listen.slotId == info->slotId)) {
             uv_work_t *work = std::make_unique<uv_work_t>().release();
             if (work == nullptr) {
                 TELEPHONY_LOGE("make work failed");
@@ -428,7 +428,7 @@ void ObserverEventHandler::WorkCallStateUpdated(const EventListener &listener,
     std::unique_ptr<CallStateUpdateInfo> callStateInfo(static_cast<CallStateUpdateInfo *>(work->data));
     std::string phoneNumber = ToUtf8(callStateInfo->phoneNumber_);
     CCallStateInfo callbackValue = {
-        .state = WrapCallState(callStateInfo->callState_),
+        .state = WrapCallState(callStateInfo->callState),
         .number = MallocCString(phoneNumber)
     };
     lock.unlock();
@@ -542,8 +542,8 @@ void ObserverEventHandler::WorkCellularDataConnectStateUpdated(const EventListen
     std::unique_ptr<CellularDataConnectState> context(
         static_cast<CellularDataConnectState *>(work->data));
     CDataConnectionStateInfo callbackValue = {
-        .state = context->dataState_,
-        .network = context->networkType_
+        .state = context->dataState,
+        .network = context->networkType
     };
     lock.unlock();
     void* argv = &(callbackValue);
@@ -559,7 +559,7 @@ void ObserverEventHandler::WorkCellularDataFlowUpdated(const EventListener &list
     }
     std::unique_ptr<CellularDataFlowUpdate> dataFlowInfo(static_cast<CellularDataFlowUpdate *>(work->data));
     lock.unlock();
-    void* argv = &(dataFlowInfo->flowType_);
+    void* argv = &(dataFlowInfo->flowType);
     listener.callbackRef(argv);
 }
 
