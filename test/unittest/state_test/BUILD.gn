@@ -18,7 +18,7 @@ ohos_unittest("tel_state_registry_test") {
   part_name = "state_registry"
   subsystem_name = "telephony"
   test_module = "tel_state_registry_test"
-  module_out_path = part_name + "/" + test_module
+  module_out_path = part_name + "/" + part_name + "/" + test_module
 
   sources = [ "$SOURCE_DIR/test/unittest/state_test/state_registry_test.cpp" ]
 
