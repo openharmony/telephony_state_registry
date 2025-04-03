@@ -202,7 +202,6 @@ int32_t TelephonyStateRegistryStub::OnUpdateSignalInfo(MessageParcel &data, Mess
     if (ret != TELEPHONY_SUCCESS) {
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnUpdateSignalInfo end fail##ret=%{public}d", ret);
     }
-    reply.WriteInt32(ret);
     return NO_ERROR;
 }
 

@@ -271,21 +271,27 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(int32_t slotId, const st
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
-    signalInfos_[slotId] = vec;
-    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
-    for (size_t i = 0; i < stateRecords_.size(); i++) {
-        TelephonyStateRegistryRecord record = stateRecords_[i];
-        if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) &&
-            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
-            if (TELEPHONY_EXT_WRAPPER.onSignalInfoUpdated_ != nullptr) {
-                std::vector<sptr<SignalInformation>> vecExt = vec;
-                TELEPHONY_EXT_WRAPPER.onSignalInfoUpdated_(slotId, record, vecExt, vec);
-                record.telephonyObserver_->OnSignalInfoUpdated(slotId, vecExt);
-            } else {
-                record.telephonyObserver_->OnSignalInfoUpdated(slotId, vec);
+    std:list<TelephonyStateRegistryRecord> matchingRecords;
+    {
+        std::lock_guard<std::mutex> guard(lock_);
+        signalInfos_[slotId] = vec;
+        int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+        for (size_t i = 0; i < stateRecords_.size(); i++) {
+            TelephonyStateRegistryRecord record = stateRecords_[i];
+            if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) &&
+                (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+                matchingRecords.push_back(record);
+                result = TELEPHONY_SUCCESS;
             }
-            result = TELEPHONY_SUCCESS;
+        }
+    }
+    for (auto it : matchingRecords) {
+        if (TELEPHONY_EXT_WRAPPER.onSignalInfoUpdated_ != nullptr) {
+            std::vector<sptr<SignalInformation>> vecExt = vec;
+            TELEPHONY_EXT_WRAPPER.onSignalInfoUpdated_(slotId, it, vecExt, vec);
+            it.telephonyObserver_->OnSignalInfoUpdated(slotId, vecExt);
+        } else {
+            it.telephonyObserver_->OnSignalInfoUpdated(slotId, vec);
         }
     }
     SendSignalInfoChanged(slotId, vec);
