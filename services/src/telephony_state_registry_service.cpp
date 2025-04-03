@@ -271,11 +271,11 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(int32_t slotId, const st
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std:list<TelephonyStateRegistryRecord> matchingRecords;
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    std::list<TelephonyStateRegistryRecord> matchingRecords;
     {
         std::lock_guard<std::mutex> guard(lock_);
         signalInfos_[slotId] = vec;
-        int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
         for (size_t i = 0; i < stateRecords_.size(); i++) {
             TelephonyStateRegistryRecord record = stateRecords_[i];
             if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS) &&
