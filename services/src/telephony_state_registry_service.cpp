@@ -298,6 +298,7 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(int32_t slotId, const st
     return result;
 }
 
+
 int32_t TelephonyStateRegistryService::UpdateCellInfo(int32_t slotId, const std::vector<sptr<CellInformation>> &vec)
 {
     if (!VerifySlotId(slotId)) {
