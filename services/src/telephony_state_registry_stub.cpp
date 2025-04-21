@@ -326,7 +326,6 @@ int32_t TelephonyStateRegistryStub::OnUpdateCellInfo(MessageParcel &data, Messag
     }
     ret = UpdateCellInfo(slotId, cells);
     TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateCellInfo end##ret=%{public}d", ret);
-    reply.WriteInt32(ret);
     return NO_ERROR;
 }
 
