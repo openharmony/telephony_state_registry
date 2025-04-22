@@ -865,10 +865,7 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_012, Function | MediumTest | L
     MessageParcel dataParcel;
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_003 WriteInterfaceToken failed!");
-        return;
-    }
+
     ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     std::vector<sptr<SignalInformation>> vec;
     std::unique_ptr<NrSignalInformation> nrSignal = std::make_unique<NrSignalInformation>();
