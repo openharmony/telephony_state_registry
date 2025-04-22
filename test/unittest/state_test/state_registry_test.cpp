@@ -560,7 +560,7 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_001, Function | MediumTest | L
     MessageOption option;
     option.SetFlags(MessageOption::TF_ASYNC);
     std::u16string testStr = u"test";
-    ASSERT_TRUE(dataRarcel.WriteInterfaceToken(testStr));
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(testStr));
 
     int32_t ret = telephonyObserver.OnRemoteRequest(
         static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CALL_STATE_UPDATED), dataParcel, reply,
@@ -780,7 +780,7 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_009, Function | MediumTest | L
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
 
-    ASSERT_TRUE(dataParcel.WriteInterfaceToken(telephonyObserverProxy::GetDescriptor()));
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     uint32_t testId = 123;
     int32_t ret = telephonyObserver.OnRemoteRequest(testId, dataParcel, reply, option);
     EXPECT_NE(TELEPHONY_ERR_SUCCESS, ret);
