@@ -560,10 +560,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_001, Function | MediumTest | L
     MessageOption option;
     option.SetFlags(MessageOption::TF_ASYNC);
     std::u16string testStr = u"test";
-    if (!dataParcel.WriteInterfaceToken(testStr)) {
-        TELEPHONY_LOGE("TelephonyObserverTest_001 WriteInterfaceToken failed!");
-        return;
-    }
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(testStr));
+
     int32_t ret = telephonyObserver.OnRemoteRequest(
         static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_CALL_STATE_UPDATED), dataParcel, reply,
         option);
@@ -583,10 +581,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_002, Function | MediumTest | L
     MessageOption option;
     std::u16string phoneNumber = u"123456";
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_002 WriteInterfaceToken failed!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
     dataParcel.WriteInt32(CALL_STATUS_ACTIVE);
     dataParcel.WriteString16(phoneNumber);
@@ -608,10 +604,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_003, Function | MediumTest | L
     MessageParcel dataParcel;
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_003 WriteInterfaceToken failed!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     std::vector<sptr<SignalInformation>> vec;
     std::unique_ptr<SignalInformation> gsmSignal = std::make_unique<GsmSignalInformation>();
     ASSERT_TRUE(gsmSignal != nullptr);
@@ -652,10 +646,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_004, Function | MediumTest | L
     MessageParcel dataParcel;
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_004 WriteInterfaceToken failed!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     std::vector<sptr<CellInformation>> vec;
     std::unique_ptr<GsmCellInformation> gsmCell = std::make_unique<GsmCellInformation>();
     ASSERT_TRUE(gsmCell != nullptr);
@@ -671,10 +663,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_004, Function | MediumTest | L
     vec.push_back(nrCell.release());
     int32_t size = static_cast<int32_t>(vec.size());
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
-    if (!dataParcel.WriteInt32(size)) {
-        TELEPHONY_LOGE("Failed to write Cellinformation array size!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInt32(size));
     for (const auto &v : vec) {
         v->Marshalling(dataParcel);
     }
@@ -696,10 +686,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_005, Function | MediumTest | L
     MessageParcel dataParcel;
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_005 WriteInterfaceToken failed!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
     std::unique_ptr<NetworkState> networkState = std::make_unique<NetworkState>();
     ASSERT_TRUE(networkState != nullptr);
@@ -722,10 +710,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_006, Function | MediumTest | L
     MessageParcel dataParcel;
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_006 WriteInterfaceToken failed!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
     dataParcel.WriteInt32(SINGLE_MODE_SIM_CARD);
     dataParcel.WriteInt32(SIM_STATE_NOT_PRESENT);
@@ -748,10 +734,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_007, Function | MediumTest | L
     MessageParcel dataParcel;
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_007 WriteInterfaceToken failed!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
     dataParcel.WriteInt32(DATA_STATE_CONNECTING);
     dataParcel.WriteInt32(NETWORK_TYPE_GSM);
@@ -773,10 +757,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_008, Function | MediumTest | L
     MessageParcel dataParcel;
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_008 WriteInterfaceToken failed!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     dataParcel.WriteInt32(DEFAULT_SIM_SLOT_ID);
     dataParcel.WriteInt32(DATA_FLOW_TYPE_DOWN);
     int32_t ret = telephonyObserver.OnRemoteRequest(
@@ -797,10 +779,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_009, Function | MediumTest | L
     MessageParcel dataParcel;
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_009 WriteInterfaceToken failed!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     uint32_t testId = 123;
     int32_t ret = telephonyObserver.OnRemoteRequest(testId, dataParcel, reply, option);
     EXPECT_NE(TELEPHONY_ERR_SUCCESS, ret);
@@ -885,10 +865,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_012, Function | MediumTest | L
     MessageParcel dataParcel;
     MessageParcel reply;
     option.SetFlags(MessageOption::TF_ASYNC);
-    if (!dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor())) {
-        TELEPHONY_LOGE("TelephonyObserverTest_003 WriteInterfaceToken failed!");
-        return;
-    }
+
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
     std::vector<sptr<SignalInformation>> vec;
     std::unique_ptr<NrSignalInformation> nrSignal = std::make_unique<NrSignalInformation>();
     ASSERT_TRUE(nrSignal != nullptr);
@@ -915,10 +893,8 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_012, Function | MediumTest | L
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_001, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_001 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     EXPECT_TRUE(service->IsCommonEventServiceAbilityExist());
     EXPECT_EQ(TELEPHONY_ERROR, service->GetLockReason(0));
     EXPECT_EQ(TELEPHONY_ERROR, service->GetCellularDataConnectionNetworkType(0));
@@ -958,10 +934,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_001, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_002, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_002 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     int32_t fd = -1;
     std::vector<std::u16string> args;
     EXPECT_EQ(TELEPHONY_ERR_FAIL, service->Dump(fd, args));
@@ -1007,10 +981,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_002, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_003, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_003 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     EXPECT_TRUE(service->CheckPermission(0));
     EXPECT_TRUE(service->CheckCallerIsSystemApp(0));
     EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE));
@@ -1048,10 +1020,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_003, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_004, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_004 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     if (service->state_ == ServiceRunningState::STATE_RUNNING) {
         service->OnStart();
     }
@@ -1086,10 +1056,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_004, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_005, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_005 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
     int32_t invalidSlotId = 5;
@@ -1134,10 +1102,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_005, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_006 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     AccessToken token;
     std::u16string number = u"123";
     TelephonyStateRegistryRecord record;
@@ -1185,10 +1151,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_007, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_007 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     AccessToken token;
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
@@ -1235,10 +1199,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_007, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_008, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_008 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     AccessToken token;
     MessageParcel dataParcel;
     dataParcel.WriteInt32(static_cast<int32_t>(SignalInformation::NetworkType::GSM));
@@ -1283,10 +1245,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_008, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_009, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_009 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     MessageParcel dataCellInfo;
     int32_t size = 4;
     dataCellInfo.WriteInt32(0);
@@ -1321,10 +1281,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_009, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_010, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_010 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     AccessToken token;
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
@@ -1353,10 +1311,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_010, Function | Me
 HWTEST_F(StateRegistryTest, TelephonyStateRegistrySimCountTest_001, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_001 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     service->slotSize_ = MAX_SLOT_COUNT;
     EXPECT_TRUE(service->VerifySlotId(0));
     EXPECT_TRUE(service->VerifySlotId(1));
@@ -1373,10 +1329,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistrySimCountTest_001, Function | M
 HWTEST_F(StateRegistryTest, TelephonyStateRegistrySimCountTest_002, Function | MediumTest | Level1)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    if (service == nullptr) {
-        TELEPHONY_LOGE("TelephonyStateRegistryServiceTest_001 service is nullptr");
-        return;
-    }
+
+    ASSERT_TRUE(service != nullptr);
     service->slotSize_ = DUAL_SLOT_COUNT;
     EXPECT_TRUE(service->VerifySlotId(0));
     EXPECT_TRUE(service->VerifySlotId(1));
