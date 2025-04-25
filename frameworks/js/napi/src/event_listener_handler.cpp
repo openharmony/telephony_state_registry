@@ -717,7 +717,7 @@ void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work, std::unique_loc
 {
     std::unique_ptr<CallStateContext> callStateInfo(static_cast<CallStateContext *>(work->data));
     const napi_env &env = callStateInfo->env;
-    napi_handle_scope scope= nullptr;
+    napi_handle_scope scope = nullptr;
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
@@ -736,7 +736,7 @@ void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work, std::unique_loc
 
 void EventListenerHandler::WorkSignalUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
-    napi_handle_scope scope= nullptr;
+    napi_handle_scope scope = nullptr;
     std::unique_ptr<SignalListContext> infoListUpdateInfo(static_cast<SignalListContext *>(work->data));
     napi_value callbackValue = nullptr;
     const napi_env &env = infoListUpdateInfo->env;
