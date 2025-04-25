@@ -766,8 +766,6 @@ void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work, std::unique_
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
-        return;
     }
     const sptr<NetworkState> &networkState = networkStateUpdateInfo->networkState;
     napi_create_object(env, &callbackValue);
