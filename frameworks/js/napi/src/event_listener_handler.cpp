@@ -716,6 +716,14 @@ void EventListenerHandler::WorkUpdated(uv_work_t *work, int status)
 void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
     std::unique_ptr<CallStateContext> callStateInfo(static_cast<CallStateContext *>(work->data));
+    const napi_env &env = callStateInfo->env;
+    napi_handle_scope scope= nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        return;
+    }
     napi_value callbackValue = nullptr;
     napi_create_object(callStateInfo->env, &callbackValue);
     int32_t wrappedCallState = WrapCallState(callStateInfo->callState);
@@ -723,13 +731,21 @@ void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work, std::unique_loc
     SetPropertyToNapiObject(callStateInfo->env, callbackValue, "state", wrappedCallState);
     SetPropertyToNapiObject(callStateInfo->env, callbackValue, "number", number);
     NapiReturnToJS(callStateInfo->env, callStateInfo->callbackRef, callbackValue, lock);
+    napi_close_handle_scope(env, scope);
 }
 
 void EventListenerHandler::WorkSignalUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
+    napi_handle_scope scope= nullptr;
     std::unique_ptr<SignalListContext> infoListUpdateInfo(static_cast<SignalListContext *>(work->data));
     napi_value callbackValue = nullptr;
     const napi_env &env = infoListUpdateInfo->env;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        return;
+    }
     napi_create_array(env, &callbackValue);
     size_t infoSize = infoListUpdateInfo->signalInfoList.size();
     for (size_t i = 0; i < infoSize; ++i) {
@@ -742,6 +758,7 @@ void EventListenerHandler::WorkSignalUpdated(uv_work_t *work, std::unique_lock<s
         napi_set_element(env, callbackValue, i, info);
     }
     NapiReturnToJS(env, infoListUpdateInfo->callbackRef, callbackValue, lock);
+    napi_close_handle_scope(env, scope);
 }
 
 void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
@@ -789,12 +806,21 @@ void EventListenerHandler::WorkCellInfomationUpdated(uv_work_t *work, std::uniqu
 {
     std::unique_ptr<CellInfomationContext> cellInfo(static_cast<CellInfomationContext *>(work->data));
     napi_value callbackValue = nullptr;
+    const napi_env &env = cellInfo->env;
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        return;
+    }
     napi_create_array(cellInfo->env, &callbackValue);
     for (size_t i = 0; i < cellInfo->cellInfoVec.size(); i++) {
         napi_value val = CellInfoConversion(cellInfo->env, *(cellInfo->cellInfoVec[i]));
         napi_set_element(cellInfo->env, callbackValue, i, val);
     }
     NapiReturnToJS(cellInfo->env, cellInfo->callbackRef, callbackValue, lock);
+    napi_close_handle_scope(env, scope);
 }
 
 void EventListenerHandler::WorkCellularDataConnectStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
