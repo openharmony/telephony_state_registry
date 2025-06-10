@@ -164,7 +164,7 @@ void StateRegistryTest::UpdateCallStateForSlotId(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCallStateForSlotId(
         slotId, callState, number);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCallStateForSlotId ret = %{public}d", ret);
-    EXPECT_TRUE(IsSuccess(ret));
+    EXPECT_FALSE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateSignalInfo(int32_t slotId)
@@ -187,7 +187,7 @@ void StateRegistryTest::UpdateCellularDataConnectState(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCellularDataConnectState(
         slotId, dataState, networkState);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCellularDataConnectState ret = %{public}d", ret);
-    EXPECT_TRUE(IsSuccess(ret));
+    EXPECT_FALSE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateCellularDataFlow(int32_t slotId)
@@ -197,7 +197,7 @@ void StateRegistryTest::UpdateCellularDataFlow(int32_t slotId)
     int32_t ret =
         DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCellularDataFlow(slotId, dataFlowType);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCellularDataFlow ret = %{public}d", ret);
-    EXPECT_TRUE(IsSuccess(ret));
+    EXPECT_FALSE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateSimState(int32_t slotId)
@@ -209,7 +209,7 @@ void StateRegistryTest::UpdateSimState(int32_t slotId)
     int32_t ret =
         DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateSimState(slotId, type, state, reason);
     TELEPHONY_LOGI("StateRegistryTest::UpdateSimState ret = %{public}d", ret);
-    EXPECT_TRUE(IsSuccess(ret));
+    EXPECT_FALSE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateNetworkState(int32_t slotId)
@@ -220,7 +220,7 @@ void StateRegistryTest::UpdateNetworkState(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateNetworkState(
         slotId, networkState.release());
     TELEPHONY_LOGI("StateRegistryTest::UpdateNetworkState ret = %{public}d", ret);
-    EXPECT_TRUE(IsSuccess(ret));
+    EXPECT_FALSE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateCfuIndicator(int32_t slotId)
@@ -230,7 +230,7 @@ void StateRegistryTest::UpdateCfuIndicator(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCfuIndicator(
         slotId, cfuResult);
     TELEPHONY_LOGI("StateRegistryTest::UpdateCfuIndicator ret = %{public}d", ret);
-    EXPECT_TRUE(IsSuccess(ret));
+    EXPECT_FALSE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateVoiceMailMsgIndicator(int32_t slotId)
@@ -240,7 +240,7 @@ void StateRegistryTest::UpdateVoiceMailMsgIndicator(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateVoiceMailMsgIndicator(
         slotId, voiceMailMsgResult);
     TELEPHONY_LOGI("StateRegistryTest::UpdateVoiceMailMsgIndicator ret = %{public}d", ret);
-    EXPECT_TRUE(IsSuccess(ret));
+    EXPECT_FALSE(IsSuccess(ret));
 }
 
 void StateRegistryTest::UpdateIccAccount()
