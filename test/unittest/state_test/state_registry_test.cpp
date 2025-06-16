@@ -155,6 +155,17 @@ void StateRegistryTest::UpdateCallState(int32_t slotId)
     EXPECT_TRUE(IsSuccess(ret));
 }
 
+void StateRegistryTest::UpdateCallStateForSlotId(int32_t slotId)
+{
+    AccessToken token;
+    int32_t callState = 16;
+    std::string phoneNumber("137xxxxxxxx");
+    std::u16string number = Str8ToStr16(phoneNumber);
+    int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCallStateForSlotId(
+        slotId, callState, number);
+    TELEPHONY_LOGI("StateRegistryTest::UpdateCallStateForSlotId ret = %{public}d", ret);
+}
+
 void StateRegistryTest::UpdateSignalInfo(int32_t slotId)
 {
     AccessToken token;
@@ -165,6 +176,64 @@ void StateRegistryTest::UpdateSignalInfo(int32_t slotId)
     int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateSignalInfo(slotId, vec);
     TELEPHONY_LOGI("StateRegistryTest::UpdateSignalInfo result = %{public}d", ret);
     EXPECT_TRUE(IsSuccess(ret));
+}
+
+void StateRegistryTest::UpdateCellularDataConnectState(int32_t slotId)
+{
+    AccessToken token;
+    int32_t dataState = 1;
+    int32_t networkState = 1;
+    int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCellularDataConnectState(
+        slotId, dataState, networkState);
+    TELEPHONY_LOGI("StateRegistryTest::UpdateCellularDataConnectState ret = %{public}d", ret);
+}
+
+void StateRegistryTest::UpdateCellularDataFlow(int32_t slotId)
+{
+    AccessToken token;
+    int32_t dataFlowType = 0;
+    int32_t ret =
+        DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCellularDataFlow(slotId, dataFlowType);
+    TELEPHONY_LOGI("StateRegistryTest::UpdateCellularDataFlow ret = %{public}d", ret);
+}
+
+void StateRegistryTest::UpdateSimState(int32_t slotId)
+{
+    AccessToken token;
+    CardType type = CardType::UNKNOWN_CARD;
+    SimState state = SimState::SIM_STATE_UNKNOWN;
+    LockReason reason = LockReason::SIM_NONE;
+    int32_t ret =
+        DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateSimState(slotId, type, state, reason);
+    TELEPHONY_LOGI("StateRegistryTest::UpdateSimState ret = %{public}d", ret);
+}
+
+void StateRegistryTest::UpdateNetworkState(int32_t slotId)
+{
+    AccessToken token;
+    std::unique_ptr<NetworkState> networkState = std::make_unique<NetworkState>();
+    ASSERT_TRUE(networkState != nullptr);
+    int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateNetworkState(
+        slotId, networkState.release());
+    TELEPHONY_LOGI("StateRegistryTest::UpdateNetworkState ret = %{public}d", ret);
+}
+
+void StateRegistryTest::UpdateCfuIndicator(int32_t slotId)
+{
+    AccessToken token;
+    bool cfuResult = true;
+    int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateCfuIndicator(
+        slotId, cfuResult);
+    TELEPHONY_LOGI("StateRegistryTest::UpdateCfuIndicator ret = %{public}d", ret);
+}
+
+void StateRegistryTest::UpdateVoiceMailMsgIndicator(int32_t slotId)
+{
+    AccessToken token;
+    bool voiceMailMsgResult = true;
+    int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateVoiceMailMsgIndicator(
+        slotId, voiceMailMsgResult);
+    TELEPHONY_LOGI("StateRegistryTest::UpdateVoiceMailMsgIndicator ret = %{public}d", ret);
 }
 
 void StateRegistryTest::UpdateIccAccount()
