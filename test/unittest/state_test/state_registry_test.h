@@ -180,14 +180,7 @@ public:
     static bool HasSimCard(int32_t slotId);
 
     void UpdateCallState(int32_t slotId);
-    void UpdateCallStateForSlotId(int32_t slotId);
     void UpdateSignalInfo(int32_t slotId);
-    void UpdateCellularDataConnectState(int32_t slotId);
-    void UpdateCellularDataFlow(int32_t slotId);
-    void UpdateSimState(int32_t slotId);
-    void UpdateNetworkState(int32_t slotId);
-    void UpdateCfuIndicator(int32_t slotId);
-    void UpdateVoiceMailMsgIndicator(int32_t slotId);
     void UpdateIccAccount();
 
 public:
