@@ -325,7 +325,7 @@ HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_002, Function | MediumTest 
  */
 HWTEST_F(StateRegistryTest, UpdateSignalInfo_001, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         UpdateSignalInfo(DEFAULT_SIM_SLOT_ID);
     }
 }
@@ -349,7 +349,7 @@ HWTEST_F(StateRegistryTest, UpdateSignalInfo_002, Function | MediumTest | Level1
  */
 HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_001, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         UpdateCellularDataConnectState(DEFAULT_SIM_SLOT_ID);
     }
 }
@@ -373,7 +373,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_002, Function | Mediu
  */
 HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_001, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         UpdateCellularDataFlow(DEFAULT_SIM_SLOT_ID);
     }
 }
@@ -397,7 +397,7 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_002, Function | MediumTest | 
  */
 HWTEST_F(StateRegistryTest, UpdateSimState_001, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         UpdateSimState(DEFAULT_SIM_SLOT_ID);
     }
 }
@@ -445,7 +445,7 @@ HWTEST_F(StateRegistryTest, UpdateNetworkState_002, Function | MediumTest | Leve
  */
 HWTEST_F(StateRegistryTest, UpdateCfuIndicator_001, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         UpdateCfuIndicator(DEFAULT_SIM_SLOT_ID);
     }
 }
@@ -469,7 +469,7 @@ HWTEST_F(StateRegistryTest, UpdateCfuIndicator_002, Function | MediumTest | Leve
  */
 HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_001, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+    if (StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
         UpdateVoiceMailMsgIndicator(DEFAULT_SIM_SLOT_ID);
     }
 }
