@@ -342,7 +342,6 @@ HWTEST_F(StateRegistryTest, UpdateSignalInfo_002, Function | MediumTest | Level1
     if (StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         UpdateSignalInfo(SIM_SLOT_ID_1);
     }
-
 }
 
 /**
