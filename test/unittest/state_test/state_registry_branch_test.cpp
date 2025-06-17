@@ -157,7 +157,7 @@ HWTEST_F(StateRegistryBranchTest, StateRegistry_Notify_001, Function | MediumTes
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_OnStart_001, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_OnStart_001, TestSize.Level0)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
     ASSERT_NE(service, nullptr);
@@ -171,7 +171,7 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_OnStart_001, Fun
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_OnStart_002, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_OnStart_002, TestSize.Level0)
 {
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
     ASSERT_NE(service, nullptr);
@@ -185,7 +185,7 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_OnStart_002, Fun
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount_001, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount_001, TestSize.Level0)
 {
     AccessToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
@@ -203,7 +203,7 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount_002, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount_002, TestSize.Level0)
 {
     AccessToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
@@ -221,7 +221,7 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount_003, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount_003, TestSize.Level0)
 {
     AccessToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
@@ -238,7 +238,7 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, Service_CheckCallerIsSystemApp_001, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, Service_CheckCallerIsSystemApp_001, TestSize.Level0)
 {
     SecurityToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
@@ -259,7 +259,7 @@ HWTEST_F(StateRegistryBranchTest, Service_CheckCallerIsSystemApp_001, Function |
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, Service_UnregisterStateChange_001, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, Service_UnregisterStateChange_001, TestSize.Level0)
 {
     AccessToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
@@ -288,7 +288,7 @@ HWTEST_F(StateRegistryBranchTest, Service_UnregisterStateChange_001, Function | 
  * @tc.name     Get System Services
  * @tc.desc     Function test
  */
-HWTEST_F(StateRegistryBranchTest, UpdateCellularDataConnectState_001, Function | MediumTest | Level0)
+HWTEST_F(StateRegistryBranchTest, UpdateCellularDataConnectState_001, TestSize.Level0)
 {
     sptr<TestIRemoteObject> remote = new (std::nothrow) TestIRemoteObject();
     std::shared_ptr<TelephonyStateRegistryProxy> proxy = std::make_shared<TelephonyStateRegistryProxy>(remote);
