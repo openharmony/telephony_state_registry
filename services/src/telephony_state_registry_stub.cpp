@@ -361,6 +361,7 @@ int32_t TelephonyStateRegistryStub::OnRegisterStateChange(MessageParcel &data, M
     if (ret != TELEPHONY_SUCCESS) {
         TELEPHONY_LOGE("TelephonyStateRegistryStub::OnRegisterStateChange end fail##ret=%{public}d", ret);
     }
+    reply.WriteInt32(ret);
     return NO_ERROR;
 }
 
