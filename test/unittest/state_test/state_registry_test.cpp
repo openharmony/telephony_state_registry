@@ -548,6 +548,25 @@ HWTEST_F(StateRegistryTest, TelephonyStateManagerTest_001, Function | MediumTest
 }
 
 /**
+ * @tc.number   TelephonyStateManagerTest_002
+ * @tc.name     telephony state manager add/remove state observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryTest, TelephonyStateManagerTest_002, Function | MediumTest | Level1)
+{
+    TELEPHONY_LOGI("TelephonyStateManagerTest_002 start!");
+    if (!StateRegistryTest::HasSimCard(DEFAULT_SIM_SLOT_ID)) {
+        TELEPHONY_LOGI("no sim card!");
+    }
+    TelephonyStateManager::AddStateObserver(
+        telephonyObserver0_, DEFAULT_SIM_SLOT_ID, TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE, true);
+    wptr<IRemoteObject> wptrDeath = nullptr;
+    int32_t ret = TelephonyStateManager::RemoveStateObserver(
+        DEFAULT_SIM_SLOT_ID, Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
  * @tc.number   TelephonyObserverTest_001
  * @tc.name     telephony observer test
  * @tc.desc     Function test

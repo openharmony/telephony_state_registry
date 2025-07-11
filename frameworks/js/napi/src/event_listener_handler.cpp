@@ -428,9 +428,10 @@ int32_t EventListenerHandler::RegisterEventListener(EventListener &eventListener
             TELEPHONY_LOGE("error by observer nullptr");
             return TELEPHONY_ERR_LOCAL_PTR_NULL;
         }
+        bool isUpdate = (eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
+                        eventListener.eventType == TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE);
         int32_t addResult = TelephonyStateManager::AddStateObserver(
-            observer, eventListener.slotId, ToUint32t(eventListener.eventType),
-            eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE);
+            observer, eventListener.slotId, ToUint32t(eventListener.eventType), isUpdate);
         if (addResult != TELEPHONY_SUCCESS) {
             TELEPHONY_LOGE("AddStateObserver failed, ret=%{public}d!", addResult);
             return addResult;
