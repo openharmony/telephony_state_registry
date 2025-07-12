@@ -17,11 +17,11 @@
 #include "ohos.telephony.observer.ani.hpp"
 ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
 {
-    ani_anv *env;
+    ani_env *env;
     if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
         return ANI_ERROR;
     }
-    if (ANI_OK != ohos::telephony::sms::ANIRegister(env)) {
+    if (ANI_OK != ohos::telephony::observer::ANIRegister(env)) {
         std::cerr << "Error from ohos::telephony::observer::ANIRegister" << std::endl;
         return ANI_ERROR;
     }

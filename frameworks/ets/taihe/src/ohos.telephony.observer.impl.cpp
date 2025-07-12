@@ -33,7 +33,7 @@ void onCallStateChange2(::ohos::telephony::observer::ObserverOptions const& opti
     return;
 }
 
-void offCallStateChange(::taihe::option_view<::taihe::callback<void(
+void offCallStateChange(::taihe::optional_view<::taihe::callback<void(
     ::ohos::telephony::observer::CallStateInfo const&)>> callback)
 {
     return;

@@ -41,4 +41,4 @@ function onCallStateChange(callback: (data: CallStateInfo) => void): void;
 function onCallStateChange2(options: ObserverOptions, callback: (data: CallStateInfo) => void): void;
 
 @on_off("callStateChange")
-function offCallStateChange(callback: Optional<(data: CallStateInfo) => void): void;
+function offCallStateChange(callback: Optional<(data: CallStateInfo) => void>): void;
