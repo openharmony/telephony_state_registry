@@ -43,7 +43,10 @@
                 "libuv",
                 "napi",
                 "safwk",
-                "samgr"
+                "samgr",
+                "ability_runtime",
+                "image_framework",
+                "runtime_core"
             ]
         },
         "build": {
@@ -52,7 +55,8 @@
                 ],
                 "fwk_group": [
                     "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api",
-                    "//base/telephony/state_registry/frameworks/js/napi:observer"
+                    "//base/telephony/state_registry/frameworks/js/napi:observer",
+                    "//base/telephony/state_registry/frameworks/ets/taihe:telephony_observer_taihe"
                 ],
                 "service_group": [
                     "//base/telephony/state_registry:tel_state_registry",
@@ -74,6 +78,9 @@
                         "header_base": "//base/telephony/state_registry/frameworks/cj/src"
                     },
                     "name": "//base/telephony/state_registry/frameworks/cj:cj_observer_ffi"
+                },
+                {
+                    "name": "//base/telephony/state_registry/frameworks/ets/taihe:copy_telephonyobserver"
                 }
             ],
             "test": [

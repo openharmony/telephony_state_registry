@@ -1,0 +1,29 @@
+@!namespace("@ohos.telephony.observer", "observer")
+@!sts_inject("""
+static { loadLibrary("telephony_observer_taihe_native.z") }
+""")
+
+enum CallState: i32 {
+    CALL_STATE_UNKNOWN = -1,
+    CALL_STATE_IDLE = 0,
+    CALL_STATE_RINGING = 1,
+    CALL_STATE_OFFHOOK = 2,
+    CALL_STATE_ANSWERED = 3
+}
+
+struct CallStateInfo {
+    state: CallState;
+}
+
+struct ObserverOptions {
+    slotId: i32;
+}
+
+@on_off("callStateChange")
+function onCallStateChange(callback: (data: CallStateInfo) => void): void;
+
+@on_off("callStateChange")
+function onCallStateChange2(options: ObserverOptions, callback: (data: CallStateInfo) => void): void;
+
+@on_off("callStateChange")
+function offCallStateChange(callback: Optional<(data: CallStateInfo) => void): void;
