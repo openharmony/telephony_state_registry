@@ -44,7 +44,7 @@ taihe_shared_library("telephony_observer_taihe_native") {                #调用
   ]
   deps = [
     ":run_taihe",
-    "//base/telephony/call_manager/frameworks/native/observer:tel_state_registry_api"               #根据业务添加编译依赖
+    "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api"               #根据业务添加编译依赖
   ]
 
   external_deps = [
