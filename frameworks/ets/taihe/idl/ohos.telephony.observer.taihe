@@ -1,0 +1,44 @@
+/*
+ * Copyright (C) 2025-2025 Huawei Device Co., Ltd.
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+@!namespace("@ohos.telephony.observer", "observer")
+@!sts_inject("""
+static { loadLibrary("telephony_observer_taihe_native.z") }
+""")
+
+enum CallState: i32 {
+    CALL_STATE_UNKNOWN = -1,
+    CALL_STATE_IDLE = 0,
+    CALL_STATE_RINGING = 1,
+    CALL_STATE_OFFHOOK = 2,
+    CALL_STATE_ANSWERED = 3
+}
+
+struct CallStateInfo {
+    state: CallState;
+}
+
+struct ObserverOptions {
+    slotId: i32;
+}
+
+@on_off("callStateChange")
+function onCallStateChange(callback: (data: CallStateInfo) => void): void;
+
+@on_off("callStateChange")
+function onCallStateChange2(options: ObserverOptions, callback: (data: CallStateInfo) => void): void;
+
+@on_off("callStateChange")
+function offCallStateChange(callback: Optional<(data: CallStateInfo) => void>): void;

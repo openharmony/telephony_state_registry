@@ -1,0 +1,94 @@
+# Copyright (C) 2025-2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+# 
+#    http://www.apache.org/licenses/LICENSE-2.0
+# 
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/components/ets_frontend/ets2abc_config.gni")
+import("//build/ohos.gni")
+import("//build/ohos/taihe_idl/taihe.gni")              #导入taige.gni
+
+copy_taihe_idl("copy_telephonyobserver") {               #使用copy_taihe_idl模板
+  sources = [ "idl/ohos.telephony.observer.taihe" ] 
+
+}
+subsystem_name = "telephony"
+part_name = "state_registry"
+taihe_generated_file_path = "$taihe_file_path/out/$subsystem_name/$part_name"               #建议直接用此路径
+
+ohos_taihe("run_taihe") {               #调用ohos_taihe模板，生成文件在/out/rk3568/taihe/out/security/crypto_framework文件夹下
+  taihe_generated_file_path = "$taihe_generated_file_path"
+  deps = [ ":copy_telephonyobserver" ]
+  outputs = [
+    "$taihe_generated_file_path/src/ohos.telephony.observer.ani.cpp",
+    "$taihe_generated_file_path/src/ohos.telephony.observer.abi.c",
+  ]
+}
+
+taihe_shared_library("telephony_observer_taihe_native") {                #调用taihe_shared_library模板编译so
+  taihe_generated_file_path = "$taihe_generated_file_path"
+  part_name = "$part_name"
+  subsystem_name = "$subsystem_name"
+  sources = get_target_outputs(":run_taihe")
+  include_dirs = [ "../../js/napi/include" ]                #根据业务需求添加include目录
+  sources += [
+    "src/ani_constructor.cpp",
+    "src/ohos.telephony.observer.impl.cpp",
+  ]
+  deps = [
+    ":run_taihe",
+    "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api"               #根据业务添加编译依赖
+  ]
+
+  external_deps = [
+    "ability_base:base",
+    "ability_base:want",
+    "ability_runtime:ability_manager",
+    "ability_runtime:napi_common",
+    "c_utils:utils",
+    "core_service:libtel_common",
+    "core_service:tel_core_service_api",
+    "hilog:libhilog",
+    "image_framework:image",
+    "image_framework:image_native",
+    "init:libbegetutil",
+    "libuv:uv",
+    "napi:ace_napi",
+  ]
+
+  sanitize = {
+    cfi = false             # napi target, not required to enable cfi
+    cfi_cross_dso = false
+    debug = false
+  }
+  branch_protector_ret = "pac_ret"
+}
+generate_static_abc("telephony_observer_abc") {             #调用generate_static_abc编译abc
+  base_url = "$taihe_generated_file_path"               #base_url直接设置为taihe_generated_file_path
+  files = [ "$taihe_generated_file_path/@ohos.telephony.observer.ets" ]              #files传入生成的ets文件
+  is_boot_abc = "True"
+  device_dst_file = "/system/framework/telephony_observer_abc.abc"
+  dependencies = [ ":run_taihe" ]               #编译abc依赖太和工具链调用                                                                                                                                                                                                                         
+}
+
+ohos_prebuilt_etc("telephony_observer_etc") {                #调用ohos_prebuilt_etc将abc拷贝到/system/framework’xia
+  source = "$target_out_dir/telephony_observer_abc.abc"           
+  module_install_dir = "framework"
+  part_name = "$part_name"
+  subsystem_name = "$subsystem_name"
+  deps = [ ":telephony_observer_abc" ]               #拷贝abc依赖编译abc
+}
+group("telephony_observer_taihe") {
+  deps = [
+    ":telephony_observer_etc",
+    ":telephony_observer_taihe_native",
+  ]
+  #deps = [":run_taihe"]                #单独运行run_taihe目标即可只调用工具链并生成对应代码
+}
