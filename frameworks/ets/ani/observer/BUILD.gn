@@ -1,0 +1,112 @@
+# Copyright (c) 2025 Huawei Device Co., Ltd.
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+import("//build/config/components/ets_frontend/ets2abc_config.gni")
+import("//build/ohos.gni")
+SUBSYSTEM_DIR = "../../../../.."
+rust_cxx("observer_ani_cxx_gen") {
+  sources = [ "src/wrapper.rs" ]
+}
+
+ohos_static_library("observer_ani_cxx") {
+  sanitize = {
+    integer_overflow = true
+    ubsan = true
+    boundary_sanitize = true
+    cfi = true
+    cfi_cross_dso = true
+    debug = false
+  }
+
+  include_dirs = [
+    "include",
+    "${target_gen_dir}/src",
+    "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer/include",
+  ]
+  sources = [ "src/cxx/observer_ani.cpp" ]
+  sources += get_target_outputs(":observer_ani_cxx_gen")
+  
+  deps = [
+    ":observer_ani_cxx_gen",
+    "//third_party/rust/crates/cxx:cxx_cppdeps",
+    "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer:tel_state_registry_api",
+  ]
+  external_deps = [
+    "c_utils:utils",
+    "hilog:libhilog",
+    "ipc:ipc_core",
+    "core_service:libtel_common",
+    "core_service:tel_core_service_api",
+    "init:libbegetutil",
+    "napi:ace_napi",
+  ]
+  
+  defines = [
+    "TELEPHONY_LOG_TAG = \"StateRegistryJsApi\"",
+    "LOG_DOMAIN = 0xD001F07",
+  ]
+
+  part_name = "state_registry"
+  subsystem_name = "telephony"
+}
+
+ohos_rust_shared_library("observer_ani") {
+  sanitize = {
+    cfi = true
+    cfi_cross_dso = true
+    boundary_sanitize = true
+    all_ubsan = true
+    debug = false
+  }
+
+  sources = [ "src/lib.rs" ]
+  
+  external_deps = [
+    "runtime_core:ani",
+    "hilog:hilog_rust",
+    "netmanager_base:ani_rs",
+  ]
+  deps = [
+    ":observer_ani_cxx",
+    "//third_party/rust/crates/cxx:lib",
+    "//third_party/rust/crates/serde/serde:lib"
+  ]
+  clippy_lints = "none"
+  part_name = "state_registry"
+  subsystem_name = "telephony"
+  output_extension = "so"
+}
+
+generate_static_abc("observer_ani_abc") {
+  base_url = "ets"
+  files = [ "ets/@ohos.telephony.observer.ets" ]
+  dst_file = "$target_out_dir/telephony_observer.abc"
+  out_puts = [ "$target_out_dir/telephony_observer.abc" ]
+  is_boot_abc = "True"
+  device_dst_file = "/system/framework/telephony_observer.abc"
+}
+
+ohos_prebuilt_etc("observer_ani_etc") {
+  source = "$target_out_dir/telephony_observer.abc"
+  module_install_dir = "framework"
+  part_name = "state_registry"
+  subsystem_name = "telephony"
+  deps = [ ":observer_ani_abc" ]
+}
+
+group("observer_ani_group") {
+  deps = [
+    ":observer_ani",
+    ":observer_ani_etc",
+  ]
+}
