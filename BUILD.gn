@@ -12,7 +12,22 @@
 # limitations under the License.
 
 import("//build/ohos.gni")
-import("../core_service/telephony_core_service.gni")
+
+declare_args() {
+  telephony_state_registry_hicollie_able = true
+  if (defined(global_parts_info) &&
+      !defined(global_parts_info.hiviewdfx_hicollie)) {
+    telephony_state_registry_hicollie_able = false
+  }
+}
+
+telephony_extra_defines = []
+
+if (defined(global_parts_info) &&
+    defined(global_parts_info.telephony_telephony_enhanced)) {
+  telephony_extra_defines += [ "OHOS_BUILD_ENABLE_TELEPHONY_EXT" ]
+  telephony_extra_defines += [ "OHOS_BUILD_ENABLE_TELEPHONY_VSIM" ]
+}
 
 ohos_shared_library("tel_state_registry") {
   sanitize = {
@@ -64,7 +79,7 @@ ohos_shared_library("tel_state_registry") {
     "LOG_DOMAIN = 0xD001F07",
   ]
 
-  if (telephony_hicollie_able) {
+  if (telephony_state_registry_hicollie_able) {
     external_deps += [ "hicollie:libhicollie" ]
     defines += [ "HICOLLIE_ENABLE" ]
   }
