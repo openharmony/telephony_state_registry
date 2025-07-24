@@ -60,7 +60,7 @@ ohos_static_library("observer_ani_cxx") {
   subsystem_name = "telephony"
 }
 
-ohos_rust_shared_library("observer_ani") {
+ohos_rust_shared_library("telephony_observer_ani") {
   sanitize = {
     cfi = true
     cfi_cross_dso = true
@@ -106,7 +106,7 @@ ohos_prebuilt_etc("observer_ani_etc") {
 
 group("observer_ani_group") {
   deps = [
-    ":observer_ani",
+    ":telephony_observer_ani",
     ":observer_ani_etc",
   ]
 }
