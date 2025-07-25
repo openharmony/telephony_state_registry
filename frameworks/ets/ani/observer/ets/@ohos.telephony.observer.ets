@@ -24,7 +24,7 @@ import type data from '@ohos.telephony.data';
 import type sim from '@ohos.telephony.sim';
 
 export default namespace observer {
-  loadLibrary("observer_ani")
+  loadLibrary("telephony_observer_ani")
 
   type NetworkState = radio.NetworkState;
   type SignalInformation = radio.SignalInformation;
