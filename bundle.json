@@ -60,7 +60,6 @@
                 "fwk_group": [
                     "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api",
                     "//base/telephony/state_registry/frameworks/js/napi:observer",
-                    "//base/telephony/state_registry/frameworks/ets/taihe:telephony_observer_taihe",
                     "//base/telephony/state_registry/frameworks/ets/ani/observer:observer_ani_group"
                 ],
                 "service_group": [

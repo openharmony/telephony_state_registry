@@ -195,7 +195,7 @@ impl From<i32> for NetworkType {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/observer/observer/SignalInformationInner")]
+#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/SignalInformationInner")]
 #[derive(Debug, Clone)]
 pub struct SignalInformation {
     signal_type: NetworkType,
@@ -213,7 +213,7 @@ impl SignalInformation {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/observer/observer/CellInformationInner")]
+#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/CellInformationInner")]
 #[derive(Debug, Clone)]
 pub struct CellInformation {
     network_type: NetworkType,
@@ -356,7 +356,7 @@ impl From<i32> for NsaState {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/observer/observer/NetworkStateInner")]
+#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/NetworkStateInner")]
 #[derive(Debug, Clone)]
 pub struct NetworkState {
     pub long_operator_name: String,
