@@ -182,27 +182,5 @@ export default namespace observer {
     SIM_SIM_PIN,
     SIM_SIM_PUK,
   }
-
-  export class SignalInformationInner implements SignalInformation {
-    signalType: radio.NetworkType;
-    signalLevel: number;
-    dBm: number;
-  }
-
-  export class CellInformationInner implements CellInformation {
-      networkType: radio.NetworkType;
-      signalInformation: radio.SignalInformation;
-  }
-
-  export class NetworkStateInner implements NetworkState {
-    longOperatorName: string;
-    shortOperatorName: string;
-    plmnNumeric: string;
-    isRoaming: boolean;
-    regState: radio.RegState;
-    cfgTech: radio.RadioTechnology;
-    nsaState: radio.NsaState;
-    isEmergency: boolean;
-  }
 }
 
