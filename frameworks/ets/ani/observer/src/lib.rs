@@ -40,6 +40,9 @@ ani_rs::ani_constructor! {
         "onNetworkStateChange": observer::on_network_state_change,
         "onNetworkStateChangeOptions": observer::on_network_state_change_option,
         "offNetworkStateChange": observer::off_network_state_change,
+        "onCallStateChange": observer::on_call_state_change,
+        "onCallStateChangeOptions": observer::on_call_state_change_option,
+        "offCallStateChange": observer::off_call_state_change,
     ]
 }
 

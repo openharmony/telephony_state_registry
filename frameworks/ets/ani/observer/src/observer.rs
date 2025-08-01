@@ -349,3 +349,50 @@ pub fn off_network_state_change(env: &AniEnv, callback: AniFnObject) -> Result<(
 
     Ok(())
 }
+
+#[ani_rs::native]
+pub fn on_call_state_change(env: &AniEnv, callback: AniFnObject) -> Result<(), BusinessError> {
+    let callback_global = callback.into_global_callback(env).unwrap();
+    let listener = EventListener::new(
+        TelephonyUpdateEventType::EventCallStateUpdate,
+        DEFAULT_SIM_SLOT_ID,
+        CallbackFlavor::CallStateChange(callback_global),
+    );
+    Register::get_instance().register(listener)?;
+
+    Ok(())
+}
+
+#[ani_rs::native]
+pub fn on_call_state_change_option(
+    env: &AniEnv,
+    options: ObserverOptions,
+    callback: AniFnObject,
+) -> Result<(), BusinessError> {
+    let callback_global = callback.into_global_callback(env).unwrap();
+    let listener = EventListener::new(
+        TelephonyUpdateEventType::EventCallStateUpdate,
+        options.slot_id,
+        CallbackFlavor::CallStateChange(callback_global),
+    );
+    Register::get_instance().register(listener)?;
+
+    Ok(())
+}
+
+#[ani_rs::native]
+pub fn off_call_state_change(env: &AniEnv, callback: AniFnObject) -> Result<(), BusinessError> {
+    let callback_flavor = if env.is_undefined(&callback).unwrap() {
+        None
+    } else {
+        let callback_global = callback.into_global_callback(env).unwrap();
+        Some(CallbackFlavor::CallStateChange(callback_global))
+    };
+
+    Register::get_instance().unregister(
+        TelephonyUpdateEventType::EventCallStateUpdate,
+        callback_flavor,
+    )?;
+
+    Ok(())
+}
