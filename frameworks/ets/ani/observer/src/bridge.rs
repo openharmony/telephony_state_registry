@@ -368,3 +368,43 @@ pub struct NetworkState {
     pub nsa_state: NsaState,
     pub is_emergency: bool,
 }
+
+#[ani_rs::ani(path = "L@ohos/telephony/call/call/CallState")]
+#[repr(i32)]
+#[derive(Debug, Clone)]
+pub enum CallState {
+    CallStateUnknown = -1,
+    CallStateIdle = 0,
+    CallStateRinging = 1,
+    CallStateOffhook = 2,
+    CallStateAnswered = 3,
+}
+
+impl From<i32> for CallState {
+    fn from(value: i32) -> Self {
+        match value {
+            -1 => CallState::CallStateUnknown,
+            0 => CallState::CallStateIdle,
+            1 => CallState::CallStateRinging,
+            2 => CallState::CallStateOffhook,
+            3 => CallState::CallStateAnswered,
+            _ => CallState::CallStateUnknown,
+        }
+    }
+}
+
+#[ani_rs::ani(path = "L@ohos/telephony/observer/observer/CallStateInfoInner")]
+#[derive(Debug, Clone)]
+pub struct CallStateInfo {
+    pub call_state: CallState,
+    pub phone_number: String,
+}
+
+impl CallStateInfo {
+    pub fn new(call_state: i32, phone_number: String) -> Self {
+        Self {
+            call_state: CallState::from(call_state),
+            phone_number,
+        }
+    }
+}

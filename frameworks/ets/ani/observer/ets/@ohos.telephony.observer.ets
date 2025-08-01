@@ -22,6 +22,7 @@ import type { Callback } from '@ohos.base';
 import type radio from '@ohos.telephony.radio';
 import type data from '@ohos.telephony.data';
 import type sim from '@ohos.telephony.sim';
+import type call from '@ohos.telephony.call';
 
 export default namespace observer {
   loadLibrary("telephony_observer_ani")
@@ -34,6 +35,7 @@ export default namespace observer {
   type DataFlowType = data.DataFlowType;
   type CardType = sim.CardType;
   type SimState = sim.SimState;
+  type CallState = sim.CallState;
 
   export native function onCellularDataFlowChange(callback: Callback<DataFlowType>): void;
   export native function onCellularDataFlowChangeOptions(options: ObserverOptions, callback: Callback<DataFlowType>): void;
@@ -57,6 +59,11 @@ export default namespace observer {
   export native function onNetworkStateChangeOptions(options: ObserverOptions, callback: Callback<NetworkState>): void;
   export native function offNetworkStateChange(callback?: Callback<NetworkState>): void;
 
+  export native function onCallStateChange(callback: Callback<CallStateInfo>): void;
+  export native function onCallStateChangeOptions(options: ObserverOptions, callback: Callback<CallStateInfo>): void;
+  export native function offCallStateChange(callback?: Callback<CallStateInfo>): void;
+
+
   export function on(type: string, callback: Object): void {
     if (type == 'cellularDataFlowChange') {
       onCellularDataFlowChange(callback as Callback<DataFlowType>)
@@ -72,6 +79,8 @@ export default namespace observer {
       onCellularDataConnectionStateChange(callback as Callback<DataConnectionStateInfo>)
     } else if (type == 'networkStateChange') {
       onNetworkStateChange(callback as Callback<NetworkState>)
+    } else if (type == 'callStateChange') {
+      onCallStateChange(callback as Callback<CallStateInfo>)
     }
   }
 
@@ -88,7 +97,9 @@ export default namespace observer {
       onCellularDataConnectionStateChangeOptions(options, callback as Callback<DataConnectionStateInfo>)
     } else if (type == 'networkStateChange') {
       onNetworkStateChangeOptions(options, callback as Callback<NetworkState>)
-    }
+    } else if (type == 'callStateChange') {
+      onCallStateChangeOptions(options, callback as Callback<CallStateInfo>)
+    } 
   }
 
   export function off(type: string, callback?: Object): void {
@@ -133,6 +144,12 @@ export default namespace observer {
         offNetworkStateChange()
       } else {
         offNetworkStateChange(callback as Callback<NetworkState>)
+      }
+    } else if (type == 'callStateChange') {
+      if (callback == undefined) {
+        offCallStateChange()
+      } else {
+        offCallStateChange(callback as Callback<CallStateInfo>)
       }
     }
   }
@@ -182,5 +199,38 @@ export default namespace observer {
     SIM_SIM_PIN,
     SIM_SIM_PUK,
   }
+
+  export class SignalInformationInner implements SignalInformation {
+    signalType: radio.NetworkType;
+    signalLevel: number;
+    dBm: number;
+  }
+
+  export class CellInformationInner implements CellInformation {
+      networkType: radio.NetworkType;
+      signalInformation: radio.SignalInformation;
+  }
+
+  export class NetworkStateInner implements NetworkState{
+    longOperatorName: string;
+    shortOperatorName: string;
+    plmnNumeric: string;
+    isRoaming: boolean;
+    regState: radio.RegState;
+    cfgTech: radio.RadioTechnology;
+    nsaState: radio.NsaState;
+    isEmergency: boolean;
+  }
+
+  export interface CallStateInfo {
+    state: CallState;
+    phone_number: string;
+  }
+
+  export class CallStateInfoInner implements CallStateInfo {
+    state: CallState;
+    phone_number: string;
+  }
+
 }
 
