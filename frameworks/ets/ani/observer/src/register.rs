@@ -409,7 +409,7 @@ impl Register {
     pub fn execute_on_call_state_change(
         &self,
         slot_id: i32,
-        call_state: wrapper::ffi::CallStateAni,
+        state: wrapper::ffi::CallStateAni,
     ) {
         let inner = self.inner.lock().unwrap();
         let argv = bridge::CallStateInfo::from(call_state);
