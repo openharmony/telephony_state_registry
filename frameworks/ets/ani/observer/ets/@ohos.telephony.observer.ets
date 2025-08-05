@@ -224,12 +224,12 @@ export default namespace observer {
 
   export interface CallStateInfo {
     state: CallState;
-    phone_number: string;
+    num: string;
   }
 
   export class CallStateInfoInner implements CallStateInfo {
     state: CallState;
-    phone_number: string;
+    num: string;
   }
 
 }
