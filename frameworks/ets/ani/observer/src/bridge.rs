@@ -396,15 +396,15 @@ impl From<i32> for CallState {
 #[ani_rs::ani(path = "L@ohos/telephony/observer/observer/CallStateInfoInner")]
 #[derive(Debug, Clone)]
 pub struct CallStateInfo {
-    pub call_state: CallState,
-    pub phone_number: String,
+    pub state: CallState,
+    pub num: String,
 }
 
 impl CallStateInfo {
-    pub fn new(call_state: i32, phone_number: String) -> Self {
+    pub fn new(state: i32, num: String) -> Self {
         Self {
-            call_state: CallState::from(call_state),
-            phone_number,
+            state: CallState::from(state),
+            num,
         }
     }
 }
