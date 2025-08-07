@@ -79,7 +79,7 @@ void AniTelephonyObserver::OnCallStateUpdated(int32_t slotId, int32_t callState,
     CallStateAni info{
         .state = callState,
         .num = rust::String(phone_number),
-    }
+    };
     on_call_state_updated(slotId, info);
 }
 
