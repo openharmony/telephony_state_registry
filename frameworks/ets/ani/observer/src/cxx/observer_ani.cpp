@@ -144,7 +144,7 @@ static inline ArktsError ConvertArktsError(int32_t errorCode)
 bool IsValidSlotIdEx(int32_t slotId, uint32_t eventType)
 {
     int32_t defaultSlotId = DEFAULT_SIM_SLOT_ID;
-    if (eventType == static_cast<int32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE)) {
+    if (eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE)) {
         defaultSlotId = -1;
     }
     // One more slot for VSim.
@@ -164,7 +164,7 @@ ArktsError EventListenerRegister(int32_t slotId, uint32_t eventType)
     }
     errorCode = Telephony::TelephonyStateManager::AddStateObserver(
         observer, slotId, eventType,
-        eventType == static_cast<int32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE));
+        eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE));
     if (errorCode == TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED) {
         ArktsError ArktsErr = {
             .errorCode = JS_ERROR_TELEPHONY_PERMISSION_DENIED,
