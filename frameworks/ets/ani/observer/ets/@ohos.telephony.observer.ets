@@ -202,12 +202,12 @@ export default namespace observer {
 
   export interface CallStateInfo {
     state: CallState;
-    num: string;
+    teleNumber: string;
   }
 
   export class CallStateInfoInner implements CallStateInfo {
     state: CallState;
-    num: string;
+    teleNumber: string;
   }
 
 }
