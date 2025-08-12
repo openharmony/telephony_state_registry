@@ -52,7 +52,7 @@ public:
     void OnCellularDataConnectStateUpdated(int32_t slotId, int32_t dataState, int32_t networkType) override;
     void OnCellularDataFlowUpdated(int32_t slotId, int32_t dataFlowType) override;
     void OnIccAccountUpdated() override;
-    void OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &num) override;
+    void OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &teleNumber) override;
 };
 
 bool IsValidSlotIdEx(int32_t slotId, uint32_t eventType);
