@@ -73,12 +73,12 @@ void AniTelephonyObserver::OnNetworkStateUpdated(int32_t slotId, const sptr<Tele
     on_network_state_updated(slotId, info);
 }
 
-void AniTelephonyObserver::OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &num)
+void AniTelephonyObserver::OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &teleNumber)
 {
-    std::string phone_number = NapiUtil::ToUtf8(num);
+    std::string phone_number = NapiUtil::ToUtf8(teleNumber);
     CallStateAni info{
         .state = callState,
-        .num = rust::String(phone_number),
+        .teleNumber = rust::String(phone_number),
     };
     on_call_state_updated(slotId, info);
 }
