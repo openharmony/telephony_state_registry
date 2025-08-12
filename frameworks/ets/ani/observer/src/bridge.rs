@@ -397,14 +397,14 @@ impl From<i32> for CallState {
 #[derive(Debug, Clone)]
 pub struct CallStateInfo {
     pub state: CallState,
-    pub num: String,
+    pub teleNumber: String,
 }
 
 impl CallStateInfo {
-    pub fn new(state: i32, num: String) -> Self {
+    pub fn new(state: i32, teleNumber: String) -> Self {
         Self {
             state: CallState::from(state),
-            num,
+            teleNumber,
         }
     }
 }
