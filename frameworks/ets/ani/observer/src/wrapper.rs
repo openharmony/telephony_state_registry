@@ -50,7 +50,7 @@ impl From<ffi::CallStateAni> for bridge::CallStateInfo {
     fn from(value: ffi::CallStateAni) -> Self {
         Self {
             state: bridge::CallState::from(value.state),
-            num: value.num,
+            teleNumber: value.num,
         }
     }
 }
@@ -86,7 +86,7 @@ pub(crate) mod ffi {
 
     struct CallStateAni {
         state: i32,
-        num: String,
+        teleNumber: String,
     }
 
     extern "Rust" {
