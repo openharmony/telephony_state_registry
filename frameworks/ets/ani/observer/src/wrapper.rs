@@ -50,7 +50,7 @@ impl From<ffi::CallStateAni> for bridge::CallStateInfo {
     fn from(value: ffi::CallStateAni) -> Self {
         Self {
             state: bridge::CallState::from(value.state),
-            teleNumber: value.num,
+            teleNumber: value.teleNumber,
         }
     }
 }
