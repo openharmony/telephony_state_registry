@@ -28,6 +28,7 @@ pub enum CallbackFlavor {
     CellInfoChange(GlobalRefCallback<(Vec<bridge::CellInformation>,)>),
     CellularDataConnectionStateChange(GlobalRefCallback<(bridge::DataConnectionStateInfo,)>),
     NetworkStateChange(GlobalRefCallback<(bridge::NetworkState,)>),
+    CallStateChange(GlobalRefCallback<(bridge::CallStateInfo,)>),
 }
 
 #[derive(PartialEq, Eq)]
@@ -404,6 +405,34 @@ impl Register {
             }
         }
     }
+
+    pub fn execute_on_call_state_change(
+        &self,
+        slot_id: i32,
+        call_state: wrapper::ffi::CallStateAni,
+    ) {
+        let inner = self.inner.lock().unwrap();
+        let argv = bridge::CallStateInfo::from(call_state);
+        if inner.is_empty() {
+            telephony_error!("Callback vec is empty");
+            return;
+        }
+        
+        for listen_item in inner.deref() {
+            if listen_item.event_type != TelephonyUpdateEventType::EventCallStateUpdate
+                || listen_item.slot_id != slot_id
+            {
+                continue;
+            }
+
+            if let CallbackFlavor::CallStateChange(func) = &listen_item.callback_ref {
+                func.execute((argv.clone(),));
+            } else {
+                telephony_error!("Execute is not CallStateChange callback");
+            }
+        }
+    }
+
 }
 
 pub fn on_cellular_data_flow_updated(slot_id: i32, data_flow_type: i32) {
@@ -440,3 +469,8 @@ pub fn on_cellular_data_connect_state_updated(slot_id: i32, data_state: i32, net
 pub fn on_network_state_updated(slot_id: i32, network_state: wrapper::ffi::NetworkStateAni) {
     Register::get_instance().execute_on_network_state_change(slot_id, network_state);
 }
+
+pub fn on_call_state_updated(slot_id: i32, call_state: wrapper::ffi::CallStateAni) {
+    Register::get_instance().execute_on_call_state_change(slot_id, call_state);
+}
+

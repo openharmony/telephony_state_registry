@@ -46,6 +46,15 @@ impl From<ffi::NetworkStateAni> for bridge::NetworkState {
     }
 }
 
+impl From<ffi::CallStateAni> for bridge::CallStateInfo {
+    fn from(value: ffi::CallStateAni) -> Self {
+        Self {
+            state: bridge::CallState::from(value.state),
+            teleNumber: value.teleNumber,
+        }
+    }
+}
+
 #[cxx::bridge(namespace = "OHOS::ObserverAni")]
 pub(crate) mod ffi {
     struct ArktsError {
@@ -75,6 +84,11 @@ pub(crate) mod ffi {
         is_emergency: bool,
     }
 
+    struct CallStateAni {
+        state: i32,
+        teleNumber: String,
+    }
+
     extern "Rust" {
         fn on_cellular_data_flow_updated(slot_id: i32, data_flow_type: i32);
         fn on_icc_account_updated();
@@ -83,6 +97,7 @@ pub(crate) mod ffi {
         fn on_cell_info_updated(slot_id: i32, cell_info_list: Vec<CellInformationAni>);
         fn on_cellular_data_connect_state_updated(slot_id: i32, data_state: i32, network_type: i32);
         fn on_network_state_updated(slot_id: i32, network_state: NetworkStateAni);
+        fn on_call_state_updated(slot_id: i32, call_state: CallStateAni);
     }
 
     unsafe extern "C++" {
