@@ -73,6 +73,7 @@ private:
         std::list<EventListener> &removeListenerList, std::set<int32_t> &soltIdSet);
     void CheckRemoveStateObserver(TelephonyUpdateEventType eventType, int32_t slotId, int32_t &result);
     int32_t CheckEventListenerRegister(EventListener &eventListener);
+    bool IsNeedHandleCallbackUpdate(TelephonyUpdateEventType eventType, int32_t evevntSlotId, int32_t curSlotId);
 
     static void WorkCallStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
     static void WorkSignalUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);

@@ -29,6 +29,7 @@
 #include "telephony_log_wrapper.h"
 #include "telephony_state_manager.h"
 #include "update_contexts.h"
+#include "cellular_data_client.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -611,38 +612,43 @@ void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
         TELEPHONY_LOGE("update info nullptr");
         return;
     }
-
     std::unique_lock<std::mutex> lock(operatorMutex_);
     for (const EventListener &listen : listenerList_) {
-        if ((listen.eventType == eventType) && (listen.slotId == info->slotId_)) {
-            uv_loop_s *loop = nullptr;
-            if (!InitLoop(listen.env, &loop)) {
-                TELEPHONY_LOGE("loop is null");
-                break;
-            }
-            T *context = std::make_unique<T>().release();
-            if (context == nullptr) {
-                TELEPHONY_LOGE("make context failed");
-                break;
-            }
-            *(static_cast<EventListener *>(context)) = listen;
-            *context = *info;
-            uv_work_t *work = std::make_unique<uv_work_t>().release();
-            if (work == nullptr) {
-                TELEPHONY_LOGE("make work failed");
-                break;
-            }
-            work->data = static_cast<void *>(context);
-            int32_t resultCode =
-                uv_queue_work_with_qos(loop, work, [](uv_work_t *) {}, WorkUpdated, uv_qos_default);
-            if (resultCode != 0) {
-                delete context;
-                context = nullptr;
-                TELEPHONY_LOGE("HandleCallbackInfoUpdate failed, result: %{public}d", resultCode);
-                delete work;
-                work = nullptr;
-                return;
-            }
+        if (listen.eventType != eventType) {
+            continue;
+        }
+        if (listen.slotId != info->slotId_ && listen.slotId != SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT) {
+            continue;
+        } else if (!IsNeedHandleCallbackUpdate(listen.eventType, listen.slotId, info->slotId_)) {
+            continue;
+        }
+        uv_loop_s *loop = nullptr;
+        if (!InitLoop(listen.env, &loop)) {
+            TELEPHONY_LOGE("loop is null");
+            break;
+        }
+        T *context = std::make_unique<T>().release();
+        if (context == nullptr) {
+            TELEPHONY_LOGE("make context failed");
+            break;
+        }
+        *(static_cast<EventListener *>(context)) = listen;
+        *context = *info;
+        uv_work_t *work = std::make_unique<uv_work_t>().release();
+        if (work == nullptr) {
+            TELEPHONY_LOGE("make work failed");
+            break;
+        }
+        work->data = static_cast<void *>(context);
+        int32_t resultCode =
+            uv_queue_work_with_qos(loop, work, [](uv_work_t *) {}, WorkUpdated, uv_qos_default);
+        if (resultCode != 0) {
+            delete context;
+            context = nullptr;
+            TELEPHONY_LOGE("HandleCallbackInfoUpdate failed, result: %{public}d", resultCode);
+            delete work;
+            work = nullptr;
+            return;
         }
     }
 }
@@ -918,6 +924,24 @@ void EventListenerHandler::WorkIccAccountUpdated(uv_work_t *work, std::unique_lo
     napi_create_object(UpdateIccAccount->env, &callbackValue);
     NapiReturnToJS(UpdateIccAccount->env, UpdateIccAccount->callbackRef, callbackValue, lock);
     napi_close_handle_scope(env, scope);
+}
+
+bool EventListenerHandler::IsNeedHandleCallbackUpdate(TelephonyUpdateEventType eventType,
+                                                      int32_t evevntSlotId, int32_t curSlotId)
+{
+    if (ENABLE_ON_DEFAULT_DATA_EVENT_SET.find(eventType) == ENABLE_ON_DEFAULT_DATA_EVENT_SET.end()) {
+        return true;
+    }
+
+    if (evevntSlotId == SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT) {
+        int32_t defaultSlotId = CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
+        if (curSlotId == defaultSlotId) {
+            return true;
+        }
+    } else if (evevntSlotId == curSlotId) {
+        return true;
+    }
+    return false;
 }
 } // namespace Telephony
 } // namespace OHOS

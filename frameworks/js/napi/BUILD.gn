@@ -37,6 +37,7 @@ ohos_shared_library("observer") {
     "c_utils:utils",
     "core_service:libtel_common",
     "core_service:tel_core_service_api",
+    "cellular_data:tel_cellular_data_api",
     "eventhandler:libeventhandler",
     "hilog:libhilog",
     "init:libbegetutil",
