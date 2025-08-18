@@ -64,7 +64,8 @@ static inline bool IsValidSlotIdEx(TelephonyUpdateEventType eventType, int32_t s
         defaultSlotId = -1;
     }
     // One more slot for VSim.
-    return ((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT + 1));
+    return (((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT + 1)) ||
+        (slotId == SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT));
 }
 
 static void NativeOn(napi_env env, void *data)
@@ -156,6 +157,9 @@ static napi_value On(napi_env env, napi_callback_info info)
         if (GetEventType(eventType.data()) == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) {
             TELEPHONY_LOGI("state registry observer has no slotId");
             asyncContext->slotId = -1;
+        } else if (ENABLE_ON_DEFAULT_DATA_EVENT_SET.find(GetEventType(eventType.data())) !=
+            ENABLE_ON_DEFAULT_DATA_EVENT_SET.end()) {
+            asyncContext->slotId = SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT;
         }
     }
 

@@ -36,6 +36,7 @@ namespace Telephony {
 using namespace OHOS::EventFwk;
 bool g_registerResult =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<TelephonyStateRegistryService>::GetInstance().get());
+constexpr int32_t SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT = 999;
 
 TelephonyStateRegistryService::TelephonyStateRegistryService()
     : SystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID, true)
@@ -135,8 +136,10 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
+        // 999 means observe all slot
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE) &&
-            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+            (record.slotId_ == slotId || record.slotId_ == SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT) &&
+            record.telephonyObserver_ != nullptr) {
             if (TELEPHONY_EXT_WRAPPER.onCellularDataConnectStateUpdated_ != nullptr) {
                 int32_t networkTypeExt = networkType;
                 TELEPHONY_EXT_WRAPPER.onCellularDataConnectStateUpdated_(slotId, record, networkTypeExt);
@@ -166,8 +169,10 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataFlow(int32_t slotId, in
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
+        // 999 means observe all slot
         if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW) &&
-            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+            (record.slotId_ == slotId || record.slotId_ == SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT) &&
+            record.telephonyObserver_ != nullptr) {
             record.telephonyObserver_->OnCellularDataFlowUpdated(slotId, flowData);
             result = TELEPHONY_SUCCESS;
         }

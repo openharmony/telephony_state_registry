@@ -26,6 +26,7 @@
 
 namespace OHOS {
 namespace Telephony {
+constexpr int32_t SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT = 999;
 class EventListenerManager {
 public:
     template<typename T, typename D>
