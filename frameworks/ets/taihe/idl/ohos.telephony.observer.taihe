@@ -26,12 +26,145 @@ enum CallState: i32 {
     CALL_STATE_ANSWERED = 3
 }
 
+enum LockReason: i32 {
+    SIM_NONE = 0,
+    SIM_PIN = 1,
+    SIM_PUK = 2,
+    SIM_PN_PIN = 3,
+    SIM_PN_PUK = 4,
+    SIM_PU_PIN = 5,
+    SIM_PU_PUK = 6,
+    SIM_PP_PIN = 7,
+    SIM_PP_PUK = 8,
+    SIM_PC_PIN = 9,
+    SIM_PC_PUK = 10,
+    SIM_SIM_PIN = 11,
+    SIM_SIM_PUK = 12,
+}
+
+enum CardType: i32 {
+    UNKNOWN_CARD = -1,
+    SINGLE_MODE_SIM_CARD = 10,
+    SINGLE_MODE_USIM_CARD = 20,
+    SINGLE_MODE_RUIM_CARD = 30,
+    DUAL_MODE_CG_CARD = 40,
+    CT_NATIONAL_ROAMING_CARD = 41,
+    CU_DUAL_MODE_CARD = 42,
+    DUAL_MODE_TELECOM_LTE_CARD = 43,
+    DUAL_MODE_UG_CARD = 50,
+    SINGLE_MODE_ISIM_CARD = 60,
+}
+
+enum SimState: i32 {
+    SIM_STATE_UNKNOWN = 0,
+    SIM_STATE_NOT_PRESENT = 1,
+    SIM_STATE_LOCKED = 2,
+    SIM_STATE_NOT_READY = 3,
+    SIM_STATE_READY = 4,
+    SIM_STATE_LOADED = 5,
+}
+
+enum NetworkType: i32 {
+    NETWORK_TYPE_UNKNOWN = 0,
+    NETWORK_TYPE_GSM = 1,
+    NETWORK_TYPE_CDMA = 2,
+    NETWORK_TYPE_WCDMA = 3,
+    NETWORK_TYPE_TDSCDMA = 4,
+    NETWORK_TYPE_LTE = 5,
+    NETWORK_TYPE_NR = 6,
+}
+
+struct SimStateData {
+    type: CardType;
+    state: SimState;
+    reason: LockReason;
+}
+
 struct CallStateInfo {
     state: CallState;
+    teleNumber: String;
 }
 
 struct ObserverOptions {
     slotId: i32;
+}
+
+struct SignalInformation {
+    signalType: NetworkType;
+    signalLevel: i32;
+    dBm: i32;
+}
+
+struct CdmaCellInformation {
+    baseId: i32;
+    latitude: i32;
+    longitude: i32;
+    nid: i32;
+    sid: i32;
+}
+
+struct GsmCellInformation {
+    lac: i32;
+    cellId: i32;
+    arfcn: i32;
+    bsic: i32;
+    mcc: String;
+    mnc: String;
+}
+
+struct LteCellInformation {
+    cgi: i32;
+    pci: i32;
+    tac: i32;
+    earfcn: i32;
+    bandwidth: i32;
+    mcc: String;
+    mnc: String;
+    isSupportEndc: bool;
+}
+
+struct NrCellInformation {
+    nrArfcn: i32;
+    pci: i32;
+    tac: i32;
+    nci: i32;
+    mcc: String;
+    mnc: String;
+}
+
+struct TdscdmaCellInformation {
+    lac: i32;
+    cellId: i32;
+    cpid: i32;
+    uarfcn: i32;
+    mcc: String;
+    mnc: String;
+}
+
+struct WcdmaCellInformation {
+    lac: i32;
+    cellId: i32;
+    psc: i32;
+    uarfcn: i32;
+    mcc: String;
+    mnc: String;
+}
+
+union CellInfomation {
+    cdmaCellInformation: CdmaCellInformation;
+    gsmCellInformation: GsmCellInformation;
+    lteCellInformation: LteCellInformation;
+    nrCellInformation: NrCellInformation; 
+    tdscdmaCellInformation: TdscdmaCellInformation; 
+    wcdmaCellInformation: WcdmaCellInformation; 
+}
+
+struct CellInformation {
+    networkType: NetworkType;
+    isCamped: bool;
+    timeStamp: i32;
+    signalInformation: SignalInformation;
+    data: CellInfomation;
 }
 
 @on_off("callStateChange")
