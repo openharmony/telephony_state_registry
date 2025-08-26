@@ -343,9 +343,11 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const 
     }
     std::lock_guard<std::mutex> guard(lock_);
     searchNetworkState_[slotId] = networkState;
+    std::vector<TelephonyStateRegistryRecord> copyStateRecords = stateRecords_;
+    lock_.unlock();
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
-    for (size_t i = 0; i < stateRecords_.size(); i++) {
-        TelephonyStateRegistryRecord r = stateRecords_[i];
+    for (size_t i = 0; i < copyStateRecords.size(); i++) {
+        TelephonyStateRegistryRecord r = copyStateRecords[i];
         if (r.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) && (r.slotId_ == slotId) &&
             r.telephonyObserver_ != nullptr) {
             if (TELEPHONY_EXT_WRAPPER.onNetworkStateUpdated_ != nullptr) {
