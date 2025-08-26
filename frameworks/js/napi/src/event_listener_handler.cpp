@@ -614,12 +614,7 @@ void EventListenerHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
     }
     std::unique_lock<std::mutex> lock(operatorMutex_);
     for (const EventListener &listen : listenerList_) {
-        if (listen.eventType != eventType) {
-            continue;
-        }
-        if (listen.slotId != info->slotId_ && listen.slotId != SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT) {
-            continue;
-        } else if (!IsNeedHandleCallbackUpdate(listen.eventType, listen.slotId, info->slotId_)) {
+        if (!IsNeedHandleCallbackUpdate(listen.eventType, eventType, listen.slotId, info->slotId_)) {
             continue;
         }
         uv_loop_s *loop = nullptr;
@@ -927,19 +922,22 @@ void EventListenerHandler::WorkIccAccountUpdated(uv_work_t *work, std::unique_lo
 }
 
 bool EventListenerHandler::IsNeedHandleCallbackUpdate(TelephonyUpdateEventType eventType,
-                                                      int32_t evevntSlotId, int32_t curSlotId)
+    TelephonyUpdateEventType curEventType, int32_t eventSlotId, int32_t curSlotId)
 {
-    if (ENABLE_ON_DEFAULT_DATA_EVENT_SET.find(eventType) == ENABLE_ON_DEFAULT_DATA_EVENT_SET.end()) {
+    if (eventType != curEventType) {
+        return false;
+    }
+
+    if (eventSlotId == curSlotId) {
         return true;
     }
 
-    if (evevntSlotId == SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT) {
+    if (ENABLE_ON_DEFAULT_DATA_EVENT_SET.find(eventType) != ENABLE_ON_DEFAULT_DATA_EVENT_SET.end() &&
+        eventSlotId == SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT) {
         int32_t defaultSlotId = CellularDataClient::GetInstance().GetDefaultCellularDataSlotId();
         if (curSlotId == defaultSlotId) {
             return true;
         }
-    } else if (evevntSlotId == curSlotId) {
-        return true;
     }
     return false;
 }
