@@ -24,7 +24,8 @@ namespace OHOS {
 namespace Telephony {
 class TelephonyStateRegistryRecord {
     TelephonyStateRegistryRecord() = default;
-    TelephonyStateRegistryRecord(const TelephonyStateRegistryRecord &Record){
+    TelephonyStateRegistryRecord(const TelephonyStateRegistryRecord &Record)
+    {
         bundleName_ = Record.bundleName_;
         tokenId_ = Record.tokenId_;
         uid_ = Record.uid_;
@@ -32,7 +33,7 @@ class TelephonyStateRegistryRecord {
         mask_ = Record.mask_;
         slotId_ = Record.slotId_;
         telephonyObserver_ = Record.telephonyObserver_;
-    }
+    };
 public:
     bool IsCanReadCallHistory();
     /**
