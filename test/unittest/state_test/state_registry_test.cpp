@@ -314,10 +314,10 @@ HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_001, Function | MediumTest 
  */
 HWTEST_F(StateRegistryTest, UpdateCallStateForSlotId_002, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+    if (StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         TELEPHONY_LOGI("no sim card!");
+        UpdateCallStateForSlotId(SIM_SLOT_ID_1);
     }
-    UpdateCallStateForSlotId(SIM_SLOT_ID_1);
 }
 
 /**
@@ -366,10 +366,10 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_001, Function | Mediu
  */
 HWTEST_F(StateRegistryTest, UpdateCellularDataConnectState_002, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+    if (StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         TELEPHONY_LOGI("no sim card!");
+        UpdateCellularDataConnectState(SIM_SLOT_ID_1);
     }
-    UpdateCellularDataConnectState(SIM_SLOT_ID_1);
 }
 
 /**
@@ -392,10 +392,10 @@ HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_001, Function | MediumTest | 
  */
 HWTEST_F(StateRegistryTest, UpdateCellularDataFlow_002, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+    if (StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         TELEPHONY_LOGI("no sim card!");
+        UpdateCellularDataFlow(SIM_SLOT_ID_1);
     }
-    UpdateCellularDataFlow(SIM_SLOT_ID_1);
 }
 
 /**
@@ -418,10 +418,10 @@ HWTEST_F(StateRegistryTest, UpdateSimState_001, Function | MediumTest | Level1)
  */
 HWTEST_F(StateRegistryTest, UpdateSimState_002, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+    if (StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         TELEPHONY_LOGI("no sim card!");
+        UpdateSimState(SIM_SLOT_ID_1);
     }
-    UpdateSimState(SIM_SLOT_ID_1);
 }
 
 /**
@@ -444,10 +444,10 @@ HWTEST_F(StateRegistryTest, UpdateNetworkState_001, Function | MediumTest | Leve
  */
 HWTEST_F(StateRegistryTest, UpdateNetworkState_002, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+    if (StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         TELEPHONY_LOGI("no sim card!");
+        UpdateNetworkState(SIM_SLOT_ID_1);
     }
-    UpdateNetworkState(SIM_SLOT_ID_1);
 }
 
 /**
@@ -470,10 +470,10 @@ HWTEST_F(StateRegistryTest, UpdateCfuIndicator_001, Function | MediumTest | Leve
  */
 HWTEST_F(StateRegistryTest, UpdateCfuIndicator_002, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+    if (StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         TELEPHONY_LOGI("no sim card!");
+        UpdateCfuIndicator(SIM_SLOT_ID_1);
     }
-    UpdateCfuIndicator(SIM_SLOT_ID_1);
 }
 
 /**
@@ -496,10 +496,10 @@ HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_001, Function | MediumTe
  */
 HWTEST_F(StateRegistryTest, UpdateVoiceMailMsgIndicator_002, Function | MediumTest | Level1)
 {
-    if (!StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
+    if (StateRegistryTest::HasSimCard(SIM_SLOT_ID_1)) {
         TELEPHONY_LOGI("no sim card!");
+        UpdateVoiceMailMsgIndicator(SIM_SLOT_ID_1);
     }
-    UpdateVoiceMailMsgIndicator(SIM_SLOT_ID_1);
 }
 
 /**
