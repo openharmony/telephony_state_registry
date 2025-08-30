@@ -341,7 +341,7 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const 
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    lock_.lock();
     searchNetworkState_[slotId] = networkState;
     std::vector<TelephonyStateRegistryRecord> copyStateRecords = stateRecords_;
     lock_.unlock();
