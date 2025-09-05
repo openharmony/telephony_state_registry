@@ -64,7 +64,7 @@ export default namespace observer {
   export native function offCallStateChange(callback?: Callback<CallStateInfo>): void;
 
 
-  export function on(type: string, callback: Object): void {
+  export function on(type: string, callback: Callback<Any>): void {
     if (type == 'cellularDataFlowChange') {
       onCellularDataFlowChange(callback as Callback<DataFlowType>)
     } else if (type == 'iccAccountInfoChange') {
@@ -84,7 +84,7 @@ export default namespace observer {
     }
   }
 
-  export function on(type: string, options: ObserverOptions, callback: Object): void {
+  export function on(type: string, options: ObserverOptions, callback: Callback<Any>): void {
     if (type == 'cellularDataFlowChange') {
       onCellularDataFlowChangeOptions(options, callback as Callback<DataFlowType>)
     } else if (type == 'simStateChange') {
@@ -102,7 +102,7 @@ export default namespace observer {
     } 
   }
 
-  export function off(type: string, callback?: Object): void {
+  export function off(type: string, callback?: Callback<Any>): void {
     if (type == 'cellularDataFlowChange') {
       if (callback == undefined) {
         offCellularDataFlowChange()

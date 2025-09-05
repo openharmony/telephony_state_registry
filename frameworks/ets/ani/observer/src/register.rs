@@ -134,7 +134,7 @@ impl Register {
     pub fn register(&self, listener: EventListener) -> Result<(), BusinessError> {
         if !wrapper::ffi::IsValidSlotIdEx(listener.slot_id, listener.event_type.to_u32()) {
             telephony_error!("Register slotId {} is invalid", listener.slot_id);
-            return Err(BusinessError::PARAMETER);
+            return Err(BusinessError::new_static(8300001, "Invalid parameter value."));
         }
 
         let mut inner = self.inner.lock().unwrap();
