@@ -50,6 +50,7 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
     }
 #endif
     TELEPHONY_LOGI("TelephonyStateRegistryService SystemAbility create, slotSize_: %{public}d", slotSize_);
+    std::lock_guard<std::mutex> guard(lock_);
     for (int32_t i = 0; i < slotSize_; i++) {
         callState_[i] = static_cast<int32_t>(CallStatus::CALL_STATUS_UNKNOWN);
     }
