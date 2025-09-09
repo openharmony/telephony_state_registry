@@ -58,6 +58,8 @@ bool TelephonyStateRegistryDumpHelper::ShowTelephonyStateRegistryInfo(
                 result.append("CellInfo Register: ");
             } else if (item.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE)) {
                 result.append("NetworkState Register: ");
+            } else if (item.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX)) {
+                result.append("CallStateEx Register: ");
             } else {
                 result.append("Unknown Subscriber: ");
             }

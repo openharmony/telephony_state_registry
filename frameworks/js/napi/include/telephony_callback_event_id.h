@@ -30,6 +30,7 @@ enum class TelephonyCallbackEventId : uint32_t {
     EVENT_ON_CFU_INDICATOR_UPDATE = 8,
     EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE = 9,
     EVENT_ON_ICC_ACCOUNT_UPDATE = 10,
+    EVENT_ON_CALL_STATE_EX_UPDATE = 11,
 };
 
 template<typename EnumClass>

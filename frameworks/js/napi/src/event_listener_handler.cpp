@@ -78,6 +78,29 @@ int32_t WrapCallState(int32_t callState)
     }
 }
 
+int32_t WrapCallStateEx(int32_t callState)
+{
+    switch (callState) {
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_ACTIVE:
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_HOLDING:
+            return static_cast<int32_t>(TelCallState::TEL_CALL_STATE_CONNECTED);
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_DIALING:
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_ALERTING:
+            return static_cast<int32_t>(TelCallState::TEL_CALL_STATE_OFFHOOK);
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_WAITING:
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_INCOMING:
+            return static_cast<int32_t>(TelCallState::TEL_CALL_STATE_RINGING);
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_DISCONNECTING:
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_DISCONNECTED:
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_IDLE:
+            return static_cast<int32_t>(TelCallState::TEL_CALL_STATE_IDLE);
+        case (int32_t)Telephony::CallStatus::CALL_STATUS_ANSWERED:
+            return static_cast<int32_t>(TelCallState::TEL_CALL_STATE_ANSWERED);
+        default:
+            return static_cast<int32_t>(TelCallState::TEL_CALL_STATE_UNKNOWN);
+    }
+}
+
 int32_t WrapNetworkType(SignalInformation::NetworkType nativeNetworkType)
 {
     NetworkType jsNetworkType = NetworkType::NETWORK_TYPE_UNKNOWN;
@@ -338,6 +361,11 @@ void EventListenerHandler::AddBasicHandlerToMap()
         [this](const AppExecFwk::InnerEvent::Pointer &event) {
             HandleCallbackVoidUpdate<TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE>(event);
         };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CALL_STATE_EX_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<CallStateExContext, CallStateExUpdateInfo,
+                TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE>(event);
+        };
 }
 
 void EventListenerHandler::AddNetworkHandlerToMap()
@@ -362,6 +390,7 @@ void EventListenerHandler::AddNetworkHandlerToMap()
 void EventListenerHandler::AddWorkFuncToMap()
 {
     workFuncMap_[TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE] = &EventListenerHandler::WorkCallStateUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE] = &EventListenerHandler::WorkCallStateExUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE] = &EventListenerHandler::WorkSignalUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE] = &EventListenerHandler::WorkNetworkStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE] = &EventListenerHandler::WorkSimStateUpdated;
@@ -430,7 +459,8 @@ int32_t EventListenerHandler::RegisterEventListener(EventListener &eventListener
             return TELEPHONY_ERR_LOCAL_PTR_NULL;
         }
         bool isUpdate = (eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
-                        eventListener.eventType == TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE);
+            eventListener.eventType == TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE ||
+            eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE);
         int32_t addResult = TelephonyStateManager::AddStateObserver(
             observer, eventListener.slotId, ToUint32t(eventListener.eventType), isUpdate);
         if (addResult != TELEPHONY_SUCCESS) {
@@ -731,6 +761,23 @@ void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work, std::unique_loc
     SetPropertyToNapiObject(callStateInfo->env, callbackValue, "state", wrappedCallState);
     SetPropertyToNapiObject(callStateInfo->env, callbackValue, "number", number);
     NapiReturnToJS(callStateInfo->env, callStateInfo->callbackRef, callbackValue, lock);
+    napi_close_handle_scope(env, scope);
+}
+
+void EventListenerHandler::WorkCallStateExUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
+{
+    std::unique_ptr<CallStateExContext> callStateExInfo(static_cast<CallStateExContext *>(work->data));
+    const napi_env &env = callStateExInfo->env;
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        TELEPHONY_LOGE("scope is nullptr");
+    }
+    napi_value callbackValue = nullptr;
+    napi_create_object(callStateExInfo->env, &callbackValue);
+    int32_t wrappedCallStateEx = WrapCallStateEx(callStateExInfo->callStateEx);
+    SetPropertyToNapiObject(callStateInfo->env, callbackValue, "state", wrappedCallStateEx);
+    NapiReturnToJS(callStateExInfo->env, callStateExInfo->callbackRef, callbackValue, lock);
     napi_close_handle_scope(env, scope);
 }
 

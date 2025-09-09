@@ -38,6 +38,15 @@ struct CallStateContext : EventListener {
     }
 };
 
+struct CallStateExContext : EventListener {
+    int32_t callStateEx;
+    CallStateExContext &operator=(const CallStateExUpdateInfo &info)
+    {
+        callStateEx = info.callStateEx_;
+        return *this;
+    }
+};
+
 struct SignalListContext : EventListener {
     std::vector<sptr<SignalInformation>> signalInfoList;
     SignalListContext &operator=(SignalUpdateInfo &info)

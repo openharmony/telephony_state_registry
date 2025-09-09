@@ -77,6 +77,7 @@ private:
         TelephonyUpdateEventType curEventType, int32_t eventSlotId, int32_t curSlotId);
 
     static void WorkCallStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkCallStateExUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
     static void WorkSignalUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
     static void WorkNetworkStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
     static void WorkSimStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);

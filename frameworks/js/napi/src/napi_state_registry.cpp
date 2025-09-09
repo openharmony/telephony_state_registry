@@ -48,6 +48,7 @@ const std::map<std::string_view, TelephonyUpdateEventType> eventMap {
     { "cfuIndicatorChange", TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE },
     { "voiceMailMsgIndicatorChange", TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE },
     { "iccAccountInfoChange", TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE },
+    { "callStateChangeEx", TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE },
 };
 
 TelephonyUpdateEventType GetEventType(std::string_view event)
@@ -60,7 +61,8 @@ TelephonyUpdateEventType GetEventType(std::string_view event)
 static inline bool IsValidSlotIdEx(TelephonyUpdateEventType eventType, int32_t slotId)
 {
     int32_t defaultSlotId = DEFAULT_SIM_SLOT_ID;
-    if (eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) {
+    if (eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
+        eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) {
         defaultSlotId = -1;
     }
     // One more slot for VSim.
@@ -76,7 +78,8 @@ static void NativeOn(napi_env env, void *data)
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
-    if (SIM_SLOT_COUNT == 0 && (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE)) {
+    if (SIM_SLOT_COUNT == 0 && (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) &&
+        (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE)) {
         TELEPHONY_LOGE("The device is not support sim card.");
         asyncContext->resolved = true;
         return;
@@ -114,7 +117,11 @@ static void OnCallback(napi_env env, void *data)
         if (asyncContext->errorCode == TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED) {
             NapiUtil::ThrowError(env, JS_ERROR_TELEPHONY_PERMISSION_DENIED, OBSERVER_JS_PERMISSION_ERROR_STRING);
         } else if (asyncContext->errorCode != TELEPHONY_ERR_CALLBACK_ALREADY_REGISTERED) {
-            JsError error = NapiUtil::ConverErrorMessageForJs(asyncContext->errorCode);
+            if (asyncContext->eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) {
+                JsError error = NapiUtil::ConverErrorMessageCallStateExForJs(asyncContext->errorCode);
+            } else {
+                JsError error = NapiUtil::ConverErrorMessageForJs(asyncContext->errorCode);
+            }
             NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);
         }
         if (env != nullptr && asyncContext->callbackRef != nullptr) {
@@ -154,7 +161,9 @@ static napi_value On(napi_env env, napi_callback_info info)
     } else {
         auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef);
         errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
-        if (GetEventType(eventType.data()) == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) {
+        TelephonyUpdateEventType registerEventType = GetEventType(eventType.data());
+        if (registerEventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
+            registerEventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) {
             TELEPHONY_LOGI("state registry observer has no slotId");
             asyncContext->slotId = -1;
         } else if (ENABLE_ON_DEFAULT_DATA_EVENT_SET.find(GetEventType(eventType.data())) !=
@@ -162,13 +171,11 @@ static napi_value On(napi_env env, napi_callback_info info)
             asyncContext->slotId = SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT;
         }
     }
-
     if (errCode.has_value()) {
         TELEPHONY_LOGE("On parameter matching failed.");
         NapiUtil::ThrowParameterError(env);
         return nullptr;
     }
-
     ObserverContext *observerContext = asyncContext.release();
     observerContext->eventType = GetEventType(eventType.data());
     if (observerContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
@@ -221,6 +228,9 @@ static void OffCallback(napi_env env, void *data)
         TELEPHONY_LOGE("OffCallback error by remove observer failed");
         if (asyncContext->errorCode == TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED) {
             NapiUtil::ThrowError(env, JS_ERROR_TELEPHONY_PERMISSION_DENIED, OBSERVER_JS_PERMISSION_ERROR_STRING);
+        } else if (asyncContext->eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) {
+            JsError error = NapiUtil::ConverErrorMessageCallStateExForJs(asyncContext->errorCode);
+            NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);
         } else {
             JsError error = NapiUtil::ConverErrorMessageForJs(asyncContext->errorCode);
             NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);

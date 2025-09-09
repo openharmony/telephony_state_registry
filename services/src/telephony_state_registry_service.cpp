@@ -203,7 +203,11 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
             }
             record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState, phoneNumber);
             result = TELEPHONY_SUCCESS;
-        }
+        } else if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX) &&
+            (record.slotId_ == -1) && record.telephonyObserver_ != nullptr) [
+            record.telephonyObserver_->OnCallStateUpdatedEx(record.slotId_, callState);
+            result = TELEPHONY_SUCCESS;
+        ]
     }
     SendCallStateChanged(-1, callState);
     SendCallStateChangedAsUserMultiplePermission(-1, callState, number);
@@ -231,6 +235,10 @@ int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
             (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
             std::u16string phoneNumber = GetCallIncomingNumberForSlotId(record, slotId);
             record.telephonyObserver_->OnCallStateUpdated(slotId, callState, phoneNumber);
+            result = TELEPHONY_SUCCESS;
+        } else if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX) &&
+            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+            record.telephonyObserver_->OnCallStateUpdatedEx(slotId, callState);
             result = TELEPHONY_SUCCESS;
         }
     }
@@ -493,7 +501,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
         record.telephonyObserver_ = telephonyObserver;
         stateRecords_.push_back(record);
     }
-
+    TELEPHONY_LOGI("RegisterStateChange mask %{public}d", record.mask_);
     if (isUpdate) {
         UpdateData(record);
     }
@@ -606,6 +614,10 @@ void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecor
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_ICC_ACCOUNT) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_ICC_ACCOUNT");
         record.telephonyObserver_->OnIccAccountUpdated();
+    }
+    if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX) != 0) {
+        TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE_EX");
+        record.telephonyObserver_->OnCallStateUpdatedEx(record.slotId_, callState_[record.slotId_]);
     }
 }
 

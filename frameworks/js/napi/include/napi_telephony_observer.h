@@ -28,6 +28,7 @@ namespace Telephony {
 class NapiTelephonyObserver : public TelephonyObserver {
 public:
     void OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
+    void OnCallStateUpdatedEx(int32_t slotId, int32_t callState) override;
     void OnSignalInfoUpdated(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec) override;
     void OnNetworkStateUpdated(int32_t slotId, const sptr<NetworkState> &networkState) override;
     void OnSimStateUpdated(int32_t slotId, CardType type, SimState state, LockReason reason) override;
