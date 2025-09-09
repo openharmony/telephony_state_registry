@@ -146,7 +146,7 @@ private:
     void OnCfuIndicatorUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnVoiceMailMsgIndicatorUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnIccAccountUpdatedInner(MessageParcel &data, MessageParcel &reply);
-    void OnCallStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
+    void OnCallStateUpdatedExInner(MessageParcel &data, MessageParcel &reply);
     static constexpr int32_t CELL_NUM_MAX = 100;
     static constexpr int32_t SIGNAL_NUM_MAX = 100;
     std::map<uint32_t, TelephonyObserverFunc> memberFuncMap_;
