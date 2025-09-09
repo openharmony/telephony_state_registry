@@ -119,10 +119,11 @@ static void OnCallback(napi_env env, void *data)
         } else if (asyncContext->errorCode != TELEPHONY_ERR_CALLBACK_ALREADY_REGISTERED) {
             if (asyncContext->eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) {
                 JsError error = NapiUtil::ConverErrorMessageCallStateExForJs(asyncContext->errorCode);
+                NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);
             } else {
                 JsError error = NapiUtil::ConverErrorMessageForJs(asyncContext->errorCode);
+                NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);
             }
-            NapiUtil::ThrowError(env, error.errorCode, error.errorMessage);
         }
         if (env != nullptr && asyncContext->callbackRef != nullptr) {
             napi_delete_reference(env, asyncContext->callbackRef);
