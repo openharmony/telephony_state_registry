@@ -776,7 +776,7 @@ void EventListenerHandler::WorkCallStateExUpdated(uv_work_t *work, std::unique_l
     napi_value callbackValue = nullptr;
     napi_create_object(callStateExInfo->env, &callbackValue);
     int32_t wrappedCallStateEx = WrapCallStateEx(callStateExInfo->callStateEx);
-    SetPropertyToNapiObject(callStateInfo->env, callbackValue, "state", wrappedCallStateEx);
+    SetPropertyToNapiObject(callStateExInfo->env, callbackValue, "state", wrappedCallStateEx);
     NapiReturnToJS(callStateExInfo->env, callStateExInfo->callbackRef, callbackValue, lock);
     napi_close_handle_scope(env, scope);
 }
