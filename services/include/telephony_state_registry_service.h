@@ -72,6 +72,7 @@ public:
 private:
     void Finalize();
     void UpdateData(const TelephonyStateRegistryRecord &record);
+    void UpdateDataEx(const TelephonyStateRegistryRecord &record);
 
 private:
     bool CheckCallerIsSystemApp(uint32_t mask);

@@ -570,7 +570,7 @@ std::u16string TelephonyStateRegistryService::GetCallIncomingNumberForSlotId(
 void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecord &record)
 {
     if (record.telephonyObserver_ == nullptr) {
-        TELEPHONY_LOGE("record.telephonyObserver_ is nullptr");
+        TELEPHONY_LOGE("record.telephonyObserver_ is  nullptr");
         return;
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE) != 0) {
@@ -614,6 +614,15 @@ void TelephonyStateRegistryService::UpdateData(const TelephonyStateRegistryRecor
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_ICC_ACCOUNT) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_ICC_ACCOUNT");
         record.telephonyObserver_->OnIccAccountUpdated();
+    }
+    UpdateDataEx(record);
+}
+
+void TelephonyStateRegistryService::UpdateDataEx(const TelephonyStateRegistryRecord &record)
+{
+    if (record.telephonyObserver_ == nullptr) {
+        TELEPHONY_LOGE("record.telephonyObserver_ is  nullptr");
+        return;
     }
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE_EX");
