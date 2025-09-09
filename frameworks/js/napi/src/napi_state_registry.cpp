@@ -154,8 +154,7 @@ static napi_value On(napi_env env, napi_callback_info info)
             napi_value slotId = NapiUtil::GetNamedProperty(env, object, "slotId");
             if (slotId) {
                 NapiValueToCppValue(env, slotId, napi_number, &asyncContext->slotId);
-                TELEPHONY_LOGI("state registry on slotId = %{public}d, eventType = %{public}d", asyncContext->slotId,
-                    asyncContext->eventType);
+                TELEPHONY_LOGI("state registry on eventType = %{public}d", asyncContext->eventType);
             }
         }
     } else {
@@ -164,7 +163,6 @@ static napi_value On(napi_env env, napi_callback_info info)
         TelephonyUpdateEventType registerEventType = GetEventType(eventType.data());
         if (registerEventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
             registerEventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) {
-            TELEPHONY_LOGI("state registry observer has no slotId");
             asyncContext->slotId = -1;
         } else if (ENABLE_ON_DEFAULT_DATA_EVENT_SET.find(GetEventType(eventType.data())) !=
             ENABLE_ON_DEFAULT_DATA_EVENT_SET.end()) {
@@ -172,7 +170,6 @@ static napi_value On(napi_env env, napi_callback_info info)
         }
     }
     if (errCode.has_value()) {
-        TELEPHONY_LOGE("On parameter matching failed.");
         NapiUtil::ThrowParameterError(env);
         return nullptr;
     }
