@@ -42,8 +42,8 @@ struct CallStateUpdateInfo : public UpdateInfo {
 
 struct CallStateExUpdateInfo : public UpdateInfo {
     int32_t callStateEx_ = 0;
-    CallStateExUpdateInfo(int32_t slotId, int32_t callStateExParam):
-        UpdateInfo(slotId),callStateEx_(callStateExParam) {}
+    CallStateExUpdateInfo(int32_t slotId, int32_t callStateExParam)
+        : UpdateInfo(slotId), callStateEx_(callStateExParam) {}
 };
 
 struct SignalUpdateInfo : public UpdateInfo {

@@ -86,7 +86,7 @@ enum class TelCallState : int32_t {
     TEL_CALL_STATE_RINGING = 1,
 
     /**
-     * Indicates that a least one call is in the dialing,and there is no new 
+     * Indicates that a least one call is in the dialing,and there is no new
      * incoming call ringing or waiting.
      */
     TEL_CALL_STATE_OFFHOOK = 2,
