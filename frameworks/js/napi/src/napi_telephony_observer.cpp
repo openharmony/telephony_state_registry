@@ -33,9 +33,9 @@ void NapiTelephonyObserver::OnCallStateUpdated(int32_t slotId, int32_t callState
     EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_CALL_STATE_UPDATE), callStateInfo);
 }
 
-void NapiTelephonyObserver::OnCallStateUpdatedEx(int32_t slotId, int32_t callState)
+void NapiTelephonyObserver::OnCallStateUpdatedEx(int32_t slotId, int32_t callStateEx)
 {
-    TELEPHONY_LOGI("OnCallStateUpdatedEx slotId = %{public}d, callState = %{public}d", slotId, callState);
+    TELEPHONY_LOGI("OnCallStateUpdatedEx slotId = %{public}d, callState = %{public}d", slotId, callStateEx);
     std::unique_ptr<CallStateExUpdateInfo> callStateExInfo =
         std::make_unique<CallStateExUpdateInfo>(slotId, callStateEx);
     if (callStateExInfo == nullptr) {
