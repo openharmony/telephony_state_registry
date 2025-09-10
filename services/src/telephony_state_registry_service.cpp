@@ -204,10 +204,10 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
             record.telephonyObserver_->OnCallStateUpdated(record.slotId_, callState, phoneNumber);
             result = TELEPHONY_SUCCESS;
         } else if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX) &&
-            (record.slotId_ == -1) && record.telephonyObserver_ != nullptr) [
+            (record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
             record.telephonyObserver_->OnCallStateUpdatedEx(record.slotId_, callState);
             result = TELEPHONY_SUCCESS;
-        ]
+        }
     }
     SendCallStateChanged(-1, callState);
     SendCallStateChangedAsUserMultiplePermission(-1, callState, number);
