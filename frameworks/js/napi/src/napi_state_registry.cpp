@@ -133,12 +133,57 @@ static void OnCallback(napi_env env, void *data)
     delete asyncContext;
 }
 
+static std::optional<NapiError> MatchParametersWithObject(napi_env env, napi_value* parameters,
+    std::array<char, ARRAY_SIZE>& eventType, napi_value& object, std::unique_ptr<ObserverContext>&asyncContext)
+{
+    napi_valuetype valueTypeTemp = napi_undefined;
+    size_t parameterCount = PARAMETER_COUNT_THREE;
+    napi_value parametersValue[] = { parameters[0], parameters[1], parameters[2] };
+    napi_typeof(env, parameters[parameterCount - 1], &valueTypeTemp);
+    std::optional<NapiError> errCode;
+    if (valueTypeTemp == napi_object) {
+        auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef, &object);
+        errCode = MatchParameters(env, parametersValue, parameterCount, paraTuple);
+    } else {
+        auto paraTuple = std::make_tuple(std::data(eventType), &object, &asyncContext->callbackRef);
+        errCode = MatchParameters(env, parametersValue, parameterCount, paraTuple);
+    }
+    if (!errCode.has_value()) {
+        napi_value slotId = NapiUtil::GetNamedProperty(env, object, "slotId");
+        if (slotId) {
+            NapiValueToCppValue(env, slotId, napi_number, &asyncContext->slotId);
+            TELEPHONY_LOGI("state registry on slotId = %{public}d, eventType = %{public}d",
+                asyncContext->slotId, asyncContext->eventType);
+        }
+    }
+    return errCode;
+}
+ 
+static std::optional<NapiError> MatchParametersWithoutObject(napi_env env, napi_value* parameters,
+    size_t parameterCount, std::array<char, ARRAY_SIZE>& eventType, std::unique_ptr<ObserverContext>& asyncContext)
+{
+    napi_value parametersValue[] = { parameters[0], parameters[1], parameters[2] };
+    auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef);
+    std::optional<NapiError> errCode = MatchParameters(env, parametersValue, parameterCount, paraTuple);
+    if (!errCode.has_value()) {
+        TelephonyUpdateEventType registType = GetEventType(eventType.data());
+        if (registType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
+            registType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) {
+            TELEPHONY_LOGI("state registry observer has no slotId");
+            asyncContext->slotId = -1;
+        } else if (ENABLE_ON_DEFAULT_DATA_EVENT_SET.find(GetEventType(eventType.data())) !=
+            ENABLE_ON_DEFAULT_DATA_EVENT_SET.end()) {
+            asyncContext->slotId = SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT;
+        }
+    }
+    return errCode;
+}
+
 static napi_value On(napi_env env, napi_callback_info info)
 {
     size_t parameterCount = PARAMETER_COUNT_THREE;
     napi_value parameters[] = { nullptr, nullptr, nullptr };
     napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
-
     std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
     if (asyncContext == nullptr) {
         TELEPHONY_LOGE("On asyncContext is nullptr.");
@@ -149,28 +194,13 @@ static napi_value On(napi_env env, napi_callback_info info)
     napi_value object = NapiUtil::CreateUndefined(env);
     std::optional<NapiError> errCode;
     if (parameterCount == std::size(parameters)) {
-        auto paraTuple = std::make_tuple(std::data(eventType), &object, &asyncContext->callbackRef);
-        errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
-        if (!errCode.has_value()) {
-            napi_value slotId = NapiUtil::GetNamedProperty(env, object, "slotId");
-            if (slotId) {
-                NapiValueToCppValue(env, slotId, napi_number, &asyncContext->slotId);
-                TELEPHONY_LOGI("state registry on eventType = %{public}d", asyncContext->eventType);
-            }
-        }
+        errCode = MatchParametersWithObject(env, parameters, eventType, object, asyncContext);
     } else {
-        auto paraTuple = std::make_tuple(std::data(eventType), &asyncContext->callbackRef);
-        errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
-        TelephonyUpdateEventType registerEventType = GetEventType(eventType.data());
-        if (registerEventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
-            registerEventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) {
-            asyncContext->slotId = -1;
-        } else if (ENABLE_ON_DEFAULT_DATA_EVENT_SET.find(GetEventType(eventType.data())) !=
-            ENABLE_ON_DEFAULT_DATA_EVENT_SET.end()) {
-            asyncContext->slotId = SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT;
-        }
+        errCode = MatchParametersWithoutObject(env, parameters, parameterCount, eventType, asyncContext);
     }
+
     if (errCode.has_value()) {
+        TELEPHONY_LOGE("On parameter matching failed.");
         NapiUtil::ThrowParameterError(env);
         return nullptr;
     }
