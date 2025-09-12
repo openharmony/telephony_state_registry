@@ -29,6 +29,8 @@ public:
     virtual ~TelephonyObserverProxy() = default;
     void OnCallStateUpdated(
         int32_t slotId, int32_t callState, const std::u16string &phoneNumber);
+    void OnCallStateUpdatedEx(
+        int32_t slotId, int32_t callStateEx);
     void OnSignalInfoUpdated(
         int32_t slotId, const std::vector<sptr<SignalInformation>> &vec);
     void OnNetworkStateUpdated(

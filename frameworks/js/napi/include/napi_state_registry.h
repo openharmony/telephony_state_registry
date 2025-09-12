@@ -68,6 +68,40 @@ enum class CallState : int32_t {
     CALL_STATE_ANSWERED = 3
 };
 
+enum class TelCallState : int32_t {
+    /**
+     * Indicates an invalid state, which is used when the call state fails to be
+     * obtained.
+     */
+    TEL_CALL_STATE_UNKNOWN = -1,
+
+    /**
+     * Indicates that there is no ongoing call.
+     */
+    TEL_CALL_STATE_IDLE = 0,
+
+    /**
+     * Indicates that an incoming call is ringing or waiting.
+     */
+    TEL_CALL_STATE_RINGING = 1,
+
+    /**
+     * Indicates that a least one call is in the dialing,and there is no new
+     * incoming call ringing or waiting.
+     */
+    TEL_CALL_STATE_OFFHOOK = 2,
+
+    /**
+     * Indicates that an incoming call is answered.
+     */
+    TEL_CALL_STATE_ANSWERED = 3,
+
+    /**
+     * Indicates that an outgoing call is active, or hold state.
+     */
+    TEL_CALL_STATE_CONNECTED = 4
+};
+
 struct ObserverContext : BaseContext {
     int32_t slotId = DEFAULT_SIM_SLOT_ID;
     TelephonyUpdateEventType eventType = TelephonyUpdateEventType::NONE_EVENT_TYPE;

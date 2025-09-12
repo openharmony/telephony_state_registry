@@ -40,6 +40,12 @@ struct CallStateUpdateInfo : public UpdateInfo {
         : UpdateInfo(slotId), callState_(callStateParam), phoneNumber_(phoneNumberParam) {}
 };
 
+struct CallStateExUpdateInfo : public UpdateInfo {
+    int32_t callStateEx_ = 0;
+    CallStateExUpdateInfo(int32_t slotId, int32_t callStateExParam)
+        : UpdateInfo(slotId), callStateEx_(callStateExParam) {}
+};
+
 struct SignalUpdateInfo : public UpdateInfo {
     std::vector<sptr<SignalInformation>> signalInfoList_ {};
     SignalUpdateInfo(int32_t slotId, std::vector<sptr<SignalInformation>> infoList)

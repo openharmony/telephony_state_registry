@@ -47,6 +47,8 @@ void TelephonyObserver::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voic
 
 void TelephonyObserver::OnIccAccountUpdated() {}
 
+void TelephonyObserver::OnCallStateUpdatedEx(int32_t slotId, int32_t callStateEx) {}
+
 TelephonyObserver::TelephonyObserver()
 {
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_UPDATED)] =
@@ -69,6 +71,8 @@ TelephonyObserver::TelephonyObserver()
         [this](MessageParcel &data, MessageParcel &reply) { OnVoiceMailMsgIndicatorUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_ICC_ACCOUNT_UPDATED)] =
         [this](MessageParcel &data, MessageParcel &reply) { OnIccAccountUpdatedInner(data, reply); };
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_EX_UPDATED)] =
+        [this](MessageParcel &data, MessageParcel &reply) { OnCallStateUpdatedExInner(data, reply); };
 }
 
 TelephonyObserver::~TelephonyObserver() {}
@@ -173,6 +177,14 @@ void TelephonyObserver::OnVoiceMailMsgIndicatorUpdatedInner(
 void TelephonyObserver::OnIccAccountUpdatedInner(MessageParcel &data, MessageParcel &reply)
 {
     OnIccAccountUpdated();
+}
+
+void TelephonyObserver::OnCallStateUpdatedExInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    int32_t callStateEx = data.ReadInt32();
+    OnCallStateUpdatedEx(slotId, callStateEx);
 }
 
 void TelephonyObserver::ConvertSignalInfoList(

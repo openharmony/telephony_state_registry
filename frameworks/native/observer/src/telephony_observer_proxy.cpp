@@ -49,6 +49,30 @@ void TelephonyObserverProxy::OnCallStateUpdated(
     TELEPHONY_LOGD("TelephonyObserverProxy::OnCallStateUpdated end ##error: %{public}d", code);
 };
 
+void TelephonyObserverProxy::OnCallStateUpdatedEx(
+    int32_t slotId, int32_t callStateEx)
+{
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    MessageOption option;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCallStateUpdatedEx WriteInterfaceToken failed!");
+        return;
+    }
+    dataParcel.WriteInt32(slotId);
+    dataParcel.WriteInt32(callStateEx);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCallStateUpdatedEx remote is null!");
+        return;
+    }
+    int code = remote->SendRequest(
+        static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_EX_UPDATED),
+        dataParcel, replyParcel, option);
+    TELEPHONY_LOGD("TelephonyObserverProxy::OnCallStateUpdatedEx end ##error: %{public}d", code);
+};
+
 void TelephonyObserverProxy::OnSimStateUpdated(
     int32_t slotId, CardType type, SimState state, LockReason reason)
 {
