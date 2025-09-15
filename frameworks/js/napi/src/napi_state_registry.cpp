@@ -133,11 +133,11 @@ static void OnCallback(napi_env env, void *data)
     delete asyncContext;
 }
 
-static std::optional<NapiError> MatchParametersWithObject(napi_env env, napi_value* parameters,
-    std::array<char, ARRAY_SIZE>& eventType, napi_value& object, std::unique_ptr<ObserverContext>&asyncContext)
+static std::optional<NapiError> MatchParametersWithObject(napi_env env, napi_value* parameters, size_t parameterCount,
+    std::array<char, ARRAY_SIZE>& eventType, std::unique_ptr<ObserverContext>&asyncContext)
 {
     napi_valuetype valueTypeTemp = napi_undefined;
-    size_t parameterCount = PARAMETER_COUNT_THREE;
+    napi_value object = NapiUtil::CreateUndefined(env);
     napi_value parametersValue[] = { parameters[0], parameters[1], parameters[2] };
     napi_typeof(env, parameters[parameterCount - 1], &valueTypeTemp);
     std::optional<NapiError> errCode;
@@ -191,7 +191,6 @@ static napi_value On(napi_env env, napi_callback_info info)
         return nullptr;
     }
     std::array<char, ARRAY_SIZE> eventType {};
-    napi_value object = NapiUtil::CreateUndefined(env);
     std::optional<NapiError> errCode;
     if (parameterCount == std::size(parameters)) {
         errCode = MatchParametersWithObject(env, parameters, eventType, object, asyncContext);
