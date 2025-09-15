@@ -193,7 +193,7 @@ static napi_value On(napi_env env, napi_callback_info info)
     std::array<char, ARRAY_SIZE> eventType {};
     std::optional<NapiError> errCode;
     if (parameterCount == std::size(parameters)) {
-        errCode = MatchParametersWithObject(env, parameters, eventType, object, asyncContext);
+        errCode = MatchParametersWithObject(env, parameters, parameterCount, eventType, asyncContext);
     } else {
         errCode = MatchParametersWithoutObject(env, parameters, parameterCount, eventType, asyncContext);
     }
