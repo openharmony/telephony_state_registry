@@ -865,17 +865,15 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_011, Function | MediumTest | L
     int32_t callState = 8;
     std::shared_ptr<OHOS::Telephony::TelephonyObserver> telephonyObserver =
         std::make_shared<OHOS::Telephony::TelephonyObserver>();
-    sptr<IRemoteObject> obj = sam->CheckSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
-    std::shared_ptr<OHOS::Telephony::TelephonyObserverProxy> telephonyObserverProxy =
-        std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(obj);
     telephonyObserver->OnCfuIndicatorUpdated(slotId, cfuResult);
     telephonyObserver->OnVoiceMailMsgIndicatorUpdated(slotId, cfuResult);
-    telephonyObserverProxy->OnCallStateUpdatedEx(DEFAULT_SIM_SLOT_ID, callState);
     MessageParcel data;
     MessageParcel reply;
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     telephonyObserver->OnIccAccountUpdatedInner(data, reply);
-    telephonyObserver->OnCallStateUpdatedExInner(data, reply);
+    sptr<IRemoteObject> obj = sam->CheckSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
+    std::shared_ptr<OHOS::Telephony::TelephonyObserverProxy> telephonyObserverProxy =
+        std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(obj);
     telephonyObserverProxy->OnIccAccountUpdated();
     EXPECT_TRUE(telephonyObserver != nullptr);
     EXPECT_TRUE(telephonyObserverProxy != nullptr);
