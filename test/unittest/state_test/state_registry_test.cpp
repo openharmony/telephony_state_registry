@@ -865,6 +865,9 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_011, Function | MediumTest | L
     int32_t callState = 8;
     std::shared_ptr<OHOS::Telephony::TelephonyObserver> telephonyObserver =
         std::make_shared<OHOS::Telephony::TelephonyObserver>();
+    sptr<IRemoteObject> obj = sam->CheckSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
+    std::shared_ptr<OHOS::Telephony::TelephonyObserverProxy> telephonyObserverProxy =
+        std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(obj);
     telephonyObserver->OnCfuIndicatorUpdated(slotId, cfuResult);
     telephonyObserver->OnVoiceMailMsgIndicatorUpdated(slotId, cfuResult);
     telephonyObserverProxy->OnCallStateUpdatedEx(DEFAULT_SIM_SLOT_ID, callState);
@@ -873,9 +876,6 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_011, Function | MediumTest | L
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
     telephonyObserver->OnIccAccountUpdatedInner(data, reply);
     telephonyObserver->OnCallStateUpdatedExInner(data, reply);
-    sptr<IRemoteObject> obj = sam->CheckSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
-    std::shared_ptr<OHOS::Telephony::TelephonyObserverProxy> telephonyObserverProxy =
-        std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(obj);
     telephonyObserverProxy->OnIccAccountUpdated();
     EXPECT_TRUE(telephonyObserver != nullptr);
     EXPECT_TRUE(telephonyObserverProxy != nullptr);
@@ -1155,7 +1155,7 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallState(0, number));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, number));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX;
-    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateEx(0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallState(0, number));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, number));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateSimState(0, type, state, reason));
