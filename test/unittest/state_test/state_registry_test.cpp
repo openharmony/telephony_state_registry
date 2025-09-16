@@ -1170,11 +1170,6 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
     EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallState(-1, number));
     service->stateRecords_[0].slotId_ = 0;
     EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallStateForSlotId(0, 0, number));
-    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX;
-    service->stateRecords_[0].slotId_ = -1;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallState(-1, number));
-    service->stateRecords_[0].slotId_ = 0;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallStateForSlotId(0, 0, number));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
     EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateSimState(0, type, state, reason));
 
@@ -1198,6 +1193,7 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_007, Function | Me
     ASSERT_TRUE(service != nullptr);
     AccessToken token;
     TelephonyStateRegistryRecord record;
+    std::u16string number = u"123";
     service->stateRecords_.push_back(record);
     sptr<NetworkState> networkState = std::make_unique<NetworkState>().release();
     std::vector<sptr<SignalInformation>> vecSignalInfo;
@@ -1220,6 +1216,11 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_007, Function | Me
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCfuIndicator(0, true));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateVoiceMailMsgIndicator(0, true));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX;
+    service->stateRecords_[0].slotId_ = -1;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallState(-1, number));
+    service->stateRecords_[0].slotId_ = 0;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallStateForSlotId(0, 0, number));
 
     service->stateRecords_[0].slotId_ = 0;
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS;
