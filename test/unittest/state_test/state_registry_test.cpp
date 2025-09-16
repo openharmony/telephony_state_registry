@@ -832,7 +832,7 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_010, Function | MediumTest | L
     std::shared_ptr<OHOS::Telephony::TelephonyObserverProxy> telephonyObserverProxy =
         std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(obj);
     telephonyObserverProxy->OnCallStateUpdated(DEFAULT_SIM_SLOT_ID, callState, number);
-    telephonyObserverProxy->OnCallStateUpdated(DEFAULT_SIM_SLOT_ID, callState);
+    telephonyObserverProxy->OnCallStateUpdatedEx(DEFAULT_SIM_SLOT_ID, callState);
     std::vector<sptr<SignalInformation>> signalInformations;
     telephonyObserverProxy->OnSignalInfoUpdated(DEFAULT_SIM_SLOT_ID, signalInformations);
     for (int32_t i = 0; i < signalSize; i++) {
@@ -867,7 +867,7 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_011, Function | MediumTest | L
         std::make_shared<OHOS::Telephony::TelephonyObserver>();
     telephonyObserver->OnCfuIndicatorUpdated(slotId, cfuResult);
     telephonyObserver->OnVoiceMailMsgIndicatorUpdated(slotId, cfuResult);
-    telephonyObserverProxy->OnCallStateUpdated(DEFAULT_SIM_SLOT_ID, callState);
+    telephonyObserverProxy->OnCallStateUpdatedEx(DEFAULT_SIM_SLOT_ID, callState);
     MessageParcel data;
     MessageParcel reply;
     sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
