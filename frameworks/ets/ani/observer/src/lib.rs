@@ -18,7 +18,7 @@ mod wrapper;
 mod log;
 
 ani_rs::ani_constructor! {
-    namespace "L@ohos/telephony/observer/observer"
+    namespace "@ohos.telephony.observer.observer"
     [
         "onCellularDataFlowChange": observer::on_cellular_data_flow_change,
         "offCellularDataFlowChange": observer::off_cellular_data_flow_change,
