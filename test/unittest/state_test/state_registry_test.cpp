@@ -63,6 +63,7 @@ void StateRegistryTest::InitTelephonyObserver()
         Telephony::TelephonyObserverClient::GetInstance().AddStateObserver(telephonyObserver0_, DEFAULT_SIM_SLOT_ID,
             Telephony::TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE |
                 Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE |
+                Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX |
                 Telephony::TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO |
                 Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS |
                 Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE |
@@ -79,6 +80,7 @@ void StateRegistryTest::InitTelephonyObserver()
     res = Telephony::TelephonyObserverClient::GetInstance().AddStateObserver(telephonyObserver1_, SIM_SLOT_ID_1,
         Telephony::TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE |
             Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE |
+            Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX |
             Telephony::TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO |
             Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS |
             Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE |
@@ -98,6 +100,7 @@ void StateRegistryTest::DisableTelephonyObserver()
     Telephony::TelephonyObserverClient::GetInstance().RemoveStateObserver(
         DEFAULT_SIM_SLOT_ID, Telephony::TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE |
                                  Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE |
+                                 Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX |
                                  Telephony::TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO |
                                  Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS |
                                  Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE |
@@ -108,6 +111,7 @@ void StateRegistryTest::DisableTelephonyObserver()
     Telephony::TelephonyObserverClient::GetInstance().RemoveStateObserver(
         SIM_SLOT_ID_1, Telephony::TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE |
                            Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE |
+                           Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX |
                            Telephony::TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO |
                            Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS |
                            Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE |
@@ -828,6 +832,7 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_010, Function | MediumTest | L
     std::shared_ptr<OHOS::Telephony::TelephonyObserverProxy> telephonyObserverProxy =
         std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(obj);
     telephonyObserverProxy->OnCallStateUpdated(DEFAULT_SIM_SLOT_ID, callState, number);
+    telephonyObserverProxy->OnCallStateUpdatedEx(DEFAULT_SIM_SLOT_ID, callState);
     std::vector<sptr<SignalInformation>> signalInformations;
     telephonyObserverProxy->OnSignalInfoUpdated(DEFAULT_SIM_SLOT_ID, signalInformations);
     for (int32_t i = 0; i < signalSize; i++) {
@@ -979,6 +984,7 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_002, Function | Me
     service->UpdateData(record);
     record.mask_ = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE |
                    TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE |
+                   TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX |
                    TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO |
                    TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS |
                    TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE |
@@ -1145,6 +1151,9 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallState(0, number));
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, number));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallState(0, number));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCallStateForSlotId(0, 0, number));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateSimState(0, type, state, reason));
 
@@ -1181,6 +1190,7 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_007, Function | Me
     ASSERT_TRUE(service != nullptr);
     AccessToken token;
     TelephonyStateRegistryRecord record;
+    std::u16string number = u"123";
     service->stateRecords_.push_back(record);
     sptr<NetworkState> networkState = std::make_unique<NetworkState>().release();
     std::vector<sptr<SignalInformation>> vecSignalInfo;
@@ -1203,6 +1213,11 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_007, Function | Me
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCfuIndicator(0, true));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateVoiceMailMsgIndicator(0, true));
+    service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX;
+    service->stateRecords_[0].slotId_ = -1;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallState(-1, number));
+    service->stateRecords_[0].slotId_ = 0;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCallStateForSlotId(0, 0, number));
 
     service->stateRecords_[0].slotId_ = 0;
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS;
