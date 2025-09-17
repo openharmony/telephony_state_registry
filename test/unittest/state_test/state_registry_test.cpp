@@ -862,7 +862,6 @@ HWTEST_F(StateRegistryTest, TelephonyObserverTest_011, Function | MediumTest | L
 {
     int32_t slotId = 0;
     bool cfuResult = false;
-    int32_t callState = 8;
     std::shared_ptr<OHOS::Telephony::TelephonyObserver> telephonyObserver =
         std::make_shared<OHOS::Telephony::TelephonyObserver>();
     telephonyObserver->OnCfuIndicatorUpdated(slotId, cfuResult);
