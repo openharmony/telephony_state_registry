@@ -227,7 +227,7 @@ void TelephonyObserverProxy::OnCellularDataFlowUpdated(
     MessageOption option;
     MessageParcel dataParcel;
     MessageParcel replyParcel;
-    option.SetFlags(MessageOption::TF_ASYNC);
+    option.SetFlags(MessageOption::TF_ASYNC | MessageOption::TF_ASYNC_WAKEUP_LATER);
     if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
         TELEPHONY_LOGE("TelephonyObserverProxy::OnCellularDataFlowUpdated WriteInterfaceToken failed!");
         return;
