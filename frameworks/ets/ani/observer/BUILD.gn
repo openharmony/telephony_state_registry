@@ -35,22 +35,22 @@ ohos_static_library("observer_ani_cxx") {
   ]
   sources = [ "src/cxx/observer_ani.cpp" ]
   sources += get_target_outputs(":observer_ani_cxx_gen")
-  
+
   deps = [
     ":observer_ani_cxx_gen",
-    "//third_party/rust/crates/cxx:cxx_cppdeps",
     "$SUBSYSTEM_DIR/state_registry/frameworks/native/observer:tel_state_registry_api",
   ]
   external_deps = [
     "c_utils:utils",
-    "hilog:libhilog",
-    "ipc:ipc_core",
     "core_service:libtel_common",
     "core_service:tel_core_service_api",
+    "hilog:libhilog",
     "init:libbegetutil",
+    "ipc:ipc_core",
     "napi:ace_napi",
+    "rust_cxx:cxx_cppdeps",
   ]
-  
+
   defines = [
     "TELEPHONY_LOG_TAG = \"StateRegistryJsApi\"",
     "LOG_DOMAIN = 0xD001F07",
@@ -70,16 +70,16 @@ ohos_rust_shared_library("telephony_observer_ani") {
   }
 
   sources = [ "src/lib.rs" ]
-  
+
   external_deps = [
-    "runtime_core:ani",
     "hilog:hilog_rust",
     "netmanager_base:ani_rs",
+    "runtime_core:ani",
+    "rust_cxx:lib",
   ]
   deps = [
     ":observer_ani_cxx",
-    "//third_party/rust/crates/cxx:lib",
-    "//third_party/rust/crates/serde/serde:lib"
+    "//third_party/rust/crates/serde/serde:lib",
   ]
   clippy_lints = "none"
   part_name = "state_registry"
@@ -106,7 +106,7 @@ ohos_prebuilt_etc("observer_ani_etc") {
 
 group("observer_ani_group") {
   deps = [
-    ":telephony_observer_ani",
     ":observer_ani_etc",
+    ":telephony_observer_ani",
   ]
 }
