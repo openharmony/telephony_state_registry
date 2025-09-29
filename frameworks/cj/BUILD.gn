@@ -48,6 +48,11 @@ ohos_shared_library("cj_observer_ffi") {
     "napi:cj_bind_native",
   ]
 
+  defines = [
+    "TELEPHONY_LOG_TAG = \"StateRegistryCjApi\"",
+    "LOG_DOMAIN = 0xD001F07",
+  ]
+
   innerapi_tags = [ "platformsdk" ]
   part_name = "state_registry"
   subsystem_name = "telephony"

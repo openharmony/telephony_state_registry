@@ -329,10 +329,11 @@ void ObserverEventHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
                 TELEPHONY_LOGE("make work failed");
                 break;
             }
-            std::unique_ptr<D> context = std::move(info);
-            D* data = context.release();
+            D* data = new D(*info);
             if (data == nullptr) {
                 TELEPHONY_LOGE("make work failed");
+                delete work;
+                work = nullptr;
                 break;
             }
             work->data = static_cast<void *>(data);
@@ -368,6 +369,7 @@ void ObserverEventHandler::HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent
             WorkUpdated(listen, work, lock);
             delete listener;
             delete work;
+            work = nullptr;
         }
     }
 }
@@ -431,7 +433,6 @@ void ObserverEventHandler::WorkCallStateUpdated(const EventListener &listener,
         .state = WrapCallState(callStateInfo->callState_),
         .number = MallocCString(phoneNumber)
     };
-    lock.unlock();
     void* argv = &(callbackValue);
     listener.callbackRef(argv);
 }
@@ -464,7 +465,6 @@ void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
     }
     signalInformations.size = static_cast<int64_t>(infoSize);
     signalInformations.head = head;
-    lock.unlock();
     void* argv = &(signalInformations);
     listener.callbackRef(argv);
 }
@@ -497,7 +497,6 @@ void ObserverEventHandler::WorkNetworkStateUpdated(const EventListener &listener
         .isCaActive = false,
         .isEmergency = isEmergency
     };
-    lock.unlock();
     void* argv = &(callbackValue);
     listener.callbackRef(argv);
 }
@@ -518,7 +517,6 @@ void ObserverEventHandler::WorkSimStateUpdated(const EventListener &listener,
         .state = simState,
         .reason = lockReason
     };
-    lock.unlock();
     void* argv = &(callbackValue);
     listener.callbackRef(argv);
 }
@@ -545,7 +543,6 @@ void ObserverEventHandler::WorkCellularDataConnectStateUpdated(const EventListen
         .state = context->dataState_,
         .network = context->networkType_
     };
-    lock.unlock();
     void* argv = &(callbackValue);
     listener.callbackRef(argv);
 }
@@ -558,7 +555,6 @@ void ObserverEventHandler::WorkCellularDataFlowUpdated(const EventListener &list
         return;
     }
     std::unique_ptr<CellularDataFlowUpdate> dataFlowInfo(static_cast<CellularDataFlowUpdate *>(work->data));
-    lock.unlock();
     void* argv = &(dataFlowInfo->flowType_);
     listener.callbackRef(argv);
 }
@@ -584,7 +580,6 @@ void ObserverEventHandler::WorkVoiceMailMsgIndicatorUpdated(const EventListener 
 void ObserverEventHandler::WorkIccAccountUpdated(const EventListener &listener,
     uv_work_t *work, std::unique_lock<std::mutex> &lock)
 {
-    lock.unlock();
     void* argv = nullptr;
     listener.callbackRef(argv);
 }
