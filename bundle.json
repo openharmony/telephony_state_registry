@@ -46,7 +46,12 @@
                 "safwk",
                 "samgr",
                 "node",
-                "call_manager"
+                "call_manager",
+                "ability_runtime",
+                "image_framework",
+                "netmanager_base",
+                "runtime_core",
+                "rust_cxx"
             ]
         },
         "build": {
@@ -55,7 +60,8 @@
                 ],
                 "fwk_group": [
                     "//base/telephony/state_registry/frameworks/native/observer:tel_state_registry_api",
-                    "//base/telephony/state_registry/frameworks/js/napi:observer"
+                    "//base/telephony/state_registry/frameworks/js/napi:observer",
+                    "//base/telephony/state_registry/frameworks/ets/ani/observer:observer_ani_group"
                 ],
                 "service_group": [
                     "//base/telephony/state_registry:tel_state_registry",
