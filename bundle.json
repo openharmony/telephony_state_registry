@@ -47,8 +47,6 @@
                 "samgr",
                 "node",
                 "call_manager",
-                "ability_runtime",
-                "image_framework",
                 "netmanager_base",
                 "runtime_core",
                 "rust_cxx"
