@@ -335,8 +335,8 @@ EXTERN_C_START
 napi_value InitNapiStateRegistry(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_FUNCTION("on", On),
-        DECLARE_NAPI_FUNCTION("off", Off),
+        DECLARE_NAPI_WRITABLE_FUNCTION("on", On),
+        DECLARE_NAPI_WRITABLE_FUNCTION("off", Off),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     NAPI_CALL(env, InitEnumLockReason(env, exports));
