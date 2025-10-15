@@ -92,6 +92,7 @@ private:
     ServiceRunningState state_ = ServiceRunningState::STATE_STOPPED;
     std::mutex lock_;
     int32_t slotSize_ = 0;
+    int32_t slotSizeMax_ = 4;
     int64_t bindStartTime_ = 0L;
     int64_t bindEndTime_ = 0L;
     int64_t bindSpendTime_ = 0L;

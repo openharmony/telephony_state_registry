@@ -479,7 +479,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     if (!CheckPermission(mask)) {
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    if (!VerifySlotId(slotId)) {
+    if (slotId > slotSizeMax_ || slotId < -1) {
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
     std::lock_guard<std::mutex> guard(lock_);
