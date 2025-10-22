@@ -206,7 +206,7 @@ void CreateCDMASignalInfo(std::unique_ptr<CdmaSignalInformation> &signal, const 
         return;
     }
     FuzzedDataProvider provider(data, size);
-    signal->signalBar_ = sprovider.ConsumeIntegral<int32_t>();
+    signal->signalBar_ = provider.ConsumeIntegral<int32_t>();
 
     signal->cdmaRssi_ = provider.ConsumeIntegral<int32_t>();
 
@@ -219,7 +219,7 @@ void CreateLTESignalInfo(std::unique_ptr<LteSignalInformation> &signal, const ui
         return;
     }
     FuzzedDataProvider provider(data, size);
-    signal->signalBar_ = sprovider.ConsumeIntegral<int32_t>();
+    signal->signalBar_ = provider.ConsumeIntegral<int32_t>();
 
     signal->rxlev_ = provider.ConsumeIntegral<int32_t>();
 
