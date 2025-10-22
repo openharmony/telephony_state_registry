@@ -194,12 +194,10 @@ void CreateGsmSignalInfo(std::unique_ptr<GsmSignalInformation> &signal, const ui
     if (signal == nullptr) {
         return;
     }
-    int32_t offset = 0;
-    signal->signalBar_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->gsmRxlev_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->gsmBer_ = static_cast<int32_t>(*data + offset);
+    FuzzedDataProvider provider(data, size);
+    signal->signalBar_ = provider.ConsumeIntegral<int32_t>();
+    signal->gsmRxlev_ = provider.ConsumeIntegral<int32_t>();
+    signal->gsmBer_ = provider.ConsumeIntegral<int32_t>();
 }
 
 void CreateCDMASignalInfo(std::unique_ptr<CdmaSignalInformation> &signal, const uint8_t *data, size_t size)
@@ -207,12 +205,12 @@ void CreateCDMASignalInfo(std::unique_ptr<CdmaSignalInformation> &signal, const 
     if (signal == nullptr) {
         return;
     }
-    int32_t offset = 0;
-    signal->signalBar_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->cdmaRssi_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->cdmaEcno_ = static_cast<int32_t>(*data + offset);
+    FuzzedDataProvider provider(data, size);
+    signal->signalBar_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->cdmaRssi_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->cdmaEcno_ = provider.ConsumeIntegral<int32_t>();
 }
 
 void CreateLTESignalInfo(std::unique_ptr<LteSignalInformation> &signal, const uint8_t *data, size_t size)
@@ -220,16 +218,16 @@ void CreateLTESignalInfo(std::unique_ptr<LteSignalInformation> &signal, const ui
     if (signal == nullptr) {
         return;
     }
-    int32_t offset = 0;
-    signal->signalBar_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->rxlev_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->lteRsrp_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->lteRsrq_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->lteSnr_ = static_cast<int32_t>(*data + offset);
+    FuzzedDataProvider provider(data, size);
+    signal->signalBar_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->rxlev_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->lteRsrp_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->lteRsrq_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->lteSnr_ = provider.ConsumeIntegral<int32_t>();
 }
 
 void CreateWCDMASignalInfo(std::unique_ptr<WcdmaSignalInformation> &signal, const uint8_t *data, size_t size)
@@ -237,16 +235,16 @@ void CreateWCDMASignalInfo(std::unique_ptr<WcdmaSignalInformation> &signal, cons
     if (signal == nullptr) {
         return;
     }
-    int32_t offset = 0;
-    signal->signalBar_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->wcdmaRxlev_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->wcdmaRscp_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->wcdmaEcio_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->wcdmaBer_ = static_cast<int32_t>(*data + offset);
+    FuzzedDataProvider provider(data, size);
+    signal->signalBar_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->wcdmaRxlev_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->wcdmaRscp_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->wcdmaEcio_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->wcdmaBer_ = provider.ConsumeIntegral<int32_t>();
 }
 
 void CreateNRSignalInfo(std::unique_ptr<NrSignalInformation> &signal, const uint8_t *data, size_t size)
@@ -254,14 +252,14 @@ void CreateNRSignalInfo(std::unique_ptr<NrSignalInformation> &signal, const uint
     if (signal == nullptr) {
         return;
     }
-    int32_t offset = 0;
-    signal->signalBar_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->nrRsrp_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->nrRsrq_ = static_cast<int32_t>(*data + offset);
-    offset += sizeof(int32_t);
-    signal->nrSinr_ = static_cast<int32_t>(*data + offset);
+    FuzzedDataProvider provider(data, size);
+    signal->signalBar_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->nrRsrp_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->nrRsrq_ = provider.ConsumeIntegral<int32_t>();
+
+    signal->nrSinr_ = provider.ConsumeIntegral<int32_t>();
 }
 
 void UpdateLteNrSignalInfo(const uint8_t *data, size_t size, MessageParcel &dataMessageParcel,
