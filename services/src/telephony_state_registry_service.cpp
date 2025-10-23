@@ -480,7 +480,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     if (!CheckPermission(mask)) {
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    if (slotId > slotSizeMax_ || slotId < -1) {
+    if (slotId > slotSizeMax_ || slotId < -1) { //不关心卡状态时，可能填写-1
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
     std::lock_guard<std::mutex> guard(lock_);
