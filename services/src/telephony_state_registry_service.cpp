@@ -37,6 +37,7 @@ using namespace OHOS::EventFwk;
 bool g_registerResult =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<TelephonyStateRegistryService>::GetInstance().get());
 constexpr int32_t SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT = 999;
+constexpr const int32_t slotSizeMax_ = 4;
 
 TelephonyStateRegistryService::TelephonyStateRegistryService()
     : SystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID, true)
