@@ -37,7 +37,7 @@ using namespace OHOS::EventFwk;
 bool g_registerResult =
     SystemAbility::MakeAndRegisterAbility(DelayedSingleton<TelephonyStateRegistryService>::GetInstance().get());
 constexpr int32_t SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT = 999;
-constexpr const int32_t slotSizeMax_ = 4;
+constexpr int32_t SIM_SLOT_ID_MAX = 4;
 
 TelephonyStateRegistryService::TelephonyStateRegistryService()
     : SystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID, true)
@@ -480,7 +480,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     if (!CheckPermission(mask)) {
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    if (slotId > slotSizeMax_ || slotId < -1) { //不关心卡状态时，可能填写-1
+    if (slotId > SIM_SLOT_ID_MAX || slotId < -1) { //不关心卡状态时，可能填写-1,4
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
     std::lock_guard<std::mutex> guard(lock_);
