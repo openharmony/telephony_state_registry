@@ -1060,7 +1060,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_004, Function | Me
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
     int32_t invalidSlotId = 5;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, invalidSlotId, 0, "", true, 0, 0, 0));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR,
+        service->RegisterStateChange(telephonyObserver, invalidSlotId, 0, "", true, 0, 0, 0));
     EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0, 0));
     EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", false, 0, 0, 0));
     service->stateRecords_[0].tokenId_ = 1;
