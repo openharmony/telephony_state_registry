@@ -17,6 +17,7 @@
 #define TELEPHONY_STATE_REGISTRY_SERVICE_H
 
 #include <map>
+#include <shared_mutex>
 #include <mutex>
 #include <string>
 
@@ -90,7 +91,7 @@ private:
 
 private:
     ServiceRunningState state_ = ServiceRunningState::STATE_STOPPED;
-    std::mutex lock_;
+    std::shared_mutex lock_;
     int32_t slotSize_ = 0;
     int64_t bindStartTime_ = 0L;
     int64_t bindEndTime_ = 0L;
