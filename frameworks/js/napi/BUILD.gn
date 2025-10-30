@@ -44,7 +44,6 @@ ohos_shared_library("observer") {
     "ipc:ipc_core",
     "libuv:uv",
     "napi:ace_napi",
-    "node:node_header_notice",
   ]
 
   defines = [
