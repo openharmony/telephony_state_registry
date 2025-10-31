@@ -51,7 +51,7 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
     }
 #endif
     TELEPHONY_LOGI("TelephonyStateRegistryService SystemAbility create, slotSize_: %{public}d", slotSize_);
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> lock(lock_);
     for (int32_t i = 0; i < slotSize_; i++) {
         callState_[i] = static_cast<int32_t>(CallStatus::CALL_STATUS_UNKNOWN);
     }
@@ -65,7 +65,7 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
 
 TelephonyStateRegistryService::~TelephonyStateRegistryService()
 {
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> lock(lock_);
     stateRecords_.clear();
     callState_.clear();
     callIncomingNumber_.clear();
@@ -78,7 +78,7 @@ void TelephonyStateRegistryService::OnStart()
     bindStartTime_ =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
             .count();
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> lock(lock_);
     if (state_ == ServiceRunningState::STATE_RUNNING) {
         TELEPHONY_LOGE("Leave, FAILED, already running");
         return;
@@ -110,7 +110,7 @@ void TelephonyStateRegistryService::OnStart()
 void TelephonyStateRegistryService::OnStop()
 {
     TELEPHONY_LOGI("TelephonyStateRegistryService OnStop ");
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> lock(lock_);
     state_ = ServiceRunningState::STATE_STOPPED;
 }
 
@@ -132,9 +132,11 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     cellularDataConnectionState_[slotId] = dataState;
     cellularDataConnectionNetworkType_[slotId] = networkType;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -166,8 +168,10 @@ int32_t TelephonyStateRegistryService::UpdateCellularDataFlow(int32_t slotId, in
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     cellularDataFlow_[slotId] = flowData;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -188,10 +192,12 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     // -1 means observe all slot
     callState_[-1] = callState;
     callIncomingNumber_[-1] = number;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -227,9 +233,11 @@ int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     callState_[slotId] = callState;
     callIncomingNumber_[slotId] = number;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -259,10 +267,12 @@ int32_t TelephonyStateRegistryService::UpdateSimState(int32_t slotId, CardType t
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     simState_[slotId] = state;
     simReason_[slotId] = reason;
     cardType_[slotId] = type;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -286,8 +296,10 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(int32_t slotId, const st
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     signalInfos_[slotId] = vec;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -318,8 +330,10 @@ int32_t TelephonyStateRegistryService::UpdateCellInfo(int32_t slotId, const std:
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     cellInfos_[slotId] = vec;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -351,8 +365,10 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const 
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     searchNetworkState_[slotId] = networkState;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord r = stateRecords_[i];
@@ -386,8 +402,10 @@ int32_t TelephonyStateRegistryService::UpdateCfuIndicator(int32_t slotId, bool c
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     cfuResult_[slotId] = cfuResult;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -407,7 +425,7 @@ int32_t TelephonyStateRegistryService::UpdateIccAccount()
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -431,8 +449,10 @@ int32_t TelephonyStateRegistryService::UpdateVoiceMailMsgIndicator(int32_t slotI
         TELEPHONY_LOGE("Check permission failed.");
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
     voiceMailMsgResult_[slotId] = voiceMailMsgResult;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord record = stateRecords_[i];
@@ -483,7 +503,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     if (slotId > SIM_SLOT_ID_MAX || slotId < -1) { //不关心卡状态时，可能填写-1,4
         return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> lock(lock_);
     bool isExist = false;
     TelephonyStateRegistryRecord record;
     for (size_t i = 0; i < stateRecords_.size(); i++) {
@@ -521,7 +541,7 @@ int32_t TelephonyStateRegistryService::UnregisterStateChange(int32_t slotId, uin
     if (!CheckPermission(mask)) {
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    std::lock_guard<std::mutex> guard(lock_);
+    std::unique_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_UNREGISTRY_DATA_NOT_EXIST;
     std::vector<TelephonyStateRegistryRecord>::iterator it;
     for (it = stateRecords_.begin(); it != stateRecords_.end(); ++it) {
@@ -773,7 +793,7 @@ int TelephonyStateRegistryService::Dump(std::int32_t fd, const std::vector<std::
     }
     std::string result;
     TelephonyStateRegistryDumpHelper dumpHelper;
-    std::lock_guard<std::mutex> guard(lock_);
+    std::shared_lock<std::shared_mutex> lock(lock_);
     if (dumpHelper.Dump(argsInStr, stateRecords_, result)) {
         std::int32_t ret = dprintf(fd, "%s", result.c_str());
         if (ret < 0) {
