@@ -493,7 +493,7 @@ bool TelephonyStateRegistryService::CheckCallerIsSystemApp(uint32_t mask)
 int32_t TelephonyStateRegistryService::RegisterStateChange(
     const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
     uint32_t mask, const std::string &bundleName, bool isUpdate, pid_t pid, int32_t uid, int32_t tokenId,
-+   const std::string &appIdentifier)
+    const std::string &appIdentifier)
 {
     if (!CheckCallerIsSystemApp(mask)) {
         return TELEPHONY_ERR_ILLEGAL_USE_OF_SYSTEM_API;
