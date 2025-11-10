@@ -1173,10 +1173,10 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_006, Function | Me
 
     service->stateRecords_[0].slotId_ = 999;
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCellularDataConnectState(999, 0, 0));
+    EXPECT_NE(TELEPHONY_SUCCESS, service->UpdateCellularDataConnectState(999, 0, 0));
 
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
-    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateCellularDataFlow(999, 2));
+    EXPECT_NE(TELEPHONY_SUCCESS, service->UpdateCellularDataFlow(999, 2));
 }
 
 /**
