@@ -40,6 +40,7 @@ public:
     pid_t pid_ = 0;
     unsigned int mask_ = 0;
     int slotId_ = 0;
+    std::string appIdentifier_ = "";
     sptr<TelephonyObserverBroker> telephonyObserver_ = nullptr;
 };
 } // namespace Telephony

@@ -15,6 +15,7 @@
 
 #include "telephony_state_registry_stub.h"
 
+#include "accesstoken_kit.h"
 #include "ipc_skeleton.h"
 #include "string_ex.h"
 
@@ -433,8 +434,12 @@ int32_t TelephonyStateRegistryStub::RegisterStateChange(const sptr<TelephonyObse
     std::string bundleName = "";
     TelephonyPermission::GetBundleNameByUid(uid, bundleName);
     int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
+    Security::AccessToken::HapTokenInfo hapTokenInfo;
+    Security::AccessToken::AccessTokenKit::GetHapTokenInfo(tokenId, hapTokenInfo);
+    std::string appIdentifier = "";
+    TelephonyPermission::GetAppIdentifier(bundleName, appIdentifier, hapTokenInfo.userID);
     return RegisterStateChange(telephonyObserver, slotId, mask, bundleName, isUpdate,
-        IPCSkeleton::GetCallingPid(), uid, tokenId);
+        IPCSkeleton::GetCallingPid(), uid, tokenId, appIdentifier);
 }
 
 int32_t TelephonyStateRegistryStub::UnregisterStateChange(int32_t slotId, uint32_t mask)
