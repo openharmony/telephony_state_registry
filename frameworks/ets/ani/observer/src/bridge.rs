@@ -15,7 +15,7 @@ use serde::{Deserialize, Serialize};
 
 pub const DEFAULT_SIM_SLOT_ID: i32 = 0;
 
-#[ani_rs::ani(path = "L@ohos/telephony/data/data/DataFlowType")]
+#[ani_rs::ani(path = "@ohos.telephony.data.data.DataFlowType")]
 #[derive(Debug, Clone)]
 #[repr(i32)]
 pub enum DataFlowType {
@@ -45,7 +45,7 @@ pub struct ObserverOptions {
     pub slot_id: i32,
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/sim/sim/SimState")]
+#[ani_rs::ani(path = "@ohos.telephony.sim.sim.SimState")]
 #[repr(i32)]
 #[derive(Debug, Clone)]
 pub enum SimState {
@@ -71,7 +71,7 @@ impl From<i32> for SimState {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/observer/observer/LockReason")]
+#[ani_rs::ani(path = "@ohos.telephony.observer.observer.LockReason")]
 #[repr(i32)]
 #[derive(Debug, Clone)]
 pub enum LockReason {
@@ -111,7 +111,7 @@ impl From<i32> for LockReason {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/sim/sim/CardType")]
+#[ani_rs::ani(path = "@ohos.telephony.sim.sim.CardType")]
 #[repr(i32)]
 #[derive(Debug, Clone)]
 pub enum CardType {
@@ -146,7 +146,7 @@ impl From<i32> for CardType {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename = "L@ohos/telephony/observer/observer/SimStateDataInner;\0")]
+#[serde(rename = "@ohos.telephony.observer.observer.SimStateDataInner;\0")]
 #[derive(Debug, Clone)]
 pub struct SimStateData {
     #[serde(rename = "type\0")]
@@ -167,7 +167,7 @@ impl SimStateData {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/NetworkType")]
+#[ani_rs::ani(path = "@ohos.telephony.radio.radio.NetworkType")]
 #[repr(i32)]
 #[derive(Debug, Clone)]
 pub enum NetworkType {
@@ -195,7 +195,7 @@ impl From<i32> for NetworkType {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/SignalInformationInner")]
+#[ani_rs::ani(path = "@ohos.telephony.radio.radio.SignalInformationInner")]
 #[derive(Debug, Clone)]
 pub struct SignalInformation {
     signal_type: NetworkType,
@@ -213,7 +213,7 @@ impl SignalInformation {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/CellInformationInner")]
+#[ani_rs::ani(path = "@ohos.telephony.radio.radio.CellInformationInner")]
 #[derive(Debug, Clone)]
 pub struct CellInformation {
     network_type: NetworkType,
@@ -229,7 +229,7 @@ impl CellInformation {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/data/data/DataConnectState")]
+#[ani_rs::ani(path = "@ohos.telephony.data.data.DataConnectState")]
 #[repr(i32)]
 #[derive(Debug, Clone)]
 pub enum DataConnectState {
@@ -252,7 +252,7 @@ impl From<i32> for DataConnectState {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/RadioTechnology")]
+#[ani_rs::ani(path = "@ohos.telephony.radio.radio.RadioTechnology")]
 #[repr(i32)]
 #[derive(Debug, Clone)]
 pub enum RadioTechnology {
@@ -292,7 +292,7 @@ impl From<i32> for RadioTechnology {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/observer/observer/DataConnectionStateInfoInner")]
+#[ani_rs::ani(path = "@ohos.telephony.observer.observer.DataConnectionStateInfoInner")]
 #[derive(Debug, Clone)]
 pub struct DataConnectionStateInfo {
     state: DataConnectState,
@@ -308,7 +308,7 @@ impl DataConnectionStateInfo {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/RegState")]
+#[ani_rs::ani(path = "@ohos.telephony.radio.radio.RegState")]
 #[repr(i32)]
 #[derive(Debug, Clone)]
 pub enum RegState {
@@ -330,7 +330,7 @@ impl From<i32> for RegState {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/NsaState")]
+#[ani_rs::ani(path = "@ohos.telephony.radio.radio.NsaState")]
 #[repr(i32)]
 #[derive(Debug, Clone)]
 pub enum NsaState {
@@ -356,7 +356,7 @@ impl From<i32> for NsaState {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/radio/radio/NetworkStateInner")]
+#[ani_rs::ani(path = "@ohos.telephony.radio.radio.NetworkStateInner")]
 #[derive(Debug, Clone)]
 pub struct NetworkState {
     pub long_operator_name: String,
@@ -369,7 +369,7 @@ pub struct NetworkState {
     pub is_emergency: bool,
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/call/call/CallState")]
+#[ani_rs::ani(path = "@ohos.telephony.call.call.CallState")]
 #[repr(i32)]
 #[derive(Debug, Clone)]
 pub enum CallState {
@@ -393,7 +393,7 @@ impl From<i32> for CallState {
     }
 }
 
-#[ani_rs::ani(path = "L@ohos/telephony/observer/observer/CallStateInfoInner")]
+#[ani_rs::ani(path = "@ohos.telephony.observer.observer.CallStateInfoInner")]
 #[derive(Debug, Clone)]
 pub struct CallStateInfo {
     pub state: CallState,
