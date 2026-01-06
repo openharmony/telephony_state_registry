@@ -146,7 +146,7 @@ impl From<i32> for CardType {
 }
 
 #[derive(Serialize, Deserialize)]
-#[serde(rename = "@ohos.telephony.observer.observer.SimStateDataInner;\0")]
+#[serde(rename = "@ohos.telephony.observer.observer.SimStateDataInner\0")]
 #[derive(Debug, Clone)]
 pub struct SimStateData {
     #[serde(rename = "type\0")]
