@@ -778,11 +778,11 @@ void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t slotId, cons
     want.SetParam("slotId", slotId);
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED);
     int32_t eventCode = 1;
-    if (TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_ != nullptr) {	 
-        TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_(slotId, networkState); 
-    } 
-    if (networkState != nullptr) {	 
-        want.SetParam("networkState", networkState->ToString());	 
+    if (TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_ != nullptr) {
+        TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_(slotId, networkState);
+    }
+    if (networkState != nullptr) {
+        want.SetParam("networkState", networkState->ToString());
     }
     std::string eventData("networkStateChanged");
     PublishCommonEvent(want, eventCode, eventData);
