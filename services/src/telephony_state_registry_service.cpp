@@ -773,9 +773,11 @@ void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t slotId, cons
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED);
     int32_t eventCode = 1;
     sptr<NetworkState> networkStateExt = new NetworkState();
-    MessageParcel data;
-    networkState->Marshalling(data);
-    networkStateExt->ReadFromParcel(data);
+    if (networkState != nullptr) {
+        MessageParcel data;
+        networkState->Marshalling(data);
+        networkStateExt->ReadFromParcel(data);
+    }
     if (TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_ != nullptr) {
         TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_(slotId, networkStateExt);
     }
