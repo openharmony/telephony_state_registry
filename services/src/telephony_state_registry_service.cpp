@@ -366,7 +366,13 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const 
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     std::unique_lock<std::shared_mutex> uniLock(lock_);
-    searchNetworkState_[slotId] = networkState;
+    sptr<NetworkState> searchNetworkState = new NetworkState();
+    if (networkState != nullptr) {
+        MessageParcel networkData;
+        networkState->Marshalling(networkData);
+        searchNetworkState->ReadFromParcel(networkData);
+    }
+    searchNetworkState_[slotId] = searchNetworkState;
     uniLock.unlock();
     std::shared_lock<std::shared_mutex> lock(lock_);
     int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
@@ -772,17 +778,11 @@ void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t slotId, cons
     want.SetParam("slotId", slotId);
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED);
     int32_t eventCode = 1;
-    sptr<NetworkState> networkStateExt = new NetworkState();
-    if (networkState != nullptr) {
-        MessageParcel data;
-        networkState->Marshalling(data);
-        networkStateExt->ReadFromParcel(data);
-    }
-    if (TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_ != nullptr) {
-        TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_(slotId, networkStateExt);
-    }
-    if (networkStateExt != nullptr) {
-        want.SetParam("networkState", networkStateExt->ToString());
+    if (TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_ != nullptr) {	 
+        TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_(slotId, networkState); 
+    } 
+    if (networkState != nullptr) {	 
+        want.SetParam("networkState", networkState->ToString());	 
     }
     std::string eventData("networkStateChanged");
     PublishCommonEvent(want, eventCode, eventData);
