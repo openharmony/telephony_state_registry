@@ -772,11 +772,15 @@ void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t slotId, cons
     want.SetParam("slotId", slotId);
     want.SetAction(EventFwk::CommonEventSupport::COMMON_EVENT_NETWORK_STATE_CHANGED);
     int32_t eventCode = 1;
+    sptr<NetworkState> networkStateExt = new NetworkState();
+    MessageParcel data;
+    networkState->Marshalling(data);
+    networkStateExt->ReadFromParcel(data);
     if (TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_ != nullptr) {
-        TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_(slotId, networkState);
+        TELEPHONY_EXT_WRAPPER.sendNetworkStateChanged_(slotId, networkStateExt);
     }
-    if (networkState != nullptr) {
-        want.SetParam("networkState", networkState->ToString());
+    if (networkStateExt != nullptr) {
+        want.SetParam("networkState", networkStateExt->ToString());
     }
     std::string eventData("networkStateChanged");
     PublishCommonEvent(want, eventCode, eventData);
