@@ -1210,6 +1210,7 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_007, Function | Me
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCellInfo(0, vecCellInfo));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateNetworkState(0, networkState));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateNetworkState(0, nullptr));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR;
     EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateCfuIndicator(0, true));
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_VOICE_MAIL_MSG_INDICATOR;
