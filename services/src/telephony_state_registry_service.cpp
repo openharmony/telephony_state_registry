@@ -368,11 +368,13 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const 
     std::unique_lock<std::shared_mutex> uniLock(lock_);
     searchNetworkState_[slotId] = networkState;
     if (networkState != nullptr) {
-        sptr<NetworkState> searchNetworkState = new NetworkState();
-        MessageParcel networkData;
-        networkState->Marshalling(networkData);
-        searchNetworkState->ReadFromParcel(networkData);
-        searchNetworkState_[slotId] = searchNetworkState;
+        sptr<NetworkState> searchNetworkState = sptr<NetworkState>::MakeSptr();
+        if (searchNetworkState != nullptr) {
+            MessageParcel networkData;
+            networkState->Marshalling(networkData);
+            searchNetworkState->ReadFromParcel(networkData);
+            searchNetworkState_[slotId] = searchNetworkState;
+        }
     }
     uniLock.unlock();
     std::shared_lock<std::shared_mutex> lock(lock_);
