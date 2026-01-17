@@ -366,6 +366,11 @@ void EventListenerHandler::AddBasicHandlerToMap()
             HandleCallbackInfoUpdate<CallStateExContext, CallStateExUpdateInfo,
                 TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE>(event);
         };
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_CCALL_STATE_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<CallStateContext, CallStateUpdateInfo,
+                TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE>(event);
+        };
 }
 
 void EventListenerHandler::AddNetworkHandlerToMap()
@@ -403,6 +408,7 @@ void EventListenerHandler::AddWorkFuncToMap()
     workFuncMap_[TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE] =
         &EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE] = &EventListenerHandler::WorkIccAccountUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE] = &EventListenerHandler::WorkCCallStateUpdated;
 }
 
 void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
@@ -460,7 +466,8 @@ int32_t EventListenerHandler::RegisterEventListener(EventListener &eventListener
         }
         bool isUpdate = (eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
             eventListener.eventType == TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE ||
-            eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE);
+            eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE ||
+            eventListener.eventType == TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE);
         int32_t addResult = TelephonyStateManager::AddStateObserver(
             observer, eventListener.slotId, ToUint32t(eventListener.eventType), isUpdate);
         if (addResult != TELEPHONY_SUCCESS) {
@@ -987,6 +994,24 @@ bool EventListenerHandler::IsNeedHandleCallbackUpdate(TelephonyUpdateEventType e
         }
     }
     return false;
+}
+
+void EventListenerHandler::WorkCCallStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
+{
+    std::unique_ptr<CallStateContext> callStateInfo(static_cast<CallStateContext *>(work->data));
+    const napi_env &env = callStateInfo->env;
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        TELEPHONY_LOGE("scope is nullptr");
+    }
+    napi_value callbackValue = nullptr;
+    napi_create_object(callStateInfo->env, &callbackValue);
+    std::string number = NapiUtil::ToUtf8(callStateInfo->phoneNumber);
+    SetPropertyToNapiObject(callStateInfo->env, callbackValue, "state", callStateInfo->callState);
+    SetPropertyToNapiObject(callStateInfo->env, callbackValue, "number", number);
+    NapiReturnToJS(callStateInfo->env, callStateInfo->callbackRef, callbackValue, lock);
+    napi_close_handle_scope(env, scope);
 }
 } // namespace Telephony
 } // namespace OHOS

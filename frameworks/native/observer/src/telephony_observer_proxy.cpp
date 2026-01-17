@@ -308,5 +308,30 @@ void TelephonyObserverProxy::OnIccAccountUpdated()
         static_cast<uint32_t>(ObserverBrokerCode::ON_ICC_ACCOUNT_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGI("result code: %{public}d.", code);
 }
+
+void TelephonyObserverProxy::OnCCallStateUpdated(
+    int32_t slotId, int32_t callState, const std::u16string &phoneNumber)
+{
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    MessageOption option;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCCallStateUpdated WriteInterfaceToken failed!");
+        return;
+    }
+    dataParcel.WriteInt32(slotId);
+    dataParcel.WriteInt32(callState);
+    dataParcel.WriteString16(phoneNumber);
+    sptr<IRemoteObject> remote = Remote();
+    if (remote == nullptr) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnCCallStateUpdated remote is null!");
+        return;
+    }
+    int code = remote->SendRequest(
+        static_cast<uint32_t>(ObserverBrokerCode::ON_CCALL_STATE_UPDATED),
+        dataParcel, replyParcel, option);
+    TELEPHONY_LOGD("TelephonyObserverProxy::OnCCallStateUpdated end ##error: %{public}d", code);
+};
 } // namespace Telephony
 } // namespace OHOS

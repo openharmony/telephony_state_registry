@@ -215,6 +215,12 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
             (record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
             record.telephonyObserver_->OnCallStateUpdatedEx(record.slotId_, callState);
             result = TELEPHONY_SUCCESS;
+        } else if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE) &&
+            (record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
+            if (record.CanManageCallForDevices()) {
+                record.telephonyObserver_->OnCCallStateUpdated(record.slotId_, callState, number);
+                result = TELEPHONY_SUCCESS;
+            }
         }
     }
     SendCallStateChanged(-1, callState);
@@ -250,6 +256,12 @@ int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
             (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
             record.telephonyObserver_->OnCallStateUpdatedEx(slotId, callState);
             result = TELEPHONY_SUCCESS;
+        } else if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE) &&
+            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+            if (record.CanManageCallForDevices()) {
+                record.telephonyObserver_->OnCCallStateUpdated(record.slotId_, callState, number);
+                result = TELEPHONY_SUCCESS;
+            }
         }
     }
     SendCallStateChanged(slotId, callState);
@@ -583,6 +595,13 @@ bool TelephonyStateRegistryService::CheckPermission(uint32_t mask)
             return false;
         }
     }
+    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE) != 0) {
+        if (!TelephonyPermission::CheckPermission(Permission::MANAGE_CALL_FOR_DEVICES)) {
+            TELEPHONY_LOGE("Check permission failed,"
+                "you must declare ohos.permission.MANAGE_CALL_FOR_DEVICES permission for ccallState");
+            return false;
+        }
+    }
     return true;
 }
 
@@ -661,6 +680,13 @@ void TelephonyStateRegistryService::UpdateDataEx(const TelephonyStateRegistryRec
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX) != 0) {
         TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CALL_STATE_EX");
         record.telephonyObserver_->OnCallStateUpdatedEx(record.slotId_, callState_[record.slotId_]);
+    }
+    if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE) != 0) {
+        if (record.CanManageCallForDevices()) {
+            TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CCALL_STATE");
+            record.telephonyObserver_->OnCCallStateUpdated(record.slotId_,
+                callState_[record.slotId_], callIncomingNumber_[record.slotId_]);
+        }
     }
 }
 

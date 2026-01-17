@@ -49,6 +49,7 @@ const std::map<std::string_view, TelephonyUpdateEventType> eventMap {
     { "voiceMailMsgIndicatorChange", TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE },
     { "iccAccountInfoChange", TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE },
     { "callStateChangeEx", TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE },
+    { "ccallStateChange", TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE },
 };
 
 TelephonyUpdateEventType GetEventType(std::string_view event)
@@ -79,7 +80,8 @@ static void NativeOn(napi_env env, void *data)
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     if (SIM_SLOT_COUNT == 0 && (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) &&
-        (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE)) {
+        (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) &&
+        (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE)) {
         TELEPHONY_LOGE("The device is not support sim card.");
         asyncContext->resolved = true;
         return;

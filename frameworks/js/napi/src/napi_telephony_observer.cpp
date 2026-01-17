@@ -157,8 +157,20 @@ void NapiTelephonyObserver::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool 
         TELEPHONY_LOGE("VoiceMailMsgIndicatorUpdate is nullptr!");
         return;
     }
-    EventListenerManager::SendEvent(
-        ToUint32t(TelephonyCallbackEventId::EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE), voiceMailMsgIndicatorUpdateInfo);
+    EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_VOICE_MAIL_MSG_INDICATOR_UPDATE),
+        voiceMailMsgIndicatorUpdateInfo);
+}
+
+void NapiTelephonyObserver::OnCCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber)
+{
+    TELEPHONY_LOGI("OnCCallStateUpdated slotId = %{public}d, callState = %{public}d", slotId, callState);
+    std::unique_ptr<CallStateUpdateInfo> callStateInfo =
+        std::make_unique<CallStateUpdateInfo>(slotId, callState, phoneNumber);
+    if (callStateInfo == nullptr) {
+        TELEPHONY_LOGE("callStateInfo is nullptr!");
+        return;
+    }
+    EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_CALL_STATE_UPDATE), callStateInfo);
 }
 } // namespace Telephony
 } // namespace OHOS
