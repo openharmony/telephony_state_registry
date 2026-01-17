@@ -46,6 +46,7 @@ public:
     void OnCfuIndicatorUpdated(int32_t slotId, bool cfuResult);
     void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult);
     void OnIccAccountUpdated();
+    void OnCCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber);
 
 private:
     static inline BrokerDelegator<TelephonyObserverProxy> delegator_;

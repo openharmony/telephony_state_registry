@@ -35,5 +35,14 @@ bool TelephonyStateRegistryRecord::IsExistStateListener(uint32_t mask) const
 {
     return (telephonyObserver_ != nullptr) && ((mask_ & mask) != 0);
 }
+
+bool TelephonyStateRegistryRecord::CanManageCallForDevices()
+{
+    if (AccessTokenKit::VerifyAccessToken(tokenId_, Permission::MANAGE_CALL_FOR_DEVICES) == PERMISSION_DENIED) {
+        TELEPHONY_LOGI("manage call permission check fail");
+        return false;
+    }
+    return true;
+}
 } // namespace Telephony
 } // namespace OHOS

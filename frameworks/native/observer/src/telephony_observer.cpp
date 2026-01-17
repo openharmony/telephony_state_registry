@@ -49,6 +49,9 @@ void TelephonyObserver::OnIccAccountUpdated() {}
 
 void TelephonyObserver::OnCallStateUpdatedEx(int32_t slotId, int32_t callStateEx) {}
 
+void TelephonyObserver::OnCCallStateUpdated(
+    int32_t slotId, int32_t callState, const std::u16string &phoneNumber) {}
+
 TelephonyObserver::TelephonyObserver()
 {
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_UPDATED)] =
@@ -73,6 +76,8 @@ TelephonyObserver::TelephonyObserver()
         [this](MessageParcel &data, MessageParcel &reply) { OnIccAccountUpdatedInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_EX_UPDATED)] =
         [this](MessageParcel &data, MessageParcel &reply) { OnCallStateUpdatedExInner(data, reply); };
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CCALL_STATE_UPDATED)] =
+        [this](MessageParcel &data, MessageParcel &reply) { OnCCallStateUpdatedInner(data, reply); };
 }
 
 TelephonyObserver::~TelephonyObserver() {}
@@ -294,6 +299,15 @@ void TelephonyObserver::ConvertCellInfoList(
                 break;
         }
     }
+}
+
+void TelephonyObserver::OnCCallStateUpdatedInner(
+    MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    int32_t callState = data.ReadInt32();
+    std::u16string phoneNumber = data.ReadString16();
+    OnCCallStateUpdated(slotId, callState, phoneNumber);
 }
 } // namespace Telephony
 } // namespace OHOS

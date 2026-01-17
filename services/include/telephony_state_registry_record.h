@@ -33,6 +33,8 @@ public:
      */
     bool IsExistStateListener(uint32_t mask) const;
 
+    bool CanManageCallForDevices();
+
 public:
     std::string bundleName_ = "";
     int32_t tokenId_ = 0;
