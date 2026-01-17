@@ -218,7 +218,7 @@ int32_t TelephonyStateRegistryService::UpdateCallState(int32_t callState, const 
         } else if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE) &&
             (record.slotId_ == -1) && record.telephonyObserver_ != nullptr) {
             if (record.CanManageCallForDevices()) {
-                record.telephonyObserver_->OnCCallStateUpdated(record.slotId_, callState, phoneNumber);
+                record.telephonyObserver_->OnCCallStateUpdated(record.slotId_, callState, number);
                 result = TELEPHONY_SUCCESS;
             }
         }
@@ -259,7 +259,7 @@ int32_t TelephonyStateRegistryService::UpdateCallStateForSlotId(
         } else if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE) &&
             (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
             if (record.CanManageCallForDevices()) {
-                record.telephonyObserver_->OnCCallStateUpdated(record.slotId_, callState, phoneNumber);
+                record.telephonyObserver_->OnCCallStateUpdated(record.slotId_, callState, number);
                 result = TELEPHONY_SUCCESS;
             }
         }
