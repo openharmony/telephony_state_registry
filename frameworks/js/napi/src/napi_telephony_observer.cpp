@@ -170,7 +170,7 @@ void NapiTelephonyObserver::OnCCallStateUpdated(int32_t slotId, int32_t callStat
         TELEPHONY_LOGE("callStateInfo is nullptr!");
         return;
     }
-    EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_CALL_STATE_UPDATE), callStateInfo);
+    EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_CCALL_STATE_UPDATE), callStateInfo);
 }
 } // namespace Telephony
 } // namespace OHOS
