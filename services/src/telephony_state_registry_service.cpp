@@ -523,7 +523,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
     if (slotId > SIM_SLOT_ID_MAX || slotId < -1) { //不关心卡状态时，可能填写-1,4
-        return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+        return TELEPHONY_SUCCESS;
     }
     std::unique_lock<std::shared_mutex> lock(lock_);
     bool isExist = false;
