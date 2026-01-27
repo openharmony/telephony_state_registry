@@ -339,8 +339,8 @@ static std::optional<NapiError> MatchParametersWithObject(napi_env env, napi_val
     return errCode;
 }
  
-static std::optional<NapiError> MatchParametersWithoutObject(napi_env env, napi_value* parameters, size_t parameterCount,
-    std::unique_ptr<ObserverContext>& asyncContext)
+static std::optional<NapiError> MatchParametersWithoutObject(napi_env env, napi_value* parameters,
+    size_t parameterCount, std::unique_ptr<ObserverContext>& asyncContext)
 {
     napi_valuetype valueTypeTemp = napi_undefined;
     napi_value parametersValue[] = { parameters[0] };
