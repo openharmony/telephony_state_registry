@@ -684,8 +684,12 @@ void TelephonyStateRegistryService::UpdateDataEx(const TelephonyStateRegistryRec
     if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE) != 0) {
         if (record.CanManageCallForDevices()) {
             TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_CCALL_STATE");
-            record.telephonyObserver_->OnCCallStateUpdated(record.slotId_,
-                callState_[record.slotId_], callIncomingNumber_[record.slotId_]);
+            int32_t callState = callState_[record.slotId_];
+            if (callState == static_cast<int32_t>(CallState::CALL_STATE_UNKNOWN)) {
+                callState = static_cast<int32_t>(CallState::CALL_STATE_IDLE);
+            }
+            record.telephonyObserver_->OnCCallStateUpdated(record.slotId_, callState,
+                callIncomingNumber_[record.slotId_]);
         }
     }
 }
