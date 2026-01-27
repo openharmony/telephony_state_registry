@@ -1009,7 +1009,7 @@ void EventListenerHandler::WorkCCallStateUpdated(uv_work_t *work, std::unique_lo
     napi_create_object(callStateInfo->env, &callbackValue);
     std::string number = NapiUtil::ToUtf8(callStateInfo->phoneNumber);
     SetPropertyToNapiObject(callStateInfo->env, callbackValue, "state", callStateInfo->callState);
-    SetPropertyToNapiObject(callStateInfo->env, callbackValue, "number", number);
+    SetPropertyToNapiObject(callStateInfo->env, callbackValue, "teleNumber", number);
     NapiReturnToJS(callStateInfo->env, callStateInfo->callbackRef, callbackValue, lock);
     napi_close_handle_scope(env, scope);
 }
