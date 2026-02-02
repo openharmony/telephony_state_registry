@@ -810,6 +810,7 @@ void TelephonyStateRegistryService::SendSignalInfoChanged(
     PublishCommonEvent(want, eventCode, eventData);
 }
 
+__attribute__((no_sanitize("cfi")))
 void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t slotId, const sptr<NetworkState> &networkState)
 {
     AAFwk::Want want;
