@@ -120,6 +120,7 @@ void TelephonyStateRegistryService::Finalize()
 
 void TelephonyStateRegistryService::OnDump() {}
 
+__attribute__((no_sanitize("cfi")))
 int32_t TelephonyStateRegistryService::UpdateCellularDataConnectState(
     int32_t slotId, int32_t dataState, int32_t networkType)
 {
@@ -297,6 +298,7 @@ int32_t TelephonyStateRegistryService::UpdateSimState(int32_t slotId, CardType t
     return result;
 }
 
+__attribute__((no_sanitize("cfi")))
 int32_t TelephonyStateRegistryService::UpdateSignalInfo(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec)
 {
     if (!VerifySlotId(slotId)) {
@@ -330,6 +332,7 @@ int32_t TelephonyStateRegistryService::UpdateSignalInfo(int32_t slotId, const st
     return result;
 }
 
+__attribute__((no_sanitize("cfi")))
 int32_t TelephonyStateRegistryService::UpdateCellInfo(int32_t slotId, const std::vector<sptr<CellInformation>> &vec)
 {
     if (!VerifySlotId(slotId)) {
@@ -366,6 +369,7 @@ int32_t TelephonyStateRegistryService::UpdateCellInfo(int32_t slotId, const std:
     return result;
 }
 
+__attribute__((no_sanitize("cfi")))
 int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const sptr<NetworkState> &networkState)
 {
     if (!VerifySlotId(slotId)) {
@@ -783,6 +787,7 @@ void TelephonyStateRegistryService::SendSimStateChanged(
     PublishCommonEvent(want, eventCode, eventData);
 }
 
+__attribute__((no_sanitize("cfi")))
 void TelephonyStateRegistryService::SendSignalInfoChanged(
     int32_t slotId, const std::vector<sptr<SignalInformation>> &vec)
 {
@@ -805,6 +810,7 @@ void TelephonyStateRegistryService::SendSignalInfoChanged(
     PublishCommonEvent(want, eventCode, eventData);
 }
 
+__attribute__((no_sanitize("cfi")))
 void TelephonyStateRegistryService::SendNetworkStateChanged(int32_t slotId, const sptr<NetworkState> &networkState)
 {
     AAFwk::Want want;
