@@ -139,6 +139,14 @@ public:
     void OnCCallStateUpdated(
         int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
 
+    /**
+     * @brief Called when sim active state is updated.
+     *
+     * @param slotId Indicates the slot identification.
+     * @param enable Indicates the tel active state.
+     */
+    void OnSimActiveStateUpdated(int32_t slotId, bool enable) override;
+
 private:
     using TelephonyObserverFunc = std::function<void(MessageParcel &data, MessageParcel &reply)>;
 
@@ -158,6 +166,7 @@ private:
     void OnIccAccountUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnCallStateUpdatedExInner(MessageParcel &data, MessageParcel &reply);
     void OnCCallStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
+    void OnSimActiveStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
     static constexpr int32_t CELL_NUM_MAX = 100;
     static constexpr int32_t SIGNAL_NUM_MAX = 100;
     std::map<uint32_t, TelephonyObserverFunc> memberFuncMap_;
