@@ -124,6 +124,15 @@ struct VoiceMailMsgIndicatorContext : EventListener {
         return *this;
     }
 };
+
+struct SimActiveStateContext : EventListener {
+    bool isActive;
+    SimActiveStateContext &operator=(const SimActiveStateUpdate &info)
+    {
+        isActive = info.isSimActive;
+        return *this;
+    }
+};
 } // namespace Telephony
 } // namespace OHOS
 #endif // UPDATE_CONTEXTS_H

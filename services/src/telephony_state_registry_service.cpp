@@ -490,6 +490,32 @@ int32_t TelephonyStateRegistryService::UpdateVoiceMailMsgIndicator(int32_t slotI
     return result;
 }
 
+int32_t TelephonyStateRegistryService::UpdateSimActiveState(int32_t slotId, bool activeStateResult)
+{
+    if (!VerifySlotId(slotId)) {
+        TELEPHONY_LOGE("UpdateSimActiveState##VerifySlotId failed ##slotId = %{public}d", slotId);
+        return TELEPHONY_STATE_REGISTRY_SLODID_ERROR;
+    }
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
+    std::unique_lock<std::shared_mutex> uniLock(lock_);
+    simActiveResult_[slotId] = activeStateResult;
+    uniLock.unlock();
+    std::shared_lock<std::shared_mutex> lock(lock_);
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    for (size_t i = 0; i < stateRecords_.size(); i++) {
+        TelephonyStateRegistryRecord record = stateRecords_[i];
+        if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE) &&
+            (record.slotId_ == slotId) && record.telephonyObserver_ != nullptr) {
+            record.telephonyObserver_->OnSimActiveStateUpdated(slotId, activeStateResult);
+            result = TELEPHONY_SUCCESS;
+        }
+    }
+    return result;
+}
+
 bool TelephonyStateRegistryService::CheckCallerIsSystemApp(uint32_t mask)
 {
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO) != 0) {
@@ -606,6 +632,12 @@ bool TelephonyStateRegistryService::CheckPermission(uint32_t mask)
             return false;
         }
     }
+    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE) != 0) {
+        if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+            TELEPHONY_LOGE("Check sim active state permission failed");
+            return false;
+        }
+    }
     return true;
 }
 
@@ -695,6 +727,10 @@ void TelephonyStateRegistryService::UpdateDataEx(const TelephonyStateRegistryRec
             record.telephonyObserver_->OnCCallStateUpdated(record.slotId_, callState,
                 callIncomingNumber_[record.slotId_]);
         }
+    }
+    if ((record.mask_ & TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE) != 0) {
+        TELEPHONY_LOGI("RegisterStateChange##Notify-OBSERVER_MASK_SIM_ACTIVE_STATE");
+        record.telephonyObserver_->OnSimActiveStateUpdated(record.slotId_, simActiveResult_[record.slotId_]);
     }
 }
 

@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "telephony_errors.h"
 #include "telephony_observer_proxy.h"
 
 #include "parcel.h"
@@ -23,6 +24,17 @@ namespace Telephony {
 TelephonyObserverProxy::TelephonyObserverProxy(const sptr<IRemoteObject> &impl)
     : IRemoteProxy<TelephonyObserverBroker>(impl)
 {}
+
+int32_t TelephonyObserverProxy::SendRequest(
+    int32_t msgId, MessageParcel &dataParcel, MessageParcel &replyParcel, MessageOption &option)
+{
+    auto remote = Remote();
+    if (remote == nullptr) {
+        TELEPHONY_LOGE("TelephonyObserverProxy remote is nullptr!, msgId: %{public}d", msgId);
+        return TELEPHONY_ERR_IPC_CONNECT_STUB_FAIL;
+    }
+    return remote->SendRequest(msgId, dataParcel, replyParcel, option);
+}
 
 void TelephonyObserverProxy::OnCallStateUpdated(
     int32_t slotId, int32_t callState, const std::u16string &phoneNumber)
@@ -38,14 +50,8 @@ void TelephonyObserverProxy::OnCallStateUpdated(
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteInt32(callState);
     dataParcel.WriteString16(phoneNumber);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnCallStateUpdated remote is null!");
-        return;
-    }
-    int code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_UPDATED),
-        dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_CALL_STATE_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGD("TelephonyObserverProxy::OnCallStateUpdated end ##error: %{public}d", code);
 };
 
@@ -62,14 +68,8 @@ void TelephonyObserverProxy::OnCallStateUpdatedEx(
     }
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteInt32(callStateEx);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnCallStateUpdatedEx remote is null!");
-        return;
-    }
-    int code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_EX_UPDATED),
-        dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_CALL_STATE_EX_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGD("TelephonyObserverProxy::OnCallStateUpdatedEx end ##error: %{public}d", code);
 };
 
@@ -88,14 +88,8 @@ void TelephonyObserverProxy::OnSimStateUpdated(
     dataParcel.WriteInt32(static_cast<int32_t>(type));
     dataParcel.WriteInt32(static_cast<int32_t>(state));
     dataParcel.WriteInt32(static_cast<int32_t>(reason));
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnSimStateUpdated remote is null!");
-        return;
-    }
-    int code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_SIM_STATE_UPDATED),
-        dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_SIM_STATE_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGI("TelephonyObserverProxy::OnSimStateUpdated end ##error: %{public}d.", code);
 }
 
@@ -120,14 +114,8 @@ void TelephonyObserverProxy::OnSignalInfoUpdated(
     for (const auto &v : vec) {
         v->Marshalling(dataParcel);
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnSignalInfoUpdated remote is null!");
-        return;
-    }
-    int code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_SIGNAL_INFO_UPDATED),
-        dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_SIGNAL_INFO_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGD("TelephonyObserverProxy::OnSignalInfoUpdated##error: %{public}d.", code);
 }
 
@@ -159,14 +147,8 @@ void TelephonyObserverProxy::OnCellInfoUpdated(
     for (const auto &v : vec) {
         v->Marshalling(dataParcel);
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("IRemoteObject is nullptr!");
-        return;
-    }
-    int code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_CELL_INFO_UPDATED),
-        dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_CELL_INFO_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGD("TelephonyObserverProxy::OnCellInfoUpdated##error: %{public}d.", code);
 }
 
@@ -185,14 +167,8 @@ void TelephonyObserverProxy::OnNetworkStateUpdated(
     if (networkState != nullptr) {
         networkState->Marshalling(dataParcel);
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnNetworkStateUpdated remote is null!");
-        return;
-    }
-    int code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_NETWORK_STATE_UPDATED),
-        dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_NETWORK_STATE_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGD("TelephonyObserverProxy::OnNetworkStateUpdated##error: %{public}d.", code);
 }
 
@@ -210,13 +186,8 @@ void TelephonyObserverProxy::OnCellularDataConnectStateUpdated(
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteInt32(dataState);
     dataParcel.WriteInt32(networkType);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnCellularDataConnectStateUpdated remote is null!");
-        return;
-    }
-    int code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_CONNECT_STATE_UPDATED),
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_CONNECT_STATE_UPDATED),
         dataParcel, replyParcel, option);
     TELEPHONY_LOGD("TelephonyObserverProxy::OnCellularDataConnectStateUpdated##error: %{public}d.", code);
 }
@@ -234,14 +205,8 @@ void TelephonyObserverProxy::OnCellularDataFlowUpdated(
     }
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteInt32(dataFlowType);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnCellularDataFlow remote is null!");
-        return;
-    }
-    int code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED),
-        dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_CELLULAR_DATA_FLOW_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGD("TelephonyObserverProxy::OnCellularDataFlow##error: %{public}d.", code);
 }
 
@@ -257,13 +222,8 @@ void TelephonyObserverProxy::OnCfuIndicatorUpdated(int32_t slotId, bool cfuResul
     }
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteBool(cfuResult);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnCfuIndicatorUpdated remote is null!");
-        return;
-    }
-    int32_t code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_CFU_INDICATOR_UPDATED), dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_CFU_INDICATOR_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGI("TelephonyObserverProxy::OnCfuIndicatorUpdated##error: %{public}d.", code);
 }
 
@@ -279,12 +239,8 @@ void TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool
     }
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteBool(voiceMailMsgResult);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated remote is null!");
-        return;
-    }
-    int32_t code = remote->SendRequest(static_cast<uint32_t>(ObserverBrokerCode::ON_VOICE_MAIL_MSG_INDICATOR_UPDATED),
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_VOICE_MAIL_MSG_INDICATOR_UPDATED),
         dataParcel, replyParcel, option);
     TELEPHONY_LOGI("TelephonyObserverProxy::OnVoiceMailMsgIndicatorUpdated##error: %{public}d.", code);
 }
@@ -296,16 +252,11 @@ void TelephonyObserverProxy::OnIccAccountUpdated()
         TELEPHONY_LOGE("WriteInterfaceToken failed!");
         return;
     }
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("remote is null!");
-        return;
-    }
     MessageOption option;
     option.SetFlags(MessageOption::TF_ASYNC);
     MessageParcel replyParcel;
-    int32_t code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_ICC_ACCOUNT_UPDATED), dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_ICC_ACCOUNT_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGI("result code: %{public}d.", code);
 }
 
@@ -323,15 +274,26 @@ void TelephonyObserverProxy::OnCCallStateUpdated(
     dataParcel.WriteInt32(slotId);
     dataParcel.WriteInt32(callState);
     dataParcel.WriteString16(phoneNumber);
-    sptr<IRemoteObject> remote = Remote();
-    if (remote == nullptr) {
-        TELEPHONY_LOGE("TelephonyObserverProxy::OnCCallStateUpdated remote is null!");
-        return;
-    }
-    int code = remote->SendRequest(
-        static_cast<uint32_t>(ObserverBrokerCode::ON_CCALL_STATE_UPDATED),
-        dataParcel, replyParcel, option);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_CCALL_STATE_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGD("TelephonyObserverProxy::OnCCallStateUpdated end ##error: %{public}d", code);
 };
+
+void TelephonyObserverProxy::OnSimActiveStateUpdated(int32_t slotId, bool enable)
+{
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnSimActiveStateUpdated WriteInterfaceToken failed!");
+        return;
+    }
+    dataParcel.WriteInt32(slotId);
+    dataParcel.WriteBool(enable);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_SIM_ACTIVE_STATE_UPDATED), dataParcel, replyParcel, option);
+    TELEPHONY_LOGI("TelephonyObserverProxy::OnSimActiveStateUpdated##error: %{public}d.", code);
+}
 } // namespace Telephony
 } // namespace OHOS

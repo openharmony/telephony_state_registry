@@ -33,6 +33,7 @@ namespace {
 constexpr const char *OBSERVER_JS_PERMISSION_ERROR_STRING =
     "Permission denied. An attempt was made to Observer "
     "On forbidden by permission : ohos.permission.GET_NETWORK_INFO or ohos.permission.LOCATION ";
+constexpr size_t PARAMETER_COUNT_NONE = 0;
 constexpr size_t PARAMETER_COUNT_ONE = 1;
 constexpr size_t PARAMETER_COUNT_TWO = 2;
 constexpr size_t PARAMETER_COUNT_THREE = 3;
@@ -50,6 +51,7 @@ const std::map<std::string_view, TelephonyUpdateEventType> eventMap {
     { "iccAccountInfoChange", TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE },
     { "callStateChangeEx", TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE },
     { "cCallStateChange", TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE },
+    { "simActiveStateChange", TelephonyUpdateEventType::EVENT_SIM_ACTIVE_STATE },
 };
 
 TelephonyUpdateEventType GetEventType(std::string_view event)
@@ -213,6 +215,31 @@ static napi_value On(napi_env env, napi_callback_info info)
         NativeOn(env, observerContext);
     } else {
         NapiUtil::ThrowParameterError(env);
+    }
+    OnCallback(env, observerContext);
+    return NapiUtil::CreateUndefined(env);
+}
+
+static napi_value OnSimActiveState(napi_env env, napi_callback_info info)
+{
+    size_t parameterCount = PARAMETER_COUNT_TWO;
+    napi_value parameters[] = { nullptr, nullptr };
+    napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
+    std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
+    auto paraTuple = std::make_tuple(&asyncContext->slotId, &asyncContext->callbackRef);
+    auto errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
+    if (errCode.has_value()) {
+        TELEPHONY_LOGE("OnSimActiveState parameter matching failed.");
+        NapiUtil::ThrowParameterError(env);
+        return nullptr;
+    }
+    ObserverContext *observerContext = asyncContext.release();
+    observerContext->eventType = GetEventType("simActiveStateChange");
+    if (observerContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
+        NativeOn(env, observerContext);
+    } else {
+        NapiUtil::ThrowParameterError(env);
+        return nullptr;
     }
     OnCallback(env, observerContext);
     return NapiUtil::CreateUndefined(env);
@@ -421,6 +448,41 @@ static napi_value OffCCallStateChange(napi_env env, napi_callback_info info)
     }
 }
 
+static napi_value OffSimActiveState(napi_env env, napi_callback_info info)
+{
+    size_t parameterCount = PARAMETER_COUNT_ONE;
+    napi_value parameters[] = { nullptr };
+    napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
+
+    std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
+    if (parameterCount == PARAMETER_COUNT_ONE) {
+        napi_valuetype valueTypeTemp = napi_undefined;
+        napi_typeof(env, parameters[parameterCount - 1], &valueTypeTemp);
+        if (valueTypeTemp == napi_undefined || valueTypeTemp == napi_null) {
+            TELEPHONY_LOGI("undefined or null parameter is ignored.");
+            parameterCount = PARAMETER_COUNT_NONE;
+        }
+    }
+    auto paraTuple = std::make_tuple(&asyncContext->callbackRef);
+    std::optional<NapiError> errCode = MatchParameters(env, parameters, parameterCount, paraTuple);
+    if (errCode.has_value()) {
+        TELEPHONY_LOGE("parameter matching failed.");
+        NapiUtil::ThrowParameterError(env);
+        return nullptr;
+    }
+
+    ObserverContext *observerContext = asyncContext.release();
+    observerContext->eventType = GetEventType("simActiveStateChange");
+    if (observerContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
+        NativeOff(env, observerContext);
+    } else {
+        NapiUtil::ThrowParameterError(env);
+        return nullptr;
+    }
+    OffCallback(env, observerContext);
+    return NapiUtil::CreateUndefined(env);
+}
+
 napi_status InitEnumLockReason(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
@@ -452,6 +514,8 @@ napi_value InitNapiStateRegistry(napi_env env, napi_value exports)
         DECLARE_NAPI_WRITABLE_FUNCTION("off", Off),
         DECLARE_NAPI_WRITABLE_FUNCTION("onCCallStateChange", OnCCallStateChange),
         DECLARE_NAPI_WRITABLE_FUNCTION("offCCallStateChange", OffCCallStateChange),
+        DECLARE_NAPI_WRITABLE_FUNCTION("onGetSimActiveState", OnSimActiveState),
+        DECLARE_NAPI_WRITABLE_FUNCTION("offGetSimActiveState", OffSimActiveState),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     NAPI_CALL(env, InitEnumLockReason(env, exports));
