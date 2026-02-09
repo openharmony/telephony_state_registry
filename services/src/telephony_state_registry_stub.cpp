@@ -59,6 +59,8 @@ TelephonyStateRegistryStub::TelephonyStateRegistryStub()
         [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateVoiceMailMsgIndicator(data, reply); };
     memberFuncMap_[StateNotifyInterfaceCode::ICC_ACCOUNT_CHANGE] =
         [this](MessageParcel &data, MessageParcel &reply) { return OnIccAccountUpdated(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::SIM_ACTIVR_STATE] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnSimActiveStateUpdated(data, reply); };
 }
 
 TelephonyStateRegistryStub::~TelephonyStateRegistryStub()
@@ -423,6 +425,16 @@ int32_t TelephonyStateRegistryStub::OnIccAccountUpdated(MessageParcel &data, Mes
 {
     int32_t ret = UpdateIccAccount();
     TELEPHONY_LOGI("end##ret=%{public}d", ret);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
+}
+
+int32_t TelephonyStateRegistryStub::OnSimActiveStateUpdated(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    bool activeStateResult = data.ReadBool();
+    int32_t ret = UpdateSimActiveState(slotId, activeStateResult);
+    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnSimActiveState end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
     return NO_ERROR;
 }
