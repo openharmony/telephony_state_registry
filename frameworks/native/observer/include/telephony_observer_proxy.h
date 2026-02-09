@@ -47,8 +47,10 @@ public:
     void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult);
     void OnIccAccountUpdated();
     void OnCCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber);
+    void OnSimActiveStateUpdated(int32_t slotId, bool enable);
 
 private:
+    int32_t SendRequest(int32_t msgId, MessageParcel &dataParcel, MessageParcel &replyParcel, MessageOption &option);
     static inline BrokerDelegator<TelephonyObserverProxy> delegator_;
 };
 } // namespace Telephony

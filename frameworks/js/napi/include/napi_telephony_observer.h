@@ -39,6 +39,7 @@ public:
     void OnVoiceMailMsgIndicatorUpdated(int32_t slotId, bool voiceMailMsgResult) override;
     void OnIccAccountUpdated() override;
     void OnCCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber) override;
+    void OnSimActiveStateUpdated(int32_t slotId, bool enable) override;
 };
 } // namespace Telephony
 } // namespace OHOS

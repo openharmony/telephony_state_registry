@@ -371,6 +371,16 @@ void EventListenerHandler::AddBasicHandlerToMap()
             HandleCallbackInfoUpdate<CallStateContext, CallStateUpdateInfo,
                 TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE>(event);
         };
+    AddSimActiveStateHandlerToMap();
+}
+
+void EventListenerHandler::AddSimActiveStateHandlerToMap()
+{
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_SIM_ACTIVE_STATE_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<SimActiveStateContext, SimActiveStateUpdate,
+                TelephonyUpdateEventType::EVENT_SIM_ACTIVE_STATE>(event);
+        };
 }
 
 void EventListenerHandler::AddNetworkHandlerToMap()
@@ -409,6 +419,7 @@ void EventListenerHandler::AddWorkFuncToMap()
         &EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE] = &EventListenerHandler::WorkIccAccountUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE] = &EventListenerHandler::WorkCCallStateUpdated;
+    workFuncMap_[TelephonyUpdateEventType::EVENT_SIM_ACTIVE_STATE] = &EventListenerHandler::WorkSimActiveUpdated;
 }
 
 void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
@@ -467,7 +478,8 @@ int32_t EventListenerHandler::RegisterEventListener(EventListener &eventListener
         bool isUpdate = (eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
             eventListener.eventType == TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE ||
             eventListener.eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE ||
-            eventListener.eventType == TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE);
+            eventListener.eventType == TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE ||
+            eventListener.eventType == TelephonyUpdateEventType::EVENT_SIM_ACTIVE_STATE);
         int32_t addResult = TelephonyStateManager::AddStateObserver(
             observer, eventListener.slotId, ToUint32t(eventListener.eventType), isUpdate);
         if (addResult != TELEPHONY_SUCCESS) {
@@ -972,6 +984,31 @@ void EventListenerHandler::WorkIccAccountUpdated(uv_work_t *work, std::unique_lo
     napi_value callbackValue = nullptr;
     napi_create_object(UpdateIccAccount->env, &callbackValue);
     NapiReturnToJS(UpdateIccAccount->env, UpdateIccAccount->callbackRef, callbackValue, lock);
+    napi_close_handle_scope(env, scope);
+}
+
+void EventListenerHandler::WorkSimActiveUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
+{
+    if (work == nullptr) {
+        TELEPHONY_LOGE("work is null");
+        return;
+    }
+    std::unique_ptr<SimActiveStateContext> simActiveStateInfo(
+        static_cast<SimActiveStateContext *>(work->data));
+    if (simActiveStateInfo == nullptr) {
+        TELEPHONY_LOGE("simActiveStateInfo is null");
+        return;
+    }
+    const napi_env &env = simActiveStateInfo->env;
+    napi_handle_scope scope = nullptr;
+    napi_open_handle_scope(env, &scope);
+    if (scope == nullptr) {
+        TELEPHONY_LOGE("scope is nullptr");
+        return;
+    }
+    napi_value callbackValue =
+        GetNapiValue(simActiveStateInfo->env, simActiveStateInfo->isActive);
+    NapiReturnToJS(simActiveStateInfo->env, simActiveStateInfo->callbackRef, callbackValue, lock);
     napi_close_handle_scope(env, scope);
 }
 

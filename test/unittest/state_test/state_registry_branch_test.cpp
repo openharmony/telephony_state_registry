@@ -28,10 +28,12 @@
 #include "telephony_state_registry_client.h"
 #include "telephony_state_registry_proxy.h"
 #include "telephony_state_registry_service.h"
+#include "mock_telephony_permission.h"
 
 namespace OHOS {
 namespace Telephony {
 using namespace testing::ext;
+using namespace testing;
 static constexpr int32_t DATA_STATE_CONNECTING = 1;
 static constexpr int32_t NETWORK_TYPE_GSM = 1;
 static constexpr int32_t DATA_FLOW_TYPE_DOWN = 1;
@@ -42,6 +44,9 @@ public:
     static void TearDownTestCase();
     void SetUp();
     void TearDown();
+
+private:
+    std::shared_ptr<MockTelephonyPermission> permission_;
 };
 
 void StateRegistryBranchTest::SetUpTestCase(void)
@@ -53,9 +58,16 @@ void StateRegistryBranchTest::TearDownTestCase(void)
 {
 }
 
-void StateRegistryBranchTest::SetUp(void) {}
+void StateRegistryBranchTest::SetUp(void)
+{
+    permission_ = MockTelephonyPermission::GetOrCreateMockTelephonyPermission();
+}
 
-void StateRegistryBranchTest::TearDown(void) {}
+void StateRegistryBranchTest::TearDown(void)
+{
+    MockTelephonyPermission::ReleaseMockTelephonyPermission();
+    permission_ = nullptr;
+}
 
 class TestIRemoteObject : public IRemoteObject {
 public:
@@ -190,6 +202,8 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount
     AccessToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
     ASSERT_NE(service, nullptr);
+    ASSERT_TRUE(permission_ != nullptr);
+    EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_ICC_ACCOUNT;
@@ -208,6 +222,8 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount
     AccessToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
     ASSERT_NE(service, nullptr);
+    ASSERT_TRUE(permission_ != nullptr);
+    EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_ICC_ACCOUNT;
@@ -226,6 +242,8 @@ HWTEST_F(StateRegistryBranchTest, TelephonyStateRegistryService_UpdateIccAccount
     AccessToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
     ASSERT_NE(service, nullptr);
+    ASSERT_TRUE(permission_ != nullptr);
+    EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
     service->stateRecords_[0].mask_ = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE;
@@ -264,6 +282,8 @@ HWTEST_F(StateRegistryBranchTest, Service_UnregisterStateChange_001, TestSize.Le
     AccessToken token;
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
     ASSERT_NE(service, nullptr);
+    ASSERT_TRUE(permission_ != nullptr);
+    EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
     TelephonyStateRegistryRecord record;
     service->stateRecords_.push_back(record);
     service->stateRecords_[0].slotId_ = 1;
@@ -330,7 +350,171 @@ HWTEST_F(StateRegistryBranchTest, UpdateCellularDataConnectState_001, TestSize.L
     ASSERT_EQ(result, TELEPHONY_SUCCESS);
     result = proxy->UpdateIccAccount();
     ASSERT_EQ(result, TELEPHONY_SUCCESS);
+    result = proxy->UpdateSimActiveState(0, true);
+    ASSERT_EQ(result, TELEPHONY_SUCCESS);
 }
 
+/**
+ * @tc.number   TelephonyStateRegistryService_UpdateSimActiveState_WithPermissionAndObserver
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryBranchTest, UpdateSimActiveState_WithPermissionAndObserver, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    ASSERT_TRUE(service != nullptr);
+    ASSERT_TRUE(permission_ != nullptr);
+    EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
+    TelephonyStateRegistryRecord record;
+    int32_t slotId = 0;
+    record.telephonyObserver_ = std::make_unique<TelephonyObserver>().release();
+    record.slotId_ = slotId;
+    record.mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE;
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateSimActiveState(slotId, true));
+    service->stateRecords_.push_back(record);
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->UpdateSimActiveState(slotId, true));
+    service->stateRecords_.pop_back();
+    service->simActiveResult_.erase(slotId);
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryService_UpdateSimActiveState_WithPermission
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryBranchTest, Service_UpdateSimActiveState_WithPermission, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    ASSERT_TRUE(service != nullptr);
+    ASSERT_TRUE(permission_ != nullptr);
+    EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
+    int32_t slotId = 0;
+    TelephonyStateRegistryRecord recordWithOtherSlotId;
+    recordWithOtherSlotId.slotId_ = 1;
+    recordWithOtherSlotId.mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE;
+    service->stateRecords_.push_back(recordWithOtherSlotId);
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateSimActiveState(slotId, true));
+    service->stateRecords_.pop_back();
+
+    TelephonyStateRegistryRecord recordNoObserver;
+    recordNoObserver.slotId_ = slotId;
+    recordNoObserver.mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE;
+    service->stateRecords_.push_back(recordNoObserver);
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST, service->UpdateSimActiveState(slotId, true));
+    service->stateRecords_.pop_back();
+    service->simActiveResult_.erase(slotId);
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryService_UpdateSimActiveState_WithoutPermission
+ * @tc.name     telephony state registry service test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryBranchTest, Service_UpdateSimActiveState_WithoutPermission, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+    ASSERT_TRUE(service != nullptr);
+    ASSERT_TRUE(permission_ != nullptr);
+    EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(false));
+    TelephonyStateRegistryRecord record;
+    record.telephonyObserver_ = std::make_unique<TelephonyObserver>().release();
+    record.slotId_ = 0;
+    record.mask_ = TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE;
+    int32_t invalidSlotId = 5;
+    EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_SLODID_ERROR, service->UpdateSimActiveState(invalidSlotId, false));
+    EXPECT_EQ(TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED, service->UpdateSimActiveState(0, true));
+    service->UpdateData(record);
+    auto iter = service->simActiveResult_.find(record.slotId_);
+    EXPECT_TRUE(iter != service->simActiveResult_.end());
+    service->simActiveResult_.erase(record.slotId_);
+}
+
+/**
+ * @tc.number   TelephonyObserver_UpdateSimActiveState
+ * @tc.name     telephony observer test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryBranchTest, Observer_UpdateSimActiveState, Function | MediumTest | Level1)
+{
+    auto observer = std::make_unique<TelephonyObserver>();
+    ASSERT_TRUE(observer != nullptr);
+
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+
+    int32_t slotId = 0;
+    bool enable = true;
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyObserverProxy::GetDescriptor()));
+    ASSERT_TRUE(dataParcel.WriteInt32(slotId));
+    ASSERT_TRUE(dataParcel.WriteBool(enable));
+    int32_t ret = observer->OnRemoteRequest(
+        static_cast<uint32_t>(TelephonyObserverBroker::ObserverBrokerCode::ON_SIM_ACTIVE_STATE_UPDATED), dataParcel,
+        reply, option);
+    EXPECT_EQ(TELEPHONY_ERR_SUCCESS, ret);
+}
+
+/**
+ * @tc.number   TelephonyObserverProxy_UpdateSimActiveState
+ * @tc.name     telephony state registry service proxy test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryBranchTest, Proxy_UpdateSimActiveState, Function | MediumTest | Level1)
+{
+    int32_t slotId = 0;
+    bool enable = true;
+    auto invalidProxy = std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(nullptr);
+    invalidProxy->OnSimActiveStateUpdated(slotId, enable);
+    EXPECT_TRUE(invalidProxy != nullptr);
+
+    sptr<ISystemAbilityManager> sam = SystemAbilityManagerClient::GetInstance().GetSystemAbilityManager();
+    sptr<IRemoteObject> obj = sam->CheckSystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID);
+    auto telephonyObserverProxy = std::make_shared<OHOS::Telephony::TelephonyObserverProxy>(obj);
+    telephonyObserverProxy->OnSimActiveStateUpdated(slotId, enable);
+    EXPECT_TRUE(telephonyObserverProxy != nullptr);
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryStub_UpdateSimActiveState
+ * @tc.name     telephony state registry service stub test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryBranchTest, Stub_UpdateSimActiveState, Function | MediumTest | Level1)
+{
+    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
+
+    ASSERT_TRUE(service != nullptr);
+    ASSERT_TRUE(permission_ != nullptr);
+    EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(false));
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel reply;
+    option.SetFlags(MessageOption::TF_ASYNC);
+
+    int32_t slotId = 0;
+    bool enable = true;
+    ASSERT_TRUE(dataParcel.WriteInterfaceToken(TelephonyStateRegistryStub::GetDescriptor()));
+    ASSERT_TRUE(dataParcel.WriteInt32(slotId));
+    ASSERT_TRUE(dataParcel.WriteBool(enable));
+    auto ret = service->OnRemoteRequest(static_cast<uint32_t>(StateNotifyInterfaceCode::SIM_ACTIVR_STATE),
+        dataParcel, reply, option);
+    EXPECT_EQ(ret, NO_ERROR);
+}
+
+/**
+ * @tc.number   TelephonyStateRegistryClient_UpdateSimActiveState
+ * @tc.name     telephony state registry client test
+ * @tc.desc     Function test
+ */
+HWTEST_F(StateRegistryBranchTest, Client_UpdateSimActiveState, Function | MediumTest | Level1)
+{
+    int32_t slotId = 0;
+    bool enable = true;
+    int32_t ret = DelayedRefSingleton<TelephonyStateRegistryClient>::GetInstance().UpdateSimActiveState(
+        slotId, enable);
+    EXPECT_NE(ret, TELEPHONY_ERR_IPC_CONNECT_STUB_FAIL);
+}
 } // namespace Telephony
 } // namespace OHOS

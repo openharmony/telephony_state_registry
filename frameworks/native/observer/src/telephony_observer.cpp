@@ -52,6 +52,8 @@ void TelephonyObserver::OnCallStateUpdatedEx(int32_t slotId, int32_t callStateEx
 void TelephonyObserver::OnCCallStateUpdated(
     int32_t slotId, int32_t callState, const std::u16string &phoneNumber) {}
 
+void TelephonyObserver::OnSimActiveStateUpdated(int32_t slotId, bool enable) {}
+
 TelephonyObserver::TelephonyObserver()
 {
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_UPDATED)] =
@@ -78,6 +80,8 @@ TelephonyObserver::TelephonyObserver()
         [this](MessageParcel &data, MessageParcel &reply) { OnCallStateUpdatedExInner(data, reply); };
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CCALL_STATE_UPDATED)] =
         [this](MessageParcel &data, MessageParcel &reply) { OnCCallStateUpdatedInner(data, reply); };
+    memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_SIM_ACTIVE_STATE_UPDATED)] =
+        [this](MessageParcel &data, MessageParcel &reply) { OnSimActiveStateUpdatedInner(data, reply); };
 }
 
 TelephonyObserver::~TelephonyObserver() {}
@@ -190,6 +194,13 @@ void TelephonyObserver::OnCallStateUpdatedExInner(
     int32_t slotId = data.ReadInt32();
     int32_t callStateEx = data.ReadInt32();
     OnCallStateUpdatedEx(slotId, callStateEx);
+}
+
+void TelephonyObserver::OnSimActiveStateUpdatedInner(MessageParcel &data, MessageParcel &reply)
+{
+    int32_t slotId = data.ReadInt32();
+    bool enable = data.ReadBool();
+    OnSimActiveStateUpdated(slotId, enable);
 }
 
 void TelephonyObserver::ConvertSignalInfoList(

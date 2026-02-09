@@ -93,6 +93,12 @@ struct VoiceMailMsgIndicatorUpdate : public UpdateInfo {
     VoiceMailMsgIndicatorUpdate(int32_t slotId, bool voiceMailMsgResult)
         : UpdateInfo(slotId), voiceMailMsgResult_(voiceMailMsgResult) {}
 };
+
+struct SimActiveStateUpdate : public UpdateInfo {
+    bool isSimActive = false;
+    SimActiveStateUpdate(int32_t slotId, bool isActive)
+        : UpdateInfo(slotId), isSimActive(isActive) {}
+};
 } // namespace Telephony
 } // namespace OHOS
 #endif // UPDATE_INFOS_H
