@@ -172,5 +172,14 @@ void NapiTelephonyObserver::OnCCallStateUpdated(int32_t slotId, int32_t callStat
     }
     EventListenerManager::SendEvent(ToUint32t(TelephonyCallbackEventId::EVENT_ON_CCALL_STATE_UPDATE), callStateInfo);
 }
+
+void NapiTelephonyObserver::OnSimActiveStateUpdated(int32_t slotId, bool enable)
+{
+    TELEPHONY_LOGI("OnSimActiveStateUpdated slotId = %{public}d, activeStateResult = %{public}d", slotId, enable);
+    std::unique_ptr<SimActiveStateUpdate> simActiveStateUpdateInfo =
+        std::make_unique<SimActiveStateUpdate>(slotId, enable);
+    EventListenerManager::SendEvent(
+        ToUint32t(TelephonyCallbackEventId::EVENT_ON_SIM_ACTIVE_STATE_UPDATE), simActiveStateUpdateInfo);
+}
 } // namespace Telephony
 } // namespace OHOS

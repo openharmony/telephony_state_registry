@@ -35,6 +35,7 @@ enum class TelephonyUpdateEventType {
     EVENT_ICC_ACCOUNT_CHANGE = TelephonyObserverBroker::OBSERVER_MASK_ICC_ACCOUNT,
     EVENT_CALL_STATE_EX_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX,
     EVENT_CCALL_STATE_UPDATE = TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE,
+    EVENT_SIM_ACTIVE_STATE = TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE,
 };
 
 const std::set<TelephonyUpdateEventType> ENABLE_ON_DEFAULT_DATA_EVENT_SET {
