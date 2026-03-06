@@ -467,6 +467,7 @@ void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
     signalInformations.head = head;
     void* argv = &(signalInformations);
     listener.callbackRef(argv);
+    free(head);
 }
 
 void ObserverEventHandler::WorkNetworkStateUpdated(const EventListener &listener,
