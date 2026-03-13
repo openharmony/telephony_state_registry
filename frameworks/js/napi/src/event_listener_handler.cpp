@@ -173,11 +173,13 @@ napi_status NapiReturnToJS(
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
         napi_close_handle_scope(env, scope);
+        lock.unlock();
         return napi_ok;
     }
     if (callbackRef == nullptr) {
         TELEPHONY_LOGE("NapiReturnToJS callbackRef is nullptr");
         napi_close_handle_scope(env, scope);
+        lock.unlock();
         return napi_ok;
     }
     napi_value callbackFunc = nullptr;
