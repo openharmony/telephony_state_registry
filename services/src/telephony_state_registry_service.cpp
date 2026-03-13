@@ -94,11 +94,17 @@ void TelephonyStateRegistryService::OnStart()
     bindEndTime_ =
         std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch())
             .count();
-    std::thread task([&]() {
-        if (IsCommonEventServiceAbilityExist()) {
-            for (int32_t i = 0; i < slotSize_; i++) {
+    auto weak = weak_from_this();
+    auto localSlotSize = slotSize_;
+    std::thread task([weak, localSlotSize]() {
+        auto self = weak.lock();
+        if (self == nullptr) {
+            return;
+        }
+        if (self->IsCommonEventServiceAbilityExist()) {
+            for (int32_t i = 0; i < localSlotSize; i++) {
                 TELEPHONY_LOGI("TelephonyStateRegistryService send disconnected call state.");
-                SendCallStateChanged(i, static_cast<int32_t>(CallStatus::CALL_STATUS_DISCONNECTED));
+                self->SendCallStateChanged(i, static_cast<int32_t>(CallStatus::CALL_STATUS_DISCONNECTED));
             }
         }
     });
@@ -919,6 +925,7 @@ int32_t TelephonyStateRegistryService::GetSimState(int32_t slotId)
 {
     std::map<int32_t, SimState>::iterator it;
     int32_t result = TELEPHONY_ERROR;
+    std::shared_lock<std::shared_mutex> lock(lock_);
     for (it = simState_.begin(); it != simState_.end(); ++it) {
         if (it->first == slotId) {
             result = static_cast<int32_t>(it->second);
@@ -933,6 +940,7 @@ int32_t TelephonyStateRegistryService::GetCallState(int32_t slotId)
 {
     std::map<int32_t, int32_t>::iterator it;
     int32_t result = TELEPHONY_ERROR;
+    std::shared_lock<std::shared_mutex> lock(lock_);
     for (it = callState_.begin(); it != callState_.end(); ++it) {
         if (it->first == slotId) {
             result = it->second;
@@ -946,6 +954,7 @@ int32_t TelephonyStateRegistryService::GetCardType(int32_t slotId)
 {
     std::map<int32_t, CardType>::iterator it;
     int32_t result = TELEPHONY_ERROR;
+    std::shared_lock<std::shared_mutex> lock(lock_);
     for (it = cardType_.begin(); it != cardType_.end(); ++it) {
         if (it->first == slotId) {
             result = static_cast<int32_t>(it->second);
@@ -959,6 +968,7 @@ int32_t TelephonyStateRegistryService::GetCellularDataConnectionState(int32_t sl
 {
     std::map<int32_t, int32_t>::iterator it;
     int32_t result = TELEPHONY_ERROR;
+    std::shared_lock<std::shared_mutex> lock(lock_);
     for (it = cellularDataConnectionState_.begin(); it != cellularDataConnectionState_.end(); ++it) {
         if (it->first == slotId) {
             result = it->second;
@@ -972,6 +982,7 @@ int32_t TelephonyStateRegistryService::GetCellularDataFlow(int32_t slotId)
 {
     std::map<int32_t, int32_t>::iterator it;
     int32_t result = TELEPHONY_ERROR;
+    std::shared_lock<std::shared_mutex> lock(lock_);
     for (it = cellularDataFlow_.begin(); it != cellularDataFlow_.end(); ++it) {
         if (it->first == slotId) {
             result = it->second;
@@ -985,6 +996,7 @@ int32_t TelephonyStateRegistryService::GetCellularDataConnectionNetworkType(int3
 {
     std::map<int32_t, int32_t>::iterator it;
     int32_t result = TELEPHONY_ERROR;
+    std::shared_lock<std::shared_mutex> lock(lock_);
     for (it = cellularDataConnectionNetworkType_.begin(); it != cellularDataConnectionNetworkType_.end(); ++it) {
         if (it->first == slotId) {
             result = it->second;
@@ -998,6 +1010,7 @@ int32_t TelephonyStateRegistryService::GetLockReason(int32_t slotId)
 {
     std::map<int32_t, LockReason>::iterator it;
     int32_t result = TELEPHONY_ERROR;
+    std::shared_lock<std::shared_mutex> lock(lock_);
     for (it = simReason_.begin(); it != simReason_.end(); ++it) {
         if (it->first == slotId) {
             result = static_cast<int32_t>(it->second);
