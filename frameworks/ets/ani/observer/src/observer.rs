@@ -396,3 +396,40 @@ pub fn off_call_state_change(env: &AniEnv, callback: AniFnObject) -> Result<(), 
 
     Ok(())
 }
+
+#[ani_rs::native]
+pub fn on_get_sim_active_state(
+    env: &AniEnv,
+    slot_id: i32,
+    callback: AniFnObject,
+) -> Result<(), BusinessError> {
+    let callback_global = callback.into_global_callback(env).unwrap();
+    let listener = EventListener::new(
+        TelephonyUpdateEventType::EventSimActiveStateUpdate,
+        slot_id,
+        CallbackFlavor::SimActiveStateChange(callback_global),
+    );
+    Register::get_instance().register(listener)?;
+
+    Ok(())
+}
+
+#[ani_rs::native]
+pub fn off_get_sim_active_state(
+    env: &AniEnv,
+    callback: AniFnObject,
+) -> Result<(), BusinessError> {
+    let callback_flavor = if env.is_undefined(&callback).unwrap() {
+        None
+    } else {
+        let callback_global = callback.into_global_callback(env).unwrap();
+        Some(CallbackFlavor::SimActiveStateChange(callback_global))
+    };
+
+    Register::get_instance().unregister(
+        TelephonyUpdateEventType::EventSimActiveStateUpdate,
+        callback_flavor,
+    )?;
+
+    Ok(())
+}
