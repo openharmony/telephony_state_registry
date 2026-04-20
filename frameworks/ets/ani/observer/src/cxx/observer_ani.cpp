@@ -131,6 +131,11 @@ void AniTelephonyObserver::OnIccAccountUpdated()
     on_icc_account_updated();
 }
 
+void AniTelephonyObserver::OnSimActiveStateUpdated(int32_t slotId, bool enable)
+{
+    on_sim_active_state_updated(slotId, enable);
+}
+
 static inline ArktsError ConvertArktsError(int32_t errorCode)
 {
     JsError error = NapiUtil::ConverErrorMessageForJs(errorCode);

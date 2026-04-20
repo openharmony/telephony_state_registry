@@ -72,6 +72,10 @@ ohos_rust_shared_library("telephony_observer_ani") {
   }
 
   sources = [ "src/lib.rs" ]
+  rustflags = [
+    "-Copt-level=z",
+    "-Ccodegen-units=1",
+  ]
 
   external_deps = [
     "hilog:hilog_rust",

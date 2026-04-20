@@ -63,6 +63,9 @@ export default namespace observer {
   export native function onCallStateChangeOptions(options: ObserverOptions, callback: Callback<CallStateInfo>): void;
   export native function offCallStateChange(callback?: Callback<CallStateInfo>): void;
 
+  export native function onGetSimActiveState(slotId: int, callback: Callback<boolean>): void;
+  export native function offGetSimActiveState(callback?: Callback<boolean>): void;
+
 
   export function on(type: string, callback: Callback<Any>): void {
     if (type == 'cellularDataFlowChange') {

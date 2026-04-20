@@ -29,6 +29,7 @@ pub enum CallbackFlavor {
     CellularDataConnectionStateChange(GlobalRefCallback<(bridge::DataConnectionStateInfo,)>),
     NetworkStateChange(GlobalRefCallback<(bridge::NetworkState,)>),
     CallStateChange(GlobalRefCallback<(bridge::CallStateInfo,)>),
+    SimActiveStateChange(GlobalRefCallback<(bool,)>),
 }
 
 #[derive(PartialEq, Eq)]
@@ -45,6 +46,7 @@ pub enum TelephonyUpdateEventType {
     EventCfuIndicatorUpdate = 0x00000100,
     EventVoiceMailMsgIndicatorUpdate = 0x00000200,
     EventIccAccountChange = 0x00000400,
+    EventSimActiveStateUpdate = 0x00001000,
 }
 
 impl TelephonyUpdateEventType {
@@ -61,6 +63,7 @@ impl TelephonyUpdateEventType {
             TelephonyUpdateEventType::EventCfuIndicatorUpdate => 0x00000100,
             TelephonyUpdateEventType::EventVoiceMailMsgIndicatorUpdate => 0x00000200,
             TelephonyUpdateEventType::EventIccAccountChange => 0x00000400,
+            TelephonyUpdateEventType::EventSimActiveStateUpdate => 0x00001000,
         }
     }
 }
@@ -433,6 +436,27 @@ impl Register {
         }
     }
 
+    pub fn execute_on_sim_active_state_change(&self, slot_id: i32, is_active: bool) {
+        let inner = self.inner.lock().unwrap();
+        if inner.is_empty() {
+            telephony_error!("Callback vec is empty");
+            return;
+        }
+        for listen_item in inner.deref() {
+            if listen_item.event_type != TelephonyUpdateEventType::EventSimActiveStateUpdate
+                || listen_item.slot_id != slot_id
+            {
+                continue;
+            }
+
+            if let CallbackFlavor::SimActiveStateChange(func) = &listen_item.callback_ref {
+                func.execute((is_active,));
+            } else {
+                telephony_error!("Execute is not SimActiveStateChange callback");
+            }
+        }
+    }
+
 }
 
 pub fn on_cellular_data_flow_updated(slot_id: i32, data_flow_type: i32) {
@@ -472,5 +496,9 @@ pub fn on_network_state_updated(slot_id: i32, network_state: wrapper::ffi::Netwo
 
 pub fn on_call_state_updated(slot_id: i32, call_state: wrapper::ffi::CallStateAni) {
     Register::get_instance().execute_on_call_state_change(slot_id, call_state);
+}
+
+pub fn on_sim_active_state_updated(slot_id: i32, is_active: bool) {
+    Register::get_instance().execute_on_sim_active_state_change(slot_id, is_active);
 }
 
