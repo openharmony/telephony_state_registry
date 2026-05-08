@@ -20,9 +20,9 @@ mod log;
 ani_rs::ani_constructor! {
     namespace "@ohos.telephony.observer.observer"
     [
-        "onCellularDataFlowChange": observer::on_cellular_data_flow_change,
-        "offCellularDataFlowChange": observer::off_cellular_data_flow_change,
-        "onCellularDataFlowChangeOptions": observer::on_cellular_data_flow_change_option,
+        "onCellularDataFlowChangeInner": observer::on_cellular_data_flow_change,
+        "offCellularDataFlowChangeInner": observer::off_cellular_data_flow_change,
+        "onCellularDataFlowChangeOptionsInner": observer::on_cellular_data_flow_change_option,
         "onIccAccountInfoChange": observer::on_icc_account_info_change,
         "offIccAccountInfoChange": observer::off_icc_account_info_change,
         "onSimStateChange": observer::on_sim_state_change,
@@ -34,9 +34,9 @@ ani_rs::ani_constructor! {
         "onCellInfoChange": observer::on_cell_info_change,
         "onCellInfoChangeOptions": observer::on_cell_info_change_option,
         "offCellInfoChange": observer::off_cell_info_change,
-        "onCellularDataConnectionStateChange": observer::on_cellular_data_connection_state_change,
-        "onCellularDataConnectionStateChangeOptions": observer::on_cellular_data_connection_state_change_option,
-        "offCellularDataConnectionStateChange": observer::off_cellular_data_connection_state_change,
+        "onCellularDataConnectionStateChangeInner": observer::on_cellular_data_connection_state_change,
+        "onCellularDataConnectionStateChangeOptionsInner": observer::on_cellular_data_connection_state_change_option,
+        "offCellularDataConnectionStateChangeInner": observer::off_cellular_data_connection_state_change,
         "onNetworkStateChange": observer::on_network_state_change,
         "onNetworkStateChangeOptions": observer::on_network_state_change_option,
         "offNetworkStateChange": observer::off_network_state_change,
