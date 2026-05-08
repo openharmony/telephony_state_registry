@@ -37,9 +37,9 @@ export default namespace observer {
   type SimState = sim.SimState;
   type CallState = call.CallState;
 
-  export native function onCellularDataFlowChange(callback: Callback<DataFlowType>): void;
-  export native function onCellularDataFlowChangeOptions(options: ObserverOptions, callback: Callback<DataFlowType>): void;
-  export native function offCellularDataFlowChange(callback?: Callback<DataFlowType>): void;
+  export native function onCellularDataFlowChangeInner(callback: Callback<DataFlowType>): void;
+  export native function onCellularDataFlowChangeOptionsInner(options: ObserverOptions, callback: Callback<DataFlowType>): void;
+  export native function offCellularDataFlowChangeInner(callback?: Callback<DataFlowType>): void;
   export native function onIccAccountInfoChange(callback: Callback<void>): void;
   export native function offIccAccountInfoChange(callback?: Callback<void>): void;
   export native function onSimStateChange(callback: Callback<SimStateData>): void;
@@ -51,9 +51,9 @@ export default namespace observer {
   export native function onCellInfoChange(callback: Callback<Array<CellInformation>>): void;
   export native function onCellInfoChangeOptions(options: ObserverOptions, callback: Callback<Array<CellInformation>>): void;
   export native function offCellInfoChange(callback?: Callback<Array<CellInformation>>): void;
-  export native function onCellularDataConnectionStateChange(callback: Callback<DataConnectionStateInfo>): void;
-  export native function onCellularDataConnectionStateChangeOptions(options: ObserverOptions, callback: Callback<DataConnectionStateInfo>): void;
-  export native function offCellularDataConnectionStateChange(callback?: Callback<DataConnectionStateInfo>): void;
+  export native function onCellularDataConnectionStateChangeInner(callback: Callback<DataConnectionStateInfo>): void;
+  export native function onCellularDataConnectionStateChangeOptionsInner(options: ObserverOptions, callback: Callback<DataConnectionStateInfo>): void;
+  export native function offCellularDataConnectionStateChangeInner(callback?: Callback<DataConnectionStateInfo>): void;
 
   export native function onNetworkStateChange(callback: Callback<NetworkState>): void;
   export native function onNetworkStateChangeOptions(options: ObserverOptions, callback: Callback<NetworkState>): void;
@@ -66,11 +66,40 @@ export default namespace observer {
   export native function onGetSimActiveState(slotId: int, callback: Callback<boolean>): void;
   export native function offGetSimActiveState(callback?: Callback<boolean>): void;
 
+  export function onCellularDataFlowChange(callback: Callback<DataFlowType>): void {
+    onCellularDataFlowChangeInner(callback)
+  }
+
+  export function onCellularDataFlowChange(options: ObserverOptions, callback: Callback<DataFlowType>): void {
+    onCellularDataFlowChangeOptionsInner(options, callback)
+  }
+
+  export function onCellularDataConnectionStateChange(callback: Callback<DataConnectionStateInfo>): void {
+    onCellularDataConnectionStateChangeInner(callback)
+  }
+
+  export function onCellularDataConnectionStateChange(options: ObserverOptions, callback: Callback<DataConnectionStateInfo>): void {
+    onCellularDataConnectionStateChangeOptionsInner(options, callback)
+  }
+
+  export function offCellularDataConnectionStateChange(callback?: Callback<DataConnectionStateInfo>): void {
+    if (callback == undefined) {
+      offCellularDataConnectionStateChangeInner()
+    } else {
+      offCellularDataConnectionStateChangeInner(callback as Callback<DataConnectionStateInfo>)
+    }
+  }
+
+  export function offCellularDataFlowChange(callback?: Callback<DataFlowType>): void {
+    if (callback == undefined) {
+      offCellularDataFlowChangeInner()
+    } else {
+      offCellularDataFlowChangeInner(callback as Callback<DataFlowType>)
+    }
+  }
 
   export function on(type: string, callback: Callback<Any>): void {
-    if (type == 'cellularDataFlowChange') {
-      onCellularDataFlowChange(callback as Callback<DataFlowType>)
-    } else if (type == 'iccAccountInfoChange') {
+    if (type == 'iccAccountInfoChange') {
       onIccAccountInfoChange(callback as Callback<void>)
     } else if (type == 'simStateChange') {
       onSimStateChange(callback as Callback<SimStateData>)
@@ -78,8 +107,6 @@ export default namespace observer {
       onSignalInfoChange(callback as Callback<Array<SignalInformation>>)
     } else if (type == 'cellInfoChange') {
       onCellInfoChange(callback as Callback<Array<CellInformation>>)
-    } else if (type == 'cellularDataConnectionStateChange') {
-      onCellularDataConnectionStateChange(callback as Callback<DataConnectionStateInfo>)
     } else if (type == 'networkStateChange') {
       onNetworkStateChange(callback as Callback<NetworkState>)
     } else if (type == 'callStateChange') {
@@ -88,16 +115,12 @@ export default namespace observer {
   }
 
   export function on(type: string, options: ObserverOptions, callback: Callback<Any>): void {
-    if (type == 'cellularDataFlowChange') {
-      onCellularDataFlowChangeOptions(options, callback as Callback<DataFlowType>)
-    } else if (type == 'simStateChange') {
+    if (type == 'simStateChange') {
       onSimStateChangeOptions(options, callback as Callback<SimStateData>)
     } else if (type == 'signalInfoChange') {
       onSignalInfoChangeOptions(options, callback as Callback<Array<SignalInformation>>)
     } else if (type == 'cellInfoChange') {
       onCellInfoChangeOptions(options, callback as Callback<Array<CellInformation>>)
-    } else if (type == 'cellularDataConnectionStateChange') {
-      onCellularDataConnectionStateChangeOptions(options, callback as Callback<DataConnectionStateInfo>)
     } else if (type == 'networkStateChange') {
       onNetworkStateChangeOptions(options, callback as Callback<NetworkState>)
     } else if (type == 'callStateChange') {
@@ -106,13 +129,7 @@ export default namespace observer {
   }
 
   export function off(type: string, callback?: Callback<Any>): void {
-    if (type == 'cellularDataFlowChange') {
-      if (callback == undefined) {
-        offCellularDataFlowChange()
-      } else {
-        offCellularDataFlowChange(callback as Callback<DataFlowType>)
-      }
-    } else if (type == 'iccAccountInfoChange') {
+    if (type == 'iccAccountInfoChange') {
       if (callback == undefined) {
         offIccAccountInfoChange()
       } else {
@@ -135,12 +152,6 @@ export default namespace observer {
         offCellInfoChange()
       } else {
         offCellInfoChange(callback as Callback<Array<CellInformation>>)
-      }
-    } else if (type == 'cellularDataConnectionStateChange') {
-      if (callback == undefined) {
-        offCellularDataConnectionStateChange()
-      } else {
-        offCellularDataConnectionStateChange(callback as Callback<DataConnectionStateInfo>)
       }
     } else if (type == 'networkStateChange') {
       if (callback == undefined) {
