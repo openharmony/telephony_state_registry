@@ -403,7 +403,7 @@ int32_t TelephonyStateRegistryService::UpdateNetworkState(int32_t slotId, const 
     for (size_t i = 0; i < stateRecords_.size(); i++) {
         TelephonyStateRegistryRecord r = stateRecords_[i];
         if (r.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE) && (r.slotId_ == slotId) &&
-            r.telephonyObserver_ != nullptr) {
+            r.telephonyObserver_ != nullptr && networkState != nullptr) {
             if (TELEPHONY_EXT_WRAPPER.onNetworkStateUpdated_ != nullptr) {
                 sptr<NetworkState> networkStateExt = new NetworkState();
                 MessageParcel data;
