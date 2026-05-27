@@ -128,6 +128,10 @@ void TelephonyObserver::OnNetworkStateUpdatedInner(
 {
     int32_t slotId = data.ReadInt32();
     sptr<NetworkState> networkState = NetworkState::Unmarshalling(data);
+    if (networkState == nullptr) {
+        TELEPHONY_LOGE("networkState is null");
+        return;
+    }
     OnNetworkStateUpdated(slotId, networkState);
 }
 
