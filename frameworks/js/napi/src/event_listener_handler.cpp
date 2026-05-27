@@ -774,6 +774,9 @@ void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work, std::unique_loc
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_value callbackValue = nullptr;
     napi_create_object(callStateInfo->env, &callbackValue);
@@ -793,6 +796,9 @@ void EventListenerHandler::WorkCallStateExUpdated(uv_work_t *work, std::unique_l
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_value callbackValue = nullptr;
     napi_create_object(callStateExInfo->env, &callbackValue);
@@ -811,6 +817,9 @@ void EventListenerHandler::WorkSignalUpdated(uv_work_t *work, std::unique_lock<s
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_create_array(env, &callbackValue);
     size_t infoSize = infoListUpdateInfo->signalInfoList.size();
@@ -836,6 +845,9 @@ void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work, std::unique_
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     const sptr<NetworkState> &networkState = networkStateUpdateInfo->networkState;
     napi_create_object(env, &callbackValue);
@@ -868,6 +880,9 @@ void EventListenerHandler::WorkSimStateUpdated(uv_work_t *work, std::unique_lock
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_value callbackValue = nullptr;
     int32_t cardType = static_cast<int32_t>(simStateUpdateInfo->cardType);
@@ -890,6 +905,9 @@ void EventListenerHandler::WorkCellInfomationUpdated(uv_work_t *work, std::uniqu
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_create_array(cellInfo->env, &callbackValue);
     for (size_t i = 0; i < cellInfo->cellInfoVec.size(); i++) {
@@ -909,6 +927,9 @@ void EventListenerHandler::WorkCellularDataConnectStateUpdated(uv_work_t *work, 
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_value callbackValue = nullptr;
     napi_create_object(context->env, &callbackValue);
@@ -926,6 +947,9 @@ void EventListenerHandler::WorkCellularDataFlowUpdated(uv_work_t *work, std::uni
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_value callbackValue = GetNapiValue(dataFlowInfo->env, dataFlowInfo->flowType_);
     NapiReturnToJS(dataFlowInfo->env, dataFlowInfo->callbackRef, callbackValue, lock);
@@ -944,6 +968,9 @@ void EventListenerHandler::WorkCfuIndicatorUpdated(uv_work_t *work, std::unique_
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_value callbackValue = GetNapiValue(cfuIndicatorInfo->env, cfuIndicatorInfo->cfuResult_);
     NapiReturnToJS(cfuIndicatorInfo->env, cfuIndicatorInfo->callbackRef, callbackValue, lock);
@@ -963,6 +990,9 @@ void EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work, std
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_value callbackValue =
         GetNapiValue(voiceMailMsgIndicatorInfo->env, voiceMailMsgIndicatorInfo->voiceMailMsgResult_);
@@ -982,6 +1012,9 @@ void EventListenerHandler::WorkIccAccountUpdated(uv_work_t *work, std::unique_lo
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_value callbackValue = nullptr;
     napi_create_object(UpdateIccAccount->env, &callbackValue);
@@ -1006,6 +1039,8 @@ void EventListenerHandler::WorkSimActiveUpdated(uv_work_t *work, std::unique_loc
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
         return;
     }
     napi_value callbackValue =
@@ -1043,6 +1078,9 @@ void EventListenerHandler::WorkCCallStateUpdated(uv_work_t *work, std::unique_lo
     napi_open_handle_scope(env, &scope);
     if (scope == nullptr) {
         TELEPHONY_LOGE("scope is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return;
     }
     napi_value callbackValue = nullptr;
     napi_create_object(callStateInfo->env, &callbackValue);
