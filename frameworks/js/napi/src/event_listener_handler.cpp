@@ -170,7 +170,7 @@ napi_status NapiReturnToJS(
 {
     napi_handle_scope scope = nullptr;
     napi_status handleStatus = napi_open_handle_scope(env, &scope);
-    if (status != napi_ok || scope == nullptr) {
+    if (handleStatus != napi_ok || scope == nullptr) {
         TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return napi_ok;
