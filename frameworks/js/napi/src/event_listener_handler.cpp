@@ -169,10 +169,9 @@ napi_status NapiReturnToJS(
     napi_env env, napi_ref callbackRef, napi_value callbackVal, std::unique_lock<std::mutex> &lock)
 {
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status handleStatus = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return napi_ok;
     }
@@ -771,10 +770,9 @@ void EventListenerHandler::WorkCallStateUpdated(uv_work_t *work, std::unique_loc
     std::unique_ptr<CallStateContext> callStateInfo(static_cast<CallStateContext *>(work->data));
     const napi_env &env = callStateInfo->env;
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -793,10 +791,9 @@ void EventListenerHandler::WorkCallStateExUpdated(uv_work_t *work, std::unique_l
     std::unique_ptr<CallStateExContext> callStateExInfo(static_cast<CallStateExContext *>(work->data));
     const napi_env &env = callStateExInfo->env;
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -814,10 +811,9 @@ void EventListenerHandler::WorkSignalUpdated(uv_work_t *work, std::unique_lock<s
     std::unique_ptr<SignalListContext> infoListUpdateInfo(static_cast<SignalListContext *>(work->data));
     napi_value callbackValue = nullptr;
     const napi_env &env = infoListUpdateInfo->env;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -842,10 +838,9 @@ void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work, std::unique_
     std::unique_ptr<NetworkStateContext> networkStateUpdateInfo(static_cast<NetworkStateContext *>(work->data));
     napi_value callbackValue = nullptr;
     const napi_env &env = networkStateUpdateInfo->env;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -877,10 +872,9 @@ void EventListenerHandler::WorkSimStateUpdated(uv_work_t *work, std::unique_lock
     napi_handle_scope scope = nullptr;
     std::unique_ptr<SimStateContext> simStateUpdateInfo(static_cast<SimStateContext *>(work->data));
     const napi_env &env = simStateUpdateInfo->env;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -902,10 +896,9 @@ void EventListenerHandler::WorkCellInfomationUpdated(uv_work_t *work, std::uniqu
     napi_value callbackValue = nullptr;
     const napi_env &env = cellInfo->env;
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -924,10 +917,9 @@ void EventListenerHandler::WorkCellularDataConnectStateUpdated(uv_work_t *work, 
     std::unique_ptr<CellularDataConnectStateContext> context(
         static_cast<CellularDataConnectStateContext *>(work->data));
     const napi_env &env = context->env;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -944,10 +936,9 @@ void EventListenerHandler::WorkCellularDataFlowUpdated(uv_work_t *work, std::uni
     std::unique_ptr<CellularDataFlowContext> dataFlowInfo(static_cast<CellularDataFlowContext *>(work->data));
     const napi_env &env = dataFlowInfo->env;
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -965,10 +956,9 @@ void EventListenerHandler::WorkCfuIndicatorUpdated(uv_work_t *work, std::unique_
     std::unique_ptr<CfuIndicatorContext> cfuIndicatorInfo(static_cast<CfuIndicatorContext *>(work->data));
     const napi_env &env = cfuIndicatorInfo->env;
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -987,10 +977,9 @@ void EventListenerHandler::WorkVoiceMailMsgIndicatorUpdated(uv_work_t *work, std
         static_cast<VoiceMailMsgIndicatorContext *>(work->data));
     const napi_env &env = voiceMailMsgIndicatorInfo->env;
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -1009,10 +998,9 @@ void EventListenerHandler::WorkIccAccountUpdated(uv_work_t *work, std::unique_lo
     std::unique_ptr<EventListener> UpdateIccAccount(static_cast<EventListener *>(work->data));
     const napi_env &env = UpdateIccAccount->env;
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -1036,10 +1024,9 @@ void EventListenerHandler::WorkSimActiveUpdated(uv_work_t *work, std::unique_loc
     }
     const napi_env &env = simActiveStateInfo->env;
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
@@ -1075,10 +1062,9 @@ void EventListenerHandler::WorkCCallStateUpdated(uv_work_t *work, std::unique_lo
     std::unique_ptr<CallStateContext> callStateInfo(static_cast<CallStateContext *>(work->data));
     const napi_env &env = callStateInfo->env;
     napi_handle_scope scope = nullptr;
-    napi_open_handle_scope(env, &scope);
-    if (scope == nullptr) {
-        TELEPHONY_LOGE("scope is nullptr");
-        napi_close_handle_scope(env, scope);
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
         lock.unlock();
         return;
     }
