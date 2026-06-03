@@ -338,6 +338,7 @@ void ObserverEventHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
             }
             work->data = static_cast<void *>(data);
             WorkUpdated(listen, work, lock);
+            delete data;
             delete work;
             work = nullptr;
         }
@@ -427,7 +428,11 @@ void ObserverEventHandler::WorkCallStateUpdated(const EventListener &listener,
         TELEPHONY_LOGE("work is null");
         return;
     }
-    std::unique_ptr<CallStateUpdateInfo> callStateInfo(static_cast<CallStateUpdateInfo *>(work->data));
+    if (work->data == nullptr) {
+        TELEPHONY_LOGE("work data is null");
+        return;
+    }
+    CallStateUpdateInfo *callStateInfo = static_cast<CallStateUpdateInfo *>(work->data);
     std::string phoneNumber = ToUtf8(callStateInfo->phoneNumber_);
     CCallStateInfo callbackValue = {
         .state = WrapCallState(callStateInfo->callState_),
@@ -444,7 +449,11 @@ void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
         TELEPHONY_LOGE("work is null");
         return;
     }
-    std::unique_ptr<SignalUpdateInfo> infoListUpdateInfo(static_cast<SignalUpdateInfo *>(work->data));
+    if (work->data == nullptr) {
+        TELEPHONY_LOGE("work data is null");
+        return;
+    }
+    SignalUpdateInfo *infoListUpdateInfo = static_cast<SignalUpdateInfo *>(work->data);
     size_t infoSize = infoListUpdateInfo->signalInfoList_.size();
     if (infoSize <= 0) {
         TELEPHONY_LOGE("signalInfoList_ size error");
@@ -477,7 +486,11 @@ void ObserverEventHandler::WorkNetworkStateUpdated(const EventListener &listener
         TELEPHONY_LOGE("work is null");
         return;
     }
-    std::unique_ptr<NetworkStateUpdateInfo> networkStateUpdateInfo(static_cast<NetworkStateUpdateInfo *>(work->data));
+    if (work->data == nullptr) {
+        TELEPHONY_LOGE("work data is null");
+        return;
+    }
+    NetworkStateUpdateInfo *networkStateUpdateInfo = static_cast<NetworkStateUpdateInfo *>(work->data);
     const sptr<NetworkState> &networkState = networkStateUpdateInfo->networkState_;
     std::string longOperatorName = networkState->GetLongOperatorName();
     std::string shortOperatorName = networkState->GetShortOperatorName();
@@ -509,7 +522,11 @@ void ObserverEventHandler::WorkSimStateUpdated(const EventListener &listener,
         TELEPHONY_LOGE("work is null");
         return;
     }
-    std::unique_ptr<SimStateUpdateInfo> simStateUpdateInfo(static_cast<SimStateUpdateInfo *>(work->data));
+    if (work->data == nullptr) {
+        TELEPHONY_LOGE("work data is null");
+        return;
+    }
+    SimStateUpdateInfo *simStateUpdateInfo = static_cast<SimStateUpdateInfo *>(work->data);
     int32_t cardType = static_cast<int32_t>(simStateUpdateInfo->type_);
     int32_t simState = static_cast<int32_t>(simStateUpdateInfo->state_);
     int32_t lockReason = static_cast<int32_t>(simStateUpdateInfo->reason_);
@@ -538,8 +555,11 @@ void ObserverEventHandler::WorkCellularDataConnectStateUpdated(const EventListen
         TELEPHONY_LOGE("work is null");
         return;
     }
-    std::unique_ptr<CellularDataConnectState> context(
-        static_cast<CellularDataConnectState *>(work->data));
+    if (work->data == nullptr) {
+        TELEPHONY_LOGE("work data is null");
+        return;
+    }
+    CellularDataConnectState *context = static_cast<CellularDataConnectState *>(work->data);
     CDataConnectionStateInfo callbackValue = {
         .state = context->dataState_,
         .network = context->networkType_
@@ -555,7 +575,11 @@ void ObserverEventHandler::WorkCellularDataFlowUpdated(const EventListener &list
         TELEPHONY_LOGE("work is null");
         return;
     }
-    std::unique_ptr<CellularDataFlowUpdate> dataFlowInfo(static_cast<CellularDataFlowUpdate *>(work->data));
+    if (work->data == nullptr) {
+        TELEPHONY_LOGE("work data is null");
+        return;
+    }
+    CellularDataFlowUpdate *dataFlowInfo = static_cast<CellularDataFlowUpdate *>(work->data);
     void* argv = &(dataFlowInfo->flowType_);
     listener.callbackRef(argv);
 }
