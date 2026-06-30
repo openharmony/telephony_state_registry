@@ -183,6 +183,12 @@ napi_status NapiReturnToJS(
     }
     napi_value callbackFunc = nullptr;
     napi_get_reference_value(env, callbackRef, &callbackFunc);
+    if (callbackFunc == nullptr) {
+        TELEPHONY_LOGE("callbackFunc callbackRef is nullptr");
+        napi_close_handle_scope(env, scope);
+        lock.unlock();
+        return napi_ok;
+    }
     lock.unlock();
     napi_value callbackValues[] = { callbackVal };
     napi_value recv = nullptr;
@@ -845,6 +851,10 @@ void EventListenerHandler::WorkNetworkStateUpdated(uv_work_t *work, std::unique_
         return;
     }
     const sptr<NetworkState> &networkState = networkStateUpdateInfo->networkState;
+    if (networkState == nullptr) {
+        lock.unlock();
+        return;
+    }
     napi_create_object(env, &callbackValue);
     std::string longOperatorName = networkState->GetLongOperatorName();
     std::string shortOperatorName = networkState->GetShortOperatorName();
