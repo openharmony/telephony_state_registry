@@ -113,7 +113,7 @@ static bool IsValidSlotIdEx(TelephonyUpdateEventType eventType, int32_t slotId)
         defaultSlotId = -1;
     }
     // One more slot for VSim.
-    return ((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT + 1));
+    return ((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT_REAL + 1));
 }
 
 static int32_t RegisterEventListener(EventListener &eventListener)
@@ -139,7 +139,7 @@ static int32_t UnregisterEventListener(const TelephonyUpdateEventType eventType,
 static void NativeOn(EventListener listener, int32_t &errCode)
 {
     errCode = TELEPHONY_SUCCESS;
-    if (SIM_SLOT_COUNT == 0) {
+    if (SIM_SLOT_COUNT_REAL == 0) {
         TELEPHONY_LOGE("The device is not support sim card.");
         return;
     }
