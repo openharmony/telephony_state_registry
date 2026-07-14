@@ -70,7 +70,7 @@ static inline bool IsValidSlotIdEx(TelephonyUpdateEventType eventType, int32_t s
         defaultSlotId = -1;
     }
     // One more slot for VSim.
-    return (((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT + 1)) ||
+    return (((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT_REAL + 1)) ||
         (slotId == SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT));
 }
 
@@ -82,7 +82,7 @@ static void NativeOn(napi_env env, void *data)
         return;
     }
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
-    if (SIM_SLOT_COUNT == 0 && (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) &&
+    if (SIM_SLOT_COUNT_REAL == 0 && (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) &&
         (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) &&
         (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE)) {
         TELEPHONY_LOGE("The device is not support sim card.");
