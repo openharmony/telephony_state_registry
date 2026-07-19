@@ -154,7 +154,7 @@ bool IsValidSlotIdEx(int32_t slotId, uint32_t eventType)
         defaultSlotId = -1;
     }
     // One more slot for VSim.
-    return ((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT_REAL + 1));
+    return ((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT + 1));
 }
 
 ArktsError EventListenerRegister(int32_t slotId, uint32_t eventType)
