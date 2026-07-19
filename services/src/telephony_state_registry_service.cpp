@@ -41,10 +41,10 @@ constexpr int32_t SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT = 999;
 TelephonyStateRegistryService::TelephonyStateRegistryService()
     : SystemAbility(TELEPHONY_STATE_REGISTRY_SYS_ABILITY_ID, true)
 {
-    slotSize_ = SIM_SLOT_COUNT;
+    slotSize_ = SIM_SLOT_COUNT_MD;
 #ifdef OHOS_BUILD_ENABLE_TELEPHONY_VSIM
     // two modem device also has 3 slot (2sim + 1vsim)
-    if (SIM_SLOT_COUNT == DUAL_SLOT_COUNT &&
+    if (slotSize_ == DUAL_SLOT_COUNT &&
         (VSIM_MODEM_COUNT == MAX_SLOT_COUNT || VSIM_MODEM_COUNT == DUAL_SLOT_COUNT)) {
         slotSize_ = MAX_SLOT_COUNT;
     }
