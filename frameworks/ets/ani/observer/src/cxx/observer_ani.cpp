@@ -28,7 +28,6 @@ namespace OHOS {
 using namespace Telephony;
 namespace ObserverAni {
 
-
 constexpr const char *OBSERVER_JS_PERMISSION_ERROR_STRING =
     "Permission denied. An attempt was made to Observer "
     "On forbidden by permission : ohos.permission.GET_NETWORK_INFO or ohos.permission.LOCATION ";
@@ -83,6 +82,21 @@ void AniTelephonyObserver::OnCallStateUpdated(int32_t slotId, int32_t callState,
         .teleNumber = rust::String(phone_number),
     };
     on_call_state_updated(slotId, info);
+}
+
+void AniTelephonyObserver::OnCallStateUpdatedEx(int32_t slotId, int32_t callStateEx)
+{
+    on_call_state_ex_updated(slotId, callStateEx);
+}
+ 
+void AniTelephonyObserver::OnCCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &teleNumber)
+{
+    std::string phone_number = NapiUtil::ToUtf8(teleNumber);
+    CallStateAni info{
+        .state = callState,
+        .teleNumber = rust::String(phone_number),
+    };
+    on_ccall_state_updated(slotId, info);
 }
 
 void AniTelephonyObserver::OnSimStateUpdated(
@@ -148,10 +162,26 @@ static inline ArktsError ConvertArktsError(int32_t errorCode)
     return ArktsErr;
 }
 
+static inline ArktsError ConvertArktsErrorEx(int32_t errorCode, uint32_t eventType)
+{
+    if (eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) ||
+        eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE)) {
+        JsError error = NapiUtil::ConverErrorMessageCallStateExForJs(errorCode);
+        ArktsError arktsErr = {
+            .errorCode = error.errorCode,
+            .errorMessage = rust::string(error.errorMessage),
+        };
+        return arktsErr;
+    }
+    return ConvertArktsError(errorCode);
+}
+
 bool IsValidSlotIdEx(int32_t slotId, uint32_t eventType)
 {
     int32_t defaultSlotId = DEFAULT_SIM_SLOT_ID;
-    if (eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE)) {
+    if (eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) ||
+        eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) ||
+        eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE)) {
         defaultSlotId = -1;
     }
     // One more slot for VSim.
@@ -167,11 +197,13 @@ ArktsError EventListenerRegister(int32_t slotId, uint32_t eventType)
     if (observer == nullptr) {
         TELEPHONY_LOGE("error by observer nullptr");
         errorCode = Telephony::TELEPHONY_ERR_LOCAL_PTR_NULL;
-        return ConvertArktsError(errorCode);
+        return ConvertArktsErrorEx(errorCode, eventType);
     }
+    bool isUpdate = (eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) ||
+        eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) ||
+        eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE));
     errorCode = Telephony::TelephonyStateManager::AddStateObserver(
-        observer, slotId, eventType,
-        eventType == static_cast<uint32_t>(TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE));
+        observer, slotId, eventType, isUpdate);
     if (errorCode == TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED) {
         ArktsError ArktsErr = {
             .errorCode = JS_ERROR_TELEPHONY_PERMISSION_DENIED,
@@ -180,7 +212,7 @@ ArktsError EventListenerRegister(int32_t slotId, uint32_t eventType)
         return ArktsErr;
     }
     
-    return ConvertArktsError(errorCode);
+    return ConvertArktsErrorEx(errorCode, eventType);
 }
 
 ArktsError EventListenerUnRegister(int32_t slotId, uint32_t eventType)
