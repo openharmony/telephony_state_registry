@@ -24,7 +24,6 @@ pub enum DataFlowType {
     DataFlowTypeUp = 2,
     DataFlowTypeUpDown = 3,
     DataFlowTypeDormant = 4,
-    
 }
 
 impl From<i32> for DataFlowType {
@@ -406,6 +405,47 @@ impl CallStateInfo {
         Self {
             state: CallState::from(state),
             teleNumber,
+        }
+    }
+}
+ 
+#[ani_rs::ani(path = "@ohos.telephony.call.call.TelCallState")]
+#[repr(i32)]
+#[derive(Debug, Clone)]
+pub enum TelCallState {
+    TelCallStateUnknown = -1,
+    TelCallStateIdle = 0,
+    TelCallStateRinging = 1,
+    TelCallStateOffhook = 2,
+    TelCallStateAnswered = 3,
+    TelCallStateConnected = 4,
+}
+ 
+impl From<i32> for TelCallState {
+    fn from(value: i32) -> Self {
+        match value {
+            0 => TelCallState::TelCallStateIdle,
+            1 => TelCallState::TelCallStateRinging,
+            2 => TelCallState::TelCallStateOffhook,
+            3 => TelCallState::TelCallStateAnswered,
+            4 => TelCallState::TelCallStateConnected,
+            _ => TelCallState::TelCallStateUnknown,
+        }
+    }
+}
+ 
+#[ani_rs::ani(path = "@ohos.telephony.observer.observer.CCallStateInfoInner")]
+#[derive(Debug, Clone)]
+pub struct CCallStateInfo {
+    pub state: i32,
+    pub teleNumber: String,
+}
+ 
+impl CCallStateInfo {
+    pub fn new(state: i32, tele_number: String) -> Self {
+        Self {
+            state,
+            teleNumber: tele_number,
         }
     }
 }
