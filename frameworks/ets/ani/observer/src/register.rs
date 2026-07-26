@@ -19,6 +19,7 @@ use std::{
     sync::{Mutex, OnceLock},
 };
 
+
 #[derive(PartialEq, Eq)]
 pub enum CallbackFlavor {
     CellularDataFlowChange(GlobalRefCallback<(bridge::DataFlowType,)>),

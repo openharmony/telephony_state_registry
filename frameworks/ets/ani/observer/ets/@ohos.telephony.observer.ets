@@ -36,6 +36,7 @@ export default namespace observer {
   type CardType = sim.CardType;
   type SimState = sim.SimState;
   type CallState = call.CallState;
+  type TelCallState = call.TelCallState;
 
   export native function onCellularDataFlowChangeInner(callback: Callback<DataFlowType>): void;
   export native function onCellularDataFlowChangeOptionsInner(options: ObserverOptions, callback: Callback<DataFlowType>): void;

@@ -17,6 +17,7 @@ mod bridge;
 mod wrapper;
 mod log;
 
+
 ani_rs::ani_constructor! {
     namespace "@ohos.telephony.observer.observer"
     [

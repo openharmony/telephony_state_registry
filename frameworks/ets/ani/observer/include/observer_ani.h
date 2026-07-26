@@ -35,6 +35,7 @@ enum class TelephonyUpdateEventType {
     EVENT_CELL_INFO_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO,
     EVENT_SIGNAL_STRENGTHS_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS,
     EVENT_SIM_STATE_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE,
+    
     EVENT_DATA_CONNECTION_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE,
     EVENT_CELLULAR_DATA_FLOW_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW,
     EVENT_CFU_INDICATOR_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR,

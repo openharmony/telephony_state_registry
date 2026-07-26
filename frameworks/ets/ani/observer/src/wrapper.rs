@@ -24,6 +24,7 @@ impl From<ffi::SignalInformationAni> for bridge::SignalInformation {
     }
 }
 
+
 impl From<ffi::CellInformationAni> for bridge::CellInformation {
     fn from(value: ffi::CellInformationAni) -> Self {
         let signal_information = bridge::SignalInformation::from(value.signal_information);

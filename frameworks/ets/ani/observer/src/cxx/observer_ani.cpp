@@ -28,6 +28,7 @@ namespace OHOS {
 using namespace Telephony;
 namespace ObserverAni {
 
+
 constexpr const char *OBSERVER_JS_PERMISSION_ERROR_STRING =
     "Permission denied. An attempt was made to Observer "
     "On forbidden by permission : ohos.permission.GET_NETWORK_INFO or ohos.permission.LOCATION ";

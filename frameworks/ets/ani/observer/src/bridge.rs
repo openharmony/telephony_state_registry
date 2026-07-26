@@ -24,6 +24,7 @@ pub enum DataFlowType {
     DataFlowTypeUp = 2,
     DataFlowTypeUpDown = 3,
     DataFlowTypeDormant = 4,
+    
 }
 
 impl From<i32> for DataFlowType {

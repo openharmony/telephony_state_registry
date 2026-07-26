@@ -13,6 +13,7 @@
 
 use ani_rs::{business_error::BusinessError, objects::AniFnObject, AniEnv};
 
+
 use crate::{
     bridge::{ObserverOptions, DEFAULT_SIM_SLOT_ID},
     register::{CallbackFlavor, EventListener, Register, TelephonyUpdateEventType}
