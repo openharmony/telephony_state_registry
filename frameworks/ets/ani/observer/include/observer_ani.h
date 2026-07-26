@@ -32,10 +32,11 @@ enum class TelephonyUpdateEventType {
     NONE_EVENT_TYPE = 0,
     EVENT_NETWORK_STATE_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE,
     EVENT_CALL_STATE_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE,
+    EVENT_CALL_STATE_EX_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_CALL_STATE_EX,
+    EVENT_CCALL_STATE_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE,
     EVENT_CELL_INFO_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO,
     EVENT_SIGNAL_STRENGTHS_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIGNAL_STRENGTHS,
     EVENT_SIM_STATE_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE,
-    
     EVENT_DATA_CONNECTION_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE,
     EVENT_CELLULAR_DATA_FLOW_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW,
     EVENT_CFU_INDICATOR_UPDATE = Telephony::TelephonyObserverBroker::OBSERVER_MASK_CFU_INDICATOR,
@@ -55,6 +56,8 @@ public:
     void OnCellularDataFlowUpdated(int32_t slotId, int32_t dataFlowType) override;
     void OnIccAccountUpdated() override;
     void OnCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &teleNumber) override;
+    void OnCallStateUpdatedEx(int32_t slotId, int32_t callStateEx) override;
+    void OnCCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &teleNumber) override;
     void OnSimActiveStateUpdated(int32_t slotId, bool enable) override;
 };
 
