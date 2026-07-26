@@ -19,7 +19,6 @@ use std::{
     sync::{Mutex, OnceLock},
 };
 
-
 #[derive(PartialEq, Eq)]
 pub enum CallbackFlavor {
     CellularDataFlowChange(GlobalRefCallback<(bridge::DataFlowType,)>),
@@ -30,6 +29,8 @@ pub enum CallbackFlavor {
     CellularDataConnectionStateChange(GlobalRefCallback<(bridge::DataConnectionStateInfo,)>),
     NetworkStateChange(GlobalRefCallback<(bridge::NetworkState,)>),
     CallStateChange(GlobalRefCallback<(bridge::CallStateInfo,)>),
+    CallStateExChange(GlobalRefCallback<(bridge::TelCallState,)>),
+    CCallStateChange(GlobalRefCallback<(bridge::CCallStateInfo,)>),
     SimActiveStateChange(GlobalRefCallback<(bool,)>),
 }
 
@@ -38,6 +39,7 @@ pub enum CallbackFlavor {
 pub enum TelephonyUpdateEventType {
     NoneEventType = 0,
     EventNetworkStateUpdate = 0x00000001,
+    EventCallStateExUpdate = 0x00000002,
     EventCallStateUpdate = 0x00000004,
     EventCellInfoUpdate = 0x00000008,
     EventSignalStrengthsUpdate = 0x00000010,
@@ -47,6 +49,7 @@ pub enum TelephonyUpdateEventType {
     EventCfuIndicatorUpdate = 0x00000100,
     EventVoiceMailMsgIndicatorUpdate = 0x00000200,
     EventIccAccountChange = 0x00000400,
+    EventCCallStateUpdate = 0x00000800,
     EventSimActiveStateUpdate = 0x00001000,
 }
 
@@ -55,6 +58,7 @@ impl TelephonyUpdateEventType {
         match self {
             TelephonyUpdateEventType::NoneEventType => 0,
             TelephonyUpdateEventType::EventNetworkStateUpdate => 0x00000001,
+            TelephonyUpdateEventType::EventCallStateExUpdate => 0x00000002,
             TelephonyUpdateEventType::EventCallStateUpdate => 0x00000004,
             TelephonyUpdateEventType::EventCellInfoUpdate => 0x00000008,
             TelephonyUpdateEventType::EventSignalStrengthsUpdate => 0x00000010,
@@ -64,6 +68,7 @@ impl TelephonyUpdateEventType {
             TelephonyUpdateEventType::EventCfuIndicatorUpdate => 0x00000100,
             TelephonyUpdateEventType::EventVoiceMailMsgIndicatorUpdate => 0x00000200,
             TelephonyUpdateEventType::EventIccAccountChange => 0x00000400,
+            TelephonyUpdateEventType::EventCCallStateUpdate => 0x00000800,
             TelephonyUpdateEventType::EventSimActiveStateUpdate => 0x00001000,
         }
     }
@@ -437,6 +442,54 @@ impl Register {
         }
     }
 
+    pub fn execute_on_call_state_ex_change(&self, slot_id: i32, call_state_ex: i32) {
+        let inner = self.inner.lock().unwrap();
+        let argv = bridge::TelCallState::from(call_state_ex);
+        if inner.is_empty() {
+            telephony_error!("Callback vec is empty");
+            return;
+        }
+        for listen_item in inner.deref() {
+            if listen_item.event_type != TelephonyUpdateEventType::EventCallStateExUpdate
+                || listen_item.slot_id != slot_id
+            {
+                continue;
+            }
+ 
+            if let CallbackFlavor::CallStateExChange(func) = &listen_item.callback_ref {
+                func.execute((argv.clone(),));
+            } else {
+                telephony_error!("Execute is not CallStateExChange callback");
+            }
+        }
+    }
+ 
+    pub fn execute_on_ccall_state_change(
+        &self,
+        slot_id: i32,
+        call_state: wrapper::ffi::CallStateAni,
+    ) {
+        let inner = self.inner.lock().unwrap();
+        let argv = bridge::CCallStateInfo::from(call_state);
+        if inner.is_empty() {
+            telephony_error!("Callback vec is empty");
+            return;
+        }
+        for listen_item in inner.deref() {
+            if listen_item.event_type != TelephonyUpdateEventType::EventCCallStateUpdate
+                || listen_item.slot_id != slot_id
+            {
+                continue;
+            }
+ 
+            if let CallbackFlavor::CCallStateChange(func) = &listen_item.callback_ref {
+                func.execute((argv.clone(),));
+            } else {
+                telephony_error!("Execute is not CCallStateChange callback");
+            }
+        }
+    }
+
     pub fn execute_on_sim_active_state_change(&self, slot_id: i32, is_active: bool) {
         let inner = self.inner.lock().unwrap();
         if inner.is_empty() {
@@ -497,6 +550,14 @@ pub fn on_network_state_updated(slot_id: i32, network_state: wrapper::ffi::Netwo
 
 pub fn on_call_state_updated(slot_id: i32, call_state: wrapper::ffi::CallStateAni) {
     Register::get_instance().execute_on_call_state_change(slot_id, call_state);
+}
+
+pub fn on_call_state_ex_updated(slot_id: i32, call_state_ex: i32) {
+    Register::get_instance().execute_on_call_state_ex_change(slot_id, call_state_ex);
+}
+ 
+pub fn on_ccall_state_updated(slot_id: i32, call_state: wrapper::ffi::CallStateAni) {
+    Register::get_instance().execute_on_ccall_state_change(slot_id, call_state);
 }
 
 pub fn on_sim_active_state_updated(slot_id: i32, is_active: bool) {
