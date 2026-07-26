@@ -24,7 +24,6 @@ impl From<ffi::SignalInformationAni> for bridge::SignalInformation {
     }
 }
 
-
 impl From<ffi::CellInformationAni> for bridge::CellInformation {
     fn from(value: ffi::CellInformationAni) -> Self {
         let signal_information = bridge::SignalInformation::from(value.signal_information);
@@ -51,6 +50,15 @@ impl From<ffi::CallStateAni> for bridge::CallStateInfo {
     fn from(value: ffi::CallStateAni) -> Self {
         Self {
             state: bridge::CallState::from(value.state),
+            teleNumber: value.teleNumber,
+        }
+    }
+}
+
+impl From<ffi::CallStateAni> for bridge::CCallStateInfo {
+    fn from(value: ffi::CallStateAni) -> Self {
+        Self {
+            state: value.state,
             teleNumber: value.teleNumber,
         }
     }
@@ -99,6 +107,8 @@ pub(crate) mod ffi {
         fn on_cellular_data_connect_state_updated(slot_id: i32, data_state: i32, network_type: i32);
         fn on_network_state_updated(slot_id: i32, network_state: NetworkStateAni);
         fn on_call_state_updated(slot_id: i32, call_state: CallStateAni);
+        fn on_call_state_ex_updated(slot_id: i32, call_state_ex: i32);
+        fn on_ccall_state_updated(slot_id: i32, call_state: CallStateAni);
         fn on_sim_active_state_updated(slot_id: i32, is_active: bool);
     }
 
