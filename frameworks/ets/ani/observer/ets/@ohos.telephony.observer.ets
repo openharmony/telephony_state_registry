@@ -36,6 +36,7 @@ export default namespace observer {
   type CardType = sim.CardType;
   type SimState = sim.SimState;
   type CallState = call.CallState;
+  type TelCallState = call.TelCallState;
 
   export native function onCellularDataFlowChangeInner(callback: Callback<DataFlowType>): void;
   export native function onCellularDataFlowChangeOptionsInner(options: ObserverOptions, callback: Callback<DataFlowType>): void;
@@ -66,6 +67,12 @@ export default namespace observer {
   export native function onGetSimActiveState(slotId: int, callback: Callback<boolean>): void;
   export native function offGetSimActiveState(callback?: Callback<boolean>): void;
 
+  export native function onCallStateChangeEx(callback: Callback<TelCallState>): void;
+  export native function offCallStateChangeEx(callback?: Callback<TelCallState>): void;
+ 
+  export native function onCCallStateChange(callback: Callback<CCallStateInfo>): void;
+  export native function offCCallStateChange(callback?: Callback<CCallStateInfo>): void;
+  
   export function onCellularDataFlowChange(callback: Callback<DataFlowType>): void {
     onCellularDataFlowChangeInner(callback)
   }
@@ -125,7 +132,9 @@ export default namespace observer {
       onNetworkStateChangeOptions(options, callback as Callback<NetworkState>)
     } else if (type == 'callStateChange') {
       onCallStateChangeOptions(options, callback as Callback<CallStateInfo>)
-    } 
+    } else if (type == 'callStateChangeEx') {
+      onCallStateChangeEx(callback as Callback<TelCallState>)
+    }
   }
 
   export function off(type: string, callback?: Callback<Any>): void {
@@ -164,6 +173,12 @@ export default namespace observer {
         offCallStateChange()
       } else {
         offCallStateChange(callback as Callback<CallStateInfo>)
+      }
+    } else if (type == 'callStateChangeEx') {
+      if (callback == undefined) {
+        offCallStateChangeEx()
+      } else {
+        offCallStateChangeEx(callback as Callback<TelCallState>)
       }
     }
   }
@@ -221,6 +236,16 @@ export default namespace observer {
 
   export class CallStateInfoInner implements CallStateInfo {
     state: CallState;
+    teleNumber: string;
+  }
+
+  export interface CCallStateInfo {
+    state: int;
+    teleNumber: string;
+  }
+ 
+  export class CCallStateInfoInner implements CCallStateInfo {
+    state: int;
     teleNumber: string;
   }
 
