@@ -381,6 +381,10 @@ void FfiTelephonyObserver::OnNetworkStateUpdated(int32_t slotId, const sptr<Netw
 {
     TELEPHONY_LOGI(
         "OnNetworkStateUpdated slotId = %{public}d, networkState = %{public}d", slotId, networkState == nullptr);
+    if (networkState == nullptr) {
+        TELEPHONY_LOGE("networkState is nullptr");
+        return;
+    }
     std::unique_ptr<NetworkStateUpdateInfo> networkStateUpdateInfo =
         std::make_unique<NetworkStateUpdateInfo>(slotId, networkState);
     if (networkStateUpdateInfo == nullptr) {

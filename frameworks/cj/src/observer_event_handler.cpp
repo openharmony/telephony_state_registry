@@ -13,8 +13,11 @@
  * limitations under the License.
  */
 
+#include <new>
+
 #include "napi_radio_types.h"
 #include "observer_event_handler.h"
+#include "securec.h"
 #include "telephony_errors.h"
 #include "telephony_observer_impl.h"
 #include "telephony_state_manager.h"
@@ -321,27 +324,24 @@ void ObserverEventHandler::HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent
         return;
     }
 
-    std::unique_lock<std::mutex> lock(operatorMutex_);
-    for (const EventListener &listen : listenerList_) {
-        if ((listen.eventType == eventType) && (listen.slotId == info->slotId_)) {
-            uv_work_t *work = std::make_unique<uv_work_t>().release();
-            if (work == nullptr) {
-                TELEPHONY_LOGE("make work failed");
-                break;
+    std::vector<EventListener> snapshot;
+    {
+        std::unique_lock<std::mutex> lock(operatorMutex_);
+        for (const EventListener &listen : listenerList_) {
+            if ((listen.eventType == eventType) && (listen.slotId == info->slotId_)) {
+                snapshot.push_back(listen);
             }
-            D* data = new D(*info);
-            if (data == nullptr) {
-                TELEPHONY_LOGE("make work failed");
-                delete work;
-                work = nullptr;
-                break;
-            }
-            work->data = static_cast<void *>(data);
-            WorkUpdated(listen, work, lock);
-            delete data;
-            delete work;
-            work = nullptr;
         }
+    }
+
+    for (const EventListener &listen : snapshot) {
+        D* data = new (std::nothrow) D(*info);
+        if (data == nullptr) {
+            TELEPHONY_LOGE("make data failed");
+            continue;
+        }
+        WorkUpdated(listen, data);
+        delete data;
     }
 }
 
@@ -352,31 +352,23 @@ void ObserverEventHandler::HandleCallbackVoidUpdate(const AppExecFwk::InnerEvent
         TELEPHONY_LOGE("event nullptr");
         return;
     }
-    std::unique_lock<std::mutex> lock(operatorMutex_);
-    for (const EventListener &listen : listenerList_) {
-        if ((listen.eventType == eventType)) {
-            uv_work_t *work = std::make_unique<uv_work_t>().release();
-            if (work == nullptr) {
-                TELEPHONY_LOGE("make work failed");
-                break;
+    std::vector<EventListener> snapshot;
+    {
+        std::unique_lock<std::mutex> lock(operatorMutex_);
+        for (const EventListener &listen : listenerList_) {
+            if ((listen.eventType == eventType)) {
+                snapshot.push_back(listen);
             }
-            EventListener *listener = new EventListener();
-            listener->eventType = listen.eventType;
-            listener->slotId = listen.slotId;
-            listener->funcId = listen.funcId;
-            listener->callbackRef = listen.callbackRef;
-            listener->isDeleting = listen.isDeleting;
-            work->data = static_cast<void *>(listener);
-            WorkUpdated(listen, work, lock);
-            delete listener;
-            delete work;
-            work = nullptr;
         }
+    }
+
+    for (const EventListener &listen : snapshot) {
+        WorkUpdated(listen, nullptr);
     }
 }
 
 void ObserverEventHandler::WorkUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
     TELEPHONY_LOGD("ObserverEventHandler::WorkUpdated eventType is %{public}d", listener.eventType);
     if (listener.isDeleting == nullptr || *(listener.isDeleting)) {
@@ -386,34 +378,34 @@ void ObserverEventHandler::WorkUpdated(const EventListener &listener,
 
     switch (listener.eventType) {
         case TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE:
-            WorkCallStateUpdated(listener, work, lock);
+            WorkCallStateUpdated(listener, data);
             break;
         case TelephonyUpdateEventType::EVENT_SIGNAL_STRENGTHS_UPDATE:
-            WorkSignalUpdated(listener, work, lock);
+            WorkSignalUpdated(listener, data);
             break;
         case TelephonyUpdateEventType::EVENT_NETWORK_STATE_UPDATE:
-            WorkNetworkStateUpdated(listener, work, lock);
+            WorkNetworkStateUpdated(listener, data);
             break;
         case TelephonyUpdateEventType::EVENT_SIM_STATE_UPDATE:
-            WorkSimStateUpdated(listener, work, lock);
+            WorkSimStateUpdated(listener, data);
             break;
         case TelephonyUpdateEventType::EVENT_CELL_INFO_UPDATE:
-            WorkCellInfomationUpdated(listener, work, lock);
+            WorkCellInfomationUpdated(listener, data);
             break;
         case TelephonyUpdateEventType::EVENT_DATA_CONNECTION_UPDATE:
-            WorkCellularDataConnectStateUpdated(listener, work, lock);
+            WorkCellularDataConnectStateUpdated(listener, data);
             break;
         case TelephonyUpdateEventType::EVENT_CELLULAR_DATA_FLOW_UPDATE:
-            WorkCellularDataFlowUpdated(listener, work, lock);
+            WorkCellularDataFlowUpdated(listener, data);
             break;
         case TelephonyUpdateEventType::EVENT_CFU_INDICATOR_UPDATE:
-            WorkCfuIndicatorUpdated(listener, work, lock);
+            WorkCfuIndicatorUpdated(listener, data);
             break;
         case TelephonyUpdateEventType::EVENT_VOICE_MAIL_MSG_INDICATOR_UPDATE:
-            WorkVoiceMailMsgIndicatorUpdated(listener, work, lock);
+            WorkVoiceMailMsgIndicatorUpdated(listener, data);
             break;
         case TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE:
-            WorkIccAccountUpdated(listener, work, lock);
+            WorkIccAccountUpdated(listener, data);
             break;
         default:
             TELEPHONY_LOGE("ObserverEventHandler::WorkUpdated Unkonw Telephony UpdateEventType");
@@ -422,17 +414,17 @@ void ObserverEventHandler::WorkUpdated(const EventListener &listener,
 }
 
 void ObserverEventHandler::WorkCallStateUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
-    if (work == nullptr) {
-        TELEPHONY_LOGE("work is null");
+    if (data == nullptr) {
+        TELEPHONY_LOGE("data is null");
         return;
     }
-    if (work->data == nullptr) {
-        TELEPHONY_LOGE("work data is null");
+    if (!listener.callbackRef) {
+        TELEPHONY_LOGE("callbackRef is nullptr");
         return;
     }
-    CallStateUpdateInfo *callStateInfo = static_cast<CallStateUpdateInfo *>(work->data);
+    CallStateUpdateInfo *callStateInfo = static_cast<CallStateUpdateInfo *>(data);
     std::string phoneNumber = ToUtf8(callStateInfo->phoneNumber_);
     CCallStateInfo callbackValue = {
         .state = WrapCallState(callStateInfo->callState_),
@@ -443,17 +435,17 @@ void ObserverEventHandler::WorkCallStateUpdated(const EventListener &listener,
 }
 
 void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
-    if (work == nullptr) {
-        TELEPHONY_LOGE("work is null");
+    if (data == nullptr) {
+        TELEPHONY_LOGE("data is null");
         return;
     }
-    if (work->data == nullptr) {
-        TELEPHONY_LOGE("work data is null");
+    if (!listener.callbackRef) {
+        TELEPHONY_LOGE("callbackRef is nullptr");
         return;
     }
-    SignalUpdateInfo *infoListUpdateInfo = static_cast<SignalUpdateInfo *>(work->data);
+    SignalUpdateInfo *infoListUpdateInfo = static_cast<SignalUpdateInfo *>(data);
     size_t infoSize = infoListUpdateInfo->signalInfoList_.size();
     if (infoSize <= 0) {
         TELEPHONY_LOGE("signalInfoList_ size error");
@@ -465,14 +457,25 @@ void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
         TELEPHONY_LOGE("ObserverEventHandler::WorkSignalUpdated malloc CSignalInformation failed.");
         return;
     }
+    if (memset_s(head, sizeof(CSignalInformation) * infoSize, 0x00, sizeof(CSignalInformation) * infoSize) != EOK) {
+        TELEPHONY_LOGE("memset_s failed");
+        free(head);
+        return;
+    }
     CArraySignalInformation signalInformations = { .head = nullptr, .size = 0 };
+    size_t validCount = 0;
     for (size_t i = 0; i < infoSize; i++) {
         sptr<SignalInformation> infoItem = infoListUpdateInfo->signalInfoList_[i];
-        head[i].signalType = WrapNetworkType(infoItem->GetNetworkType());
-        head[i].signalLevel = infoItem->GetSignalLevel();
-        head[i].dBm = infoItem->GetSignalIntensity();
+        if (infoItem == nullptr) {
+            TELEPHONY_LOGE("infoItem is nullptr, index=%{public}zu", i);
+            continue;
+        }
+        head[validCount].signalType = WrapNetworkType(infoItem->GetNetworkType());
+        head[validCount].signalLevel = infoItem->GetSignalLevel();
+        head[validCount].dBm = infoItem->GetSignalIntensity();
+        validCount++;
     }
-    signalInformations.size = static_cast<int64_t>(infoSize);
+    signalInformations.size = static_cast<int64_t>(validCount);
     signalInformations.head = head;
     void* argv = &(signalInformations);
     listener.callbackRef(argv);
@@ -480,18 +483,22 @@ void ObserverEventHandler::WorkSignalUpdated(const EventListener &listener,
 }
 
 void ObserverEventHandler::WorkNetworkStateUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
-    if (work == nullptr) {
-        TELEPHONY_LOGE("work is null");
+    if (data == nullptr) {
+        TELEPHONY_LOGE("data is null");
         return;
     }
-    if (work->data == nullptr) {
-        TELEPHONY_LOGE("work data is null");
+    if (!listener.callbackRef) {
+        TELEPHONY_LOGE("callbackRef is nullptr");
         return;
     }
-    NetworkStateUpdateInfo *networkStateUpdateInfo = static_cast<NetworkStateUpdateInfo *>(work->data);
+    NetworkStateUpdateInfo *networkStateUpdateInfo = static_cast<NetworkStateUpdateInfo *>(data);
     const sptr<NetworkState> &networkState = networkStateUpdateInfo->networkState_;
+    if (networkState == nullptr) {
+        TELEPHONY_LOGE("networkState is nullptr");
+        return;
+    }
     std::string longOperatorName = networkState->GetLongOperatorName();
     std::string shortOperatorName = networkState->GetShortOperatorName();
     std::string plmnNumeric = networkState->GetPlmnNumeric();
@@ -516,17 +523,17 @@ void ObserverEventHandler::WorkNetworkStateUpdated(const EventListener &listener
 }
 
 void ObserverEventHandler::WorkSimStateUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
-    if (work == nullptr) {
-        TELEPHONY_LOGE("work is null");
+    if (data == nullptr) {
+        TELEPHONY_LOGE("data is null");
         return;
     }
-    if (work->data == nullptr) {
-        TELEPHONY_LOGE("work data is null");
+    if (!listener.callbackRef) {
+        TELEPHONY_LOGE("callbackRef is nullptr");
         return;
     }
-    SimStateUpdateInfo *simStateUpdateInfo = static_cast<SimStateUpdateInfo *>(work->data);
+    SimStateUpdateInfo *simStateUpdateInfo = static_cast<SimStateUpdateInfo *>(data);
     int32_t cardType = static_cast<int32_t>(simStateUpdateInfo->type_);
     int32_t simState = static_cast<int32_t>(simStateUpdateInfo->state_);
     int32_t lockReason = static_cast<int32_t>(simStateUpdateInfo->reason_);
@@ -540,26 +547,26 @@ void ObserverEventHandler::WorkSimStateUpdated(const EventListener &listener,
 }
 
 void ObserverEventHandler::WorkCellInfomationUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
-    if (work == nullptr) {
-        TELEPHONY_LOGE("work is null");
+    if (data == nullptr) {
+        TELEPHONY_LOGE("data is null");
         return;
     }
 }
 
 void ObserverEventHandler::WorkCellularDataConnectStateUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
-    if (work == nullptr) {
-        TELEPHONY_LOGE("work is null");
+    if (data == nullptr) {
+        TELEPHONY_LOGE("data is null");
         return;
     }
-    if (work->data == nullptr) {
-        TELEPHONY_LOGE("work data is null");
+    if (!listener.callbackRef) {
+        TELEPHONY_LOGE("callbackRef is nullptr");
         return;
     }
-    CellularDataConnectState *context = static_cast<CellularDataConnectState *>(work->data);
+    CellularDataConnectState *context = static_cast<CellularDataConnectState *>(data);
     CDataConnectionStateInfo callbackValue = {
         .state = context->dataState_,
         .network = context->networkType_
@@ -569,42 +576,46 @@ void ObserverEventHandler::WorkCellularDataConnectStateUpdated(const EventListen
 }
 
 void ObserverEventHandler::WorkCellularDataFlowUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
-    if (work == nullptr) {
-        TELEPHONY_LOGE("work is null");
+    if (data == nullptr) {
+        TELEPHONY_LOGE("data is null");
         return;
     }
-    if (work->data == nullptr) {
-        TELEPHONY_LOGE("work data is null");
+    if (!listener.callbackRef) {
+        TELEPHONY_LOGE("callbackRef is nullptr");
         return;
     }
-    CellularDataFlowUpdate *dataFlowInfo = static_cast<CellularDataFlowUpdate *>(work->data);
+    CellularDataFlowUpdate *dataFlowInfo = static_cast<CellularDataFlowUpdate *>(data);
     void* argv = &(dataFlowInfo->flowType_);
     listener.callbackRef(argv);
 }
 
 void ObserverEventHandler::WorkCfuIndicatorUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
-    if (work == nullptr) {
-        TELEPHONY_LOGE("work is null");
+    if (data == nullptr) {
+        TELEPHONY_LOGE("data is null");
         return;
     }
 }
 
 void ObserverEventHandler::WorkVoiceMailMsgIndicatorUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
-    if (work == nullptr) {
-        TELEPHONY_LOGE("work is null");
+    if (data == nullptr) {
+        TELEPHONY_LOGE("data is null");
         return;
     }
 }
 
 void ObserverEventHandler::WorkIccAccountUpdated(const EventListener &listener,
-    uv_work_t *work, std::unique_lock<std::mutex> &lock)
+    void *data)
 {
+    if (!listener.callbackRef) {
+        TELEPHONY_LOGE("callbackRef is nullptr");
+        return;
+    }
     void* argv = nullptr;
     listener.callbackRef(argv);
 }
