@@ -134,6 +134,7 @@ export default namespace observer {
       onCallStateChangeOptions(options, callback as Callback<CallStateInfo>)
     } else if (type == 'callStateChangeEx') {
       onCallStateChangeEx(callback as Callback<TelCallState>)
+    }
   }
 
   export function off(type: string, callback?: Callback<Any>): void {
