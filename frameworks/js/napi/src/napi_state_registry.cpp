@@ -70,7 +70,7 @@ static inline bool IsValidSlotIdEx(TelephonyUpdateEventType eventType, int32_t s
         defaultSlotId = -1;
     }
     // One more slot for VSim.
-    return (((slotId >= defaultSlotId) && (slotId < SIM_SLOT_COUNT + 1)) ||
+    return (((slotId >= defaultSlotId) && (slotId <= SIM_SLOT_COUNT + 1)) ||
         (slotId == SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT));
 }
 
