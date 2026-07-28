@@ -96,30 +96,31 @@ void TelephonyStateRegistryDumpHelper::ShowTelephonyChangeState(std::string &res
     result.append(std::to_string(service->GetServiceRunningState()));
     result.append("\n");
     for (int32_t i = 0; i < SIM_SLOT_COUNT; i++) {
-        if (WhetherHasSimCard(i)) {
+        int32_t slot = i >= SIM_SLOT_2 ? i + 1 : i;
+        if (WhetherHasSimCard(slot)) {
             result.append("SlotId = ");
-            result.append(std::to_string(i));
+            result.append(std::to_string(slot));
             result.append("\n");
             result.append("SimState = ");
-            result.append(GetSimState(service->GetSimState(i)));
+            result.append(GetSimState(service->GetSimState(slot)));
             result.append("\n");
             result.append("CardType = ");
-            result.append(GetCardType(service->GetCardType(i)));
+            result.append(GetCardType(service->GetCardType(slot)));
             result.append("\n");
             result.append("LockReason = ");
-            result.append(GetLockReason(service->GetLockReason(i)));
+            result.append(GetLockReason(service->GetLockReason(slot)));
             result.append("\n");
             result.append("CallState = ");
-            result.append(GetCallState(service->GetCallState(i)));
+            result.append(GetCallState(service->GetCallState(slot)));
             result.append("\n");
             result.append("CellularDataConnectionState = ");
-            result.append(GetCellularDataConnectionState(service->GetCellularDataConnectionState(i)));
+            result.append(GetCellularDataConnectionState(service->GetCellularDataConnectionState(slot)));
             result.append("\n");
             result.append("CellularDataFlow = ");
-            result.append(GetCellularDataFlow(service->GetCellularDataFlow(i)));
+            result.append(GetCellularDataFlow(service->GetCellularDataFlow(slot)));
             result.append("\n");
             result.append("CellularDataConnectionNetworkType = ");
-            result.append(GetCellularDataConnectionNetworkType(service->GetCellularDataConnectionNetworkType(i)));
+            result.append(GetCellularDataConnectionNetworkType(service->GetCellularDataConnectionNetworkType(slot)));
             result.append("\n");
         }
     }
