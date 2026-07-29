@@ -49,6 +49,9 @@ TelephonyStateRegistryService::TelephonyStateRegistryService()
         slotSize_ = MAX_SLOT_COUNT;
     }
 #endif
+    if (SIM_SLOT_COUNT > DUAL_SLOT_COUNT) {
+        slotSize_ = SIM_SLOT_COUNT + 1;
+    }
     TELEPHONY_LOGI("TelephonyStateRegistryService SystemAbility create, slotSize_: %{public}d", slotSize_);
     std::unique_lock<std::shared_mutex> lock(lock_);
     for (int32_t i = 0; i < slotSize_; i++) {
@@ -557,7 +560,7 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     if (!CheckPermission(mask)) {
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
     }
-    if ((slotId > MAX_SLOT_COUNT || slotId < -1) &&
+    if ((slotId > MAX_SLOT_COUNT + 1 || slotId < -1) &&
         slotId != SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT) {
         return TELEPHONY_SUCCESS;
     }
