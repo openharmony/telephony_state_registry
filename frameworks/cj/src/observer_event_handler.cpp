@@ -128,6 +128,8 @@ int32_t WrapRadioTech(int32_t radioTechType)
             return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_IWLAN);
         case RadioTech::RADIO_TECHNOLOGY_NR:
             return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_NR);
+        case RadioTech::RADIO_TECHNOLOGY_NR_ENHANCED:
+            return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_NR_ENHANCED);
         default:
             return static_cast<int32_t>(RatType::RADIO_TECHNOLOGY_UNKNOWN);
     }
