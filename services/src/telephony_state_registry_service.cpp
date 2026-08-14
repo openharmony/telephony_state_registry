@@ -30,6 +30,9 @@
 #include "telephony_state_registry_dump_helper.h"
 #include "telephony_types.h"
 #include "telephony_ext_wrapper.h"
+#include "accesstoken_kit.h"
+#include "ipc_skeleton.h"
+#include "tokenid_kit.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -549,6 +552,21 @@ bool TelephonyStateRegistryService::CheckCallerIsSystemApp(uint32_t mask)
     return true;
 }
 
+bool TelephonyStateRegistryService::IsMultiSimsCapabilitySupported(int32_t slotId)
+{
+    if (slotId < MAX_SLOT_COUNT) {
+        return true;
+    }
+    auto callerToken = IPCSkeleton::GetCallingTokenID();
+    auto tokenType = Security::AccessToken::AccessTokenKit::GetTokenTypeFlag(callerToken);
+    if (tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_NATIVE ||
+        tokenType == Security::AccessToken::ATokenTypeEnum::TOKEN_SHELL) {
+        return true;
+    }
+    auto selfToken = IPCSkeleton::GetCallingFullTokenID();
+    return Security::AccessToken::TokenIdKit::IsSystemAppByFullTokenID(selfToken);
+}
+
 int32_t TelephonyStateRegistryService::RegisterStateChange(
     const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId,
     uint32_t mask, const std::string &bundleName, bool isUpdate, pid_t pid, int32_t uid, int32_t tokenId,
@@ -559,6 +577,9 @@ int32_t TelephonyStateRegistryService::RegisterStateChange(
     }
     if (!CheckPermission(mask)) {
         return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
+    if (!IsMultiSimsCapabilitySupported(slotId)) {
+        return TELEPHONY_SUCCESS;
     }
     if ((slotId > MAX_SLOT_COUNT + 1 || slotId < -1) &&
         slotId != SIM_SLOT_ID_FOR_DEFAULT_CONN_EVENT) {
