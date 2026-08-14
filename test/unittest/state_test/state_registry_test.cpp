@@ -1072,6 +1072,8 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistryServiceTest_004, Function | Me
     EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0, 0, ""));
     service->stateRecords_[0].slotId_ = 1;
     EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0, 0, ""));
+    service->stateRecords_[0].slotId_ = 2;
+    EXPECT_EQ(TELEPHONY_SUCCESS, service->RegisterStateChange(telephonyObserver, 0, 0, "", true, 0, 0, 0, ""));
 }
 
 /**
@@ -1356,12 +1358,12 @@ HWTEST_F(StateRegistryTest, TelephonyStateRegistrySimCountTest_001, Function | M
     auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
 
     ASSERT_TRUE(service != nullptr);
-    service->slotSize_ = MAX_SLOT_COUNT;
+    service->slotSize_ = 2;
     EXPECT_TRUE(service->VerifySlotId(0));
     EXPECT_TRUE(service->VerifySlotId(1));
-    EXPECT_TRUE(service->VerifySlotId(2));
-    EXPECT_FALSE(service->VerifySlotId(3));
     EXPECT_FALSE(service->VerifySlotId(-1));
+    service->slotSize_ = 3;
+    EXPECT_TRUE(service->VerifySlotId(3));
 }
 
 /**

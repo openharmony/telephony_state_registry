@@ -79,6 +79,7 @@ private:
 
 private:
     bool CheckCallerIsSystemApp(uint32_t mask);
+    bool IsMultiSimsCapabilitySupported(int32_t slotId);
     bool CheckPermission(uint32_t mask);
     bool VerifySlotId(int32_t slotId);
     std::u16string GetCallIncomingNumberForSlotId(TelephonyStateRegistryRecord record, int32_t slotId);
