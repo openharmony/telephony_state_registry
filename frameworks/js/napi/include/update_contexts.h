@@ -134,7 +134,22 @@ struct SimActiveStateContext : EventListener {
     }
 };
 
-staads 
+struct VoIPCallStateContext : EventListener {
+    std::string appName;
+    std::string contactName;
+    VoIPCallType callType;
+    VoIPCallState callState;
+    bool isVoiceAnswerSupported;
+    VoIPCallStateContext &operator=(const VoIPCallStateUpdateInfo &info)
+    {
+        appName = info.appName_;
+        contactName = info.contactName_;
+        callType = info.callType_;
+        callState = info.callState_;
+        isVoiceAnswerSupported = info.isVoiceAnswerSupported_;
+        return *this;
+    }
+};
 } // namespace Telephony
 } // namespace OHOS
 #endif // UPDATE_CONTEXTS_H
