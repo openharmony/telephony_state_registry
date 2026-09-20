@@ -54,6 +54,8 @@ void TelephonyObserver::OnCCallStateUpdated(
 
 void TelephonyObserver::OnSimActiveStateUpdated(int32_t slotId, bool enable) {}
 
+voids
+
 TelephonyObserver::TelephonyObserver()
 {
     memberFuncMap_[static_cast<uint32_t>(ObserverBrokerCode::ON_CALL_STATE_UPDATED)] =

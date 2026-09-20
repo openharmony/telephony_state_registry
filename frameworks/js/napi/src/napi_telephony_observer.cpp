@@ -181,5 +181,7 @@ void NapiTelephonyObserver::OnSimActiveStateUpdated(int32_t slotId, bool enable)
     EventListenerManager::SendEvent(
         ToUint32t(TelephonyCallbackEventId::EVENT_ON_SIM_ACTIVE_STATE_UPDATE), simActiveStateUpdateInfo);
 }
+
+void
 } // namespace Telephony
 } // namespace OHOS

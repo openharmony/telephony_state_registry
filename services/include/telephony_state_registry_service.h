@@ -29,6 +29,7 @@
 #include "telephony_state_registry_record.h"
 #include "telephony_state_registry_stub.h"
 #include "sim_state_type.h"
+#include 
 
 namespace OHOS {
 namespace Telephony {

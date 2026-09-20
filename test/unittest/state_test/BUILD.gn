@@ -66,6 +66,7 @@ ohos_unittest("tel_state_registry_branch_test") {
   sources = [
     "$SOURCE_DIR/test/mock/mock_telephony_permission.cpp",
     "$SOURCE_DIR/test/unittest/state_test/state_registry_branch_test.cpp",
+    ""
   ]
 
   include_dirs = [

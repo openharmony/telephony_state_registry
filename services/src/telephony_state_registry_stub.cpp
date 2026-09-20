@@ -61,6 +61,7 @@ TelephonyStateRegistryStub::TelephonyStateRegistryStub()
         [this](MessageParcel &data, MessageParcel &reply) { return OnIccAccountUpdated(data, reply); };
     memberFuncMap_[StateNotifyInterfaceCode::SIM_ACTIVR_STATE] =
         [this](MessageParcel &data, MessageParcel &reply) { return OnSimActiveStateUpdated(data, reply); };
+    mem
 }
 
 TelephonyStateRegistryStub::~TelephonyStateRegistryStub()

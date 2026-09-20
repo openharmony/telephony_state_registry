@@ -52,6 +52,7 @@ const std::map<std::string_view, TelephonyUpdateEventType> eventMap {
     { "callStateChangeEx", TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE },
     { "cCallStateChange", TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE },
     { "simActiveStateChange", TelephonyUpdateEventType::EVENT_SIM_ACTIVE_STATE },
+    {}
 };
 
 TelephonyUpdateEventType GetEventType(std::string_view event)

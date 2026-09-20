@@ -310,6 +310,8 @@ int32_t TelephonyStateRegistryService::UpdateSimState(int32_t slotId, CardType t
     return result;
 }
 
+int32_t
+
 __attribute__((no_sanitize("cfi")))
 int32_t TelephonyStateRegistryService::UpdateSignalInfo(int32_t slotId, const std::vector<sptr<SignalInformation>> &vec)
 {

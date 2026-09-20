@@ -378,6 +378,7 @@ void EventListenerHandler::AddBasicHandlerToMap()
             HandleCallbackInfoUpdate<CallStateContext, CallStateUpdateInfo,
                 TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE>(event);
         };
+    handle
     AddSimActiveStateHandlerToMap();
 }
 
@@ -427,6 +428,7 @@ void EventListenerHandler::AddWorkFuncToMap()
     workFuncMap_[TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE] = &EventListenerHandler::WorkIccAccountUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE] = &EventListenerHandler::WorkCCallStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIM_ACTIVE_STATE] = &EventListenerHandler::WorkSimActiveUpdated;
+    work
 }
 
 void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
