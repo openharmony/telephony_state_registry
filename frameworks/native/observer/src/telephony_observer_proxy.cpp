@@ -18,7 +18,7 @@
 
 #include "parcel.h"
 #include "string_ex.h"
-#include 
+#include "voip_call_state_info.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -295,6 +295,26 @@ void TelephonyObserverProxy::OnSimActiveStateUpdated(int32_t slotId, bool enable
     auto code = SendRequest(
         static_cast<int32_t>(ObserverBrokerCode::ON_SIM_ACTIVE_STATE_UPDATED), dataParcel, replyParcel, option);
     TELEPHONY_LOGI("TelephonyObserverProxy::OnSimActiveStateUpdated##error: %{public}d.", code);
+}
+
+void TelephonyObserverProxy::OnVoIPStateUpdated(const VoIPCallStateInfo &info)
+{
+    MessageOption option;
+    MessageParcel dataParcel;
+    MessageParcel replyParcel;
+    option.SetFlags(MessageOption::TF_ASYNC);
+    if (!dataParcel.WriteInterfaceToken(GetDescriptor())) {
+        TELEPHONY_LOGE("TelephonyObserverProxy::OnVoIPStateUpdated WriteInterfaceToken failed!");
+        return;
+    }
+    dataParcel.WriteString(info.appName);
+    dataParcel.WriteString(info.contactName);
+    dataParcel.WriteInt32(static_cast<int32_t>(info.callType));
+    dataParcel.WriteInt32(static_cast<int32_t>(info.callState));
+    dataParcel.WriteBool(info.isVoiceAnswerSupported);
+    auto code = SendRequest(
+        static_cast<int32_t>(ObserverBrokerCode::ON_VOIP_STATE_UPDATED), dataParcel, replyParcel, option);
+    TELEPHONY_LOGI("TelephonyObserverProxy::OnVoIPStateUpdated##error: %{public}d.", code);
 }
 } // namespace Telephony
 } // namespace OHOS
