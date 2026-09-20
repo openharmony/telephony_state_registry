@@ -378,12 +378,8 @@ void EventListenerHandler::AddBasicHandlerToMap()
             HandleCallbackInfoUpdate<CallStateContext, CallStateUpdateInfo,
                 TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE>(event);
         };
-    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_VOIP_CALL_STATE_UPDATE] =
-        [this](const AppExecFwk::InnerEvent::Pointer &event) {
-            HandleCallbackInfoUpdate<VoIPCallStateContext, VoIPCallStateUpdateInfo,
-                TelephonyUpdateEventType::EVENT_VOIP_CALL_STATE_UPDATE>(event);
-        };
     AddSimActiveStateHandlerToMap();
+    AddVoIPStateHandlerToMap();
 }
 
 void EventListenerHandler::AddSimActiveStateHandlerToMap()
@@ -392,6 +388,15 @@ void EventListenerHandler::AddSimActiveStateHandlerToMap()
         [this](const AppExecFwk::InnerEvent::Pointer &event) {
             HandleCallbackInfoUpdate<SimActiveStateContext, SimActiveStateUpdate,
                 TelephonyUpdateEventType::EVENT_SIM_ACTIVE_STATE>(event);
+        };
+}
+
+void EventListenerHandler::AddVoIPStateHandlerToMap()
+{
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_VOIP_CALL_STATE_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<VoIPCallStateContext, VoIPCallStateUpdateInfo,
+                TelephonyUpdateEventType::EVENT_VOIP_CALL_STATE_UPDATE>(event);
         };
 }
 
