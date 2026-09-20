@@ -930,10 +930,6 @@ declare namespace observer {
      */
     SIM_SIM_PUK,
   }
-
-  /**
-   * 
-   */
 }
 
 export default observer;
