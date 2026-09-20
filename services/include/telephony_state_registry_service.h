@@ -29,7 +29,7 @@
 #include "telephony_state_registry_record.h"
 #include "telephony_state_registry_stub.h"
 #include "sim_state_type.h"
-#include 
+#include "voip_call_state_info.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -60,6 +60,7 @@ public:
     int32_t UpdateVoiceMailMsgIndicator(int32_t slotId, bool voiceMailMsgResult) override;
     int32_t UpdateIccAccount() override;
     int32_t UpdateSimActiveState(int32_t slotId, bool activeStateResult) override;
+    int32_t UpdateVoIPCallState(const VoIPCallStateInfo &info) override;
     int32_t RegisterStateChange(const sptr<TelephonyObserverBroker> &telephonyObserver, int32_t slotId, uint32_t mask,
         const std::string &bundleName, bool notifyNow, pid_t pid, int32_t uid, int32_t tokenId,
         const std::string &appIdentifier) override;
