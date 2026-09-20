@@ -23,7 +23,7 @@
 #include "telephony_log_wrapper.h"
 #include "i_telephony_state_notify.h"
 #include "state_registry_ipc_interface_code.h"
-#include 
+#include "voip_call_state_info.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -68,6 +68,7 @@ private:
     int32_t OnUpdateVoiceMailMsgIndicator(MessageParcel &data, MessageParcel &reply);
     int32_t OnIccAccountUpdated(MessageParcel &data, MessageParcel &reply);
     int32_t OnSimActiveStateUpdated(MessageParcel &data, MessageParcel &reply);
+    int32_t OnUpdateVoIPCallState(MessageParcel &data, MessageParcel &reply);
     int32_t SetTimer(uint32_t code);
     void CancelTimer(int32_t id);
 
