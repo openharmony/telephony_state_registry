@@ -20,7 +20,7 @@
 
 #include "telephony_log_wrapper.h"
 #include "telephony_observer_broker.h"
-#include ""
+#include "voip_call_state_info.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -49,6 +49,7 @@ public:
     void OnIccAccountUpdated();
     void OnCCallStateUpdated(int32_t slotId, int32_t callState, const std::u16string &phoneNumber);
     void OnSimActiveStateUpdated(int32_t slotId, bool enable);
+    void OnVoIPStateUpdated(const VoIPCallStateInfo &info);
 
 private:
     int32_t SendRequest(int32_t msgId, MessageParcel &dataParcel, MessageParcel &replyParcel, MessageOption &option);
