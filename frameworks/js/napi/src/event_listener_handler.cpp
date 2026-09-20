@@ -378,7 +378,11 @@ void EventListenerHandler::AddBasicHandlerToMap()
             HandleCallbackInfoUpdate<CallStateContext, CallStateUpdateInfo,
                 TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE>(event);
         };
-    handle
+    handleFuncMap_[TelephonyCallbackEventId::EVENT_ON_VOIP_CALL_STATE_UPDATE] =
+        [this](const AppExecFwk::InnerEvent::Pointer &event) {
+            HandleCallbackInfoUpdate<VoIPCallStateContext, VoIPCallStateUpdateInfo,
+                TelephonyUpdateEventType::EVENT_VOIP_CALL_STATE_UPDATE>(event);
+        };
     AddSimActiveStateHandlerToMap();
 }
 
@@ -428,7 +432,8 @@ void EventListenerHandler::AddWorkFuncToMap()
     workFuncMap_[TelephonyUpdateEventType::EVENT_ICC_ACCOUNT_CHANGE] = &EventListenerHandler::WorkIccAccountUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE] = &EventListenerHandler::WorkCCallStateUpdated;
     workFuncMap_[TelephonyUpdateEventType::EVENT_SIM_ACTIVE_STATE] = &EventListenerHandler::WorkSimActiveUpdated;
-    work
+    workFuncMap_[TelephonyUpdateEventType::EVENT_VOIP_CALL_STATE_UPDATE] =
+        &EventListenerHandler::WorkVoIPStateUpdated;
 }
 
 void EventListenerHandler::ProcessEvent(const AppExecFwk::InnerEvent::Pointer &event)
@@ -1086,6 +1091,39 @@ void EventListenerHandler::WorkCCallStateUpdated(uv_work_t *work, std::unique_lo
     SetPropertyToNapiObject(callStateInfo->env, callbackValue, "state", callStateInfo->callState);
     SetPropertyToNapiObject(callStateInfo->env, callbackValue, "teleNumber", number);
     NapiReturnToJS(callStateInfo->env, callStateInfo->callbackRef, callbackValue, lock);
+    napi_close_handle_scope(env, scope);
+}
+
+void EventListenerHandler::WorkVoIPStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock)
+{
+    if (work == nullptr) {
+        TELEPHONY_LOGE("work is null");
+        return;
+    }
+    std::unique_ptr<VoIPCallStateContext> voipCallStateInfo(static_cast<VoIPCallStateContext *>(work->data));
+    if (voipCallStateInfo == nullptr) {
+        TELEPHONY_LOGE("voipCallStateInfo is null");
+        return;
+    }
+    const napi_env &env = voipCallStateInfo->env;
+    napi_handle_scope scope = nullptr;
+    napi_status status = napi_open_handle_scope(env, &scope);
+    if (status != napi_ok || scope == nullptr) {
+        TELEPHONY_LOGE("napi open handle scope failed");
+        lock.unlock();
+        return;
+    }
+    napi_value callbackValue = nullptr;
+    napi_create_object(voipCallStateInfo->env, &callbackValue);
+    SetPropertyToNapiObject(voipCallStateInfo->env, callbackValue, "appName", voipCallStateInfo->appName);
+    SetPropertyToNapiObject(voipCallStateInfo->env, callbackValue, "contactName", voipCallStateInfo->contactName);
+    SetPropertyToNapiObject(voipCallStateInfo->env, callbackValue, "callType",
+        static_cast<int32_t>(voipCallStateInfo->callType));
+    SetPropertyToNapiObject(voipCallStateInfo->env, callbackValue, "callState",
+        static_cast<int32_t>(voipCallStateInfo->callState));
+    SetPropertyToNapiObject(voipCallStateInfo->env, callbackValue, "isVoiceAnswerSupported",
+        voipCallStateInfo->isVoiceAnswerSupported);
+    NapiReturnToJS(voipCallStateInfo->env, voipCallStateInfo->callbackRef, callbackValue, lock);
     napi_close_handle_scope(env, scope);
 }
 } // namespace Telephony
