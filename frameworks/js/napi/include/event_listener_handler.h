@@ -64,6 +64,7 @@ private:
 private:
     void AddBasicHandlerToMap();
     void AddSimActiveStateHandlerToMap();
+    void AddVoIPStateHandlerToMap();
     void AddNetworkHandlerToMap();
     void AddWorkFuncToMap();
     bool IsCallBackRegister(napi_env env, napi_ref ref, napi_ref registeredRef) const;
