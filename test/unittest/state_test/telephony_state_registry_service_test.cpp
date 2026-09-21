@@ -12,31 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-/*
- * Branch coverage design:
- *
- * TelephonyStateRegistryService::CheckPermission (5 outer mask ifs + 5 inner permission ifs,
- * 20 branches in total, covered 20/20 = 100% by _001.._008):
- *   _001 all mask bits with all permissions granted (outer true x5, inner false x5)
- *   _002 mask is 0 (outer false x5, no permission check at all)
- *   _003 NETWORK_STATE bit with GET_NETWORK_INFO denied (inner1 true)
- *   _004 COMMUNICATION_STATE bit with GET_NETWORK_INFO denied (inner1 true)
- *   _005 CELL_INFO bit with CELL_LOCATION denied (inner2 true)
- *   _006 CCALL_STATE bit with MANAGE_CALL_FOR_DEVICES denied (inner3 true)
- *   _007 VOIP_CALL_STATE bit with MANAGE_CALL_FOR_DEVICES denied (inner4 true)
- *   _008 SIM_ACTIVE_STATE bit with SET_TELEPHONY_STATE denied (inner5 true)
- *
- * TelephonyStateRegistryService::UpdateVoIPCallState (10 branches in total):
- *   permission if T/F: _001 / _002.._006
- *   loop condition 0/1 iteration: _002 / _003.._006
- *   3-condition if: C1 IsExistStateListener T/F: _005-_006 / _003-_004
- *                    C2 observer != nullptr: true covered by _005/_006; false-side unreachable
- *                    (C1 true already implies observer non-null, && short-circuits)
- *                    C3 CanManageCallForDevices T/F: _006 / _005
- *   Covered 9/10 = 90% (the only uncovered branch is a defensive dead condition).
- */
- 
+
 #define private public
 #define protected public
  
