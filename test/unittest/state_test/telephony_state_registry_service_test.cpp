@@ -183,10 +183,14 @@ HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_CheckP
     ASSERT_NE(service, nullptr);
     ASSERT_TRUE(permission_ != nullptr);
     EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*permission_, CheckPermission(Permission::GET_NETWORK_INFO)).Times(AtLeast(1)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*permission_, CheckPermission(Permission::CELL_LOCATION)).Times(AtLeast(1)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*permission_, CheckPermission(Permission::MANAGE_CALL_FOR_DEVICES)).Times(AtLeast(2)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*permission_, CheckPermission(Permission::SET_TELEPHONY_STATE)).Times(AtLeast(1)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*permission_, CheckPermission(
+        Permission::GET_NETWORK_INFO)).Times(AtLeast(1)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*permission_, CheckPermission(
+        Permission::CELL_LOCATION)).Times(AtLeast(1)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*permission_, CheckPermission(
+        Permission::MANAGE_CALL_FOR_DEVICES)).Times(AtLeast(2)).WillRepeatedly(Return(true));
+    EXPECT_CALL(*permission_, CheckPermission(
+        Permission::SET_TELEPHONY_STATE)).Times(AtLeast(1)).WillRepeatedly(Return(true));
     uint32_t mask = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE |
         TelephonyObserverBroker::OBSERVER_MASK_COMMUNICATION_STATE |
         TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO | TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE |
@@ -222,7 +226,8 @@ HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_CheckP
     ASSERT_NE(service, nullptr);
     ASSERT_TRUE(permission_ != nullptr);
     EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*permission_, CheckPermission(Permission::GET_NETWORK_INFO)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*permission_, CheckPermission(
+        Permission::GET_NETWORK_INFO)).WillRepeatedly(Return(false));
     EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE));
 }
  
@@ -270,7 +275,8 @@ HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_CheckP
     ASSERT_NE(service, nullptr);
     ASSERT_TRUE(permission_ != nullptr);
     EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*permission_, CheckPermission(Permission::MANAGE_CALL_FOR_DEVICES)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*permission_, CheckPermission(
+        Permission::MANAGE_CALL_FOR_DEVICES)).WillRepeatedly(Return(false));
     EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE));
 }
  
@@ -286,7 +292,8 @@ HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_CheckP
     ASSERT_NE(service, nullptr);
     ASSERT_TRUE(permission_ != nullptr);
     EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*permission_, CheckPermission(Permission::MANAGE_CALL_FOR_DEVICES)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*permission_, CheckPermission(
+        Permission::MANAGE_CALL_FOR_DEVICES)).WillRepeatedly(Return(false));
     EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_VOIP_CALL_STATE));
 }
  
@@ -302,7 +309,8 @@ HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_CheckP
     ASSERT_NE(service, nullptr);
     ASSERT_TRUE(permission_ != nullptr);
     EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*permission_, CheckPermission(Permission::SET_TELEPHONY_STATE)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*permission_, CheckPermission(
+        Permission::SET_TELEPHONY_STATE)).WillRepeatedly(Return(false));
     EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE));
 }
  
@@ -318,7 +326,8 @@ HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_Update
     ASSERT_NE(service, nullptr);
     ASSERT_TRUE(permission_ != nullptr);
     service->stateRecords_.clear();
-    EXPECT_CALL(*permission_, CheckPermission(Permission::SET_TELEPHONY_STATE)).WillRepeatedly(Return(false));
+    EXPECT_CALL(*permission_, CheckPermission(
+        Permission::SET_TELEPHONY_STATE)).WillRepeatedly(Return(false));
     auto result = service->UpdateVoIPCallState(BuildVoipInfo());
     EXPECT_EQ(result, TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED);
 }
