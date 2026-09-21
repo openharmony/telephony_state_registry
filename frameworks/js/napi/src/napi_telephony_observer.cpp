@@ -188,7 +188,7 @@ void NapiTelephonyObserver::OnVoIPStateUpdated(const VoIPCallStateInfo &info)
     TELEPHONY_LOGI("OnVoIPStateUpdated callState = %{public}d, callType = %{public}d",
         static_cast<int32_t>(info.callState), static_cast<int32_t>(info.callType));
     std::unique_ptr<VoIPCallStateUpdateInfo> voipCallStateUpdateInfo =
-        std::make_unique<VoIPCallStateUpdateInfo>(DEFAULT_SIM_SLOT_ID, info.appName, info.contactName,
+        std::make_unique<VoIPCallStateUpdateInfo>(-1, info.appName, info.contactName,
             info.callType, info.callState, info.isVoiceAnswerSupported);
     if (voipCallStateUpdateInfo == nullptr) {
         TELEPHONY_LOGE("voipCallStateUpdateInfo is nullptr!");
