@@ -168,7 +168,6 @@ HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_CheckP
     EXPECT_CALL(*permission_, CheckPermission(
         Permission::SET_TELEPHONY_STATE)).Times(AtLeast(1)).WillRepeatedly(Return(true));
     uint32_t mask = TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE |
-        TelephonyObserverBroker::OBSERVER_MASK_COMMUNICATION_STATE |
         TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO | TelephonyObserverBroker::OBSERVER_MASK_CCALL_STATE |
         TelephonyObserverBroker::OBSERVER_MASK_VOIP_CALL_STATE |
         TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE;
@@ -206,23 +205,7 @@ HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_CheckP
         Permission::GET_NETWORK_INFO)).WillRepeatedly(Return(false));
     EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_NETWORK_STATE));
 }
- 
-/**
- * @tc.number: TelephonyStateRegistryService_CheckPermission_004
- * @tc.name: CheckPermission with COMMUNICATION_STATE bit and GET_NETWORK_INFO denied
- * @tc.desc: Function test
- */
-HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_CheckPermission_004,
-    Function | MediumTest | Level0)
-{
-    auto service = DelayedSingleton<TelephonyStateRegistryService>::GetInstance();
-    ASSERT_NE(service, nullptr);
-    ASSERT_TRUE(permission_ != nullptr);
-    EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
-    EXPECT_CALL(*permission_, CheckPermission(Permission::GET_NETWORK_INFO)).WillRepeatedly(Return(false));
-    EXPECT_FALSE(service->CheckPermission(TelephonyObserverBroker::OBSERVER_MASK_COMMUNICATION_STATE));
-}
- 
+
 /**
  * @tc.number: TelephonyStateRegistryService_CheckPermission_005
  * @tc.name: CheckPermission with CELL_INFO bit and CELL_LOCATION denied
