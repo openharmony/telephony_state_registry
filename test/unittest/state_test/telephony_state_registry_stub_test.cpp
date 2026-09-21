@@ -12,20 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-/*
- * Branch coverage design for TelephonyStateRegistryStub::OnUpdateVoIPCallState:
- * The verification if-statement contains 4 short-circuit conditions:
- *   C1: callType < VOIP_CALL_TYPE_MIN   C2: callType > VOIP_CALL_TYPE_MAX
- *   C3: callState < VOIP_CALL_STATE_MIN C4: callState > VOIP_CALL_STATE_MAX
- * Total 8 branches (4 conditions x true/false), all covered by 6 cases:
- *   _001 C1=true (callType = -1)        _002 C2=true (callType = 4)
- *   _003 C3=true (callState = -1)       _004 C4=true (callState = 9)
- *   _005 all-false with enum lower bound (type 0/state 0), permission granted
- *   _006 all-false with enum upper bound (type 3/state 8), permission denied
- * Coverage: 8/8 = 100%.
- */
- 
+
 #define private public
 #define protected public
  
@@ -133,7 +120,8 @@ HWTEST_F(TelephonyStateRegistryStubTest, TelephonyStateRegistryStub_OnUpdateVoIP
     ASSERT_NE(service, nullptr);
     MessageParcel data;
     MessageParcel reply;
-    WriteVoipCallStateParcel(data, static_cast<int32_t>(VoIPCallType::VOICE_ONE_TO_ONE), INVALID_CALL_STATE_BELOW, true);
+    WriteVoipCallStateParcel(data,
+        static_cast<int32_t>(VoIPCallType::VOICE_ONE_TO_ONE), INVALID_CALL_STATE_BELOW, true);
     auto result = service->OnUpdateVoIPCallState(data, reply);
     EXPECT_EQ(result, TELEPHONY_ERR_ARGUMENT_INVALID);
     EXPECT_EQ(reply.ReadInt32(), TELEPHONY_ERR_ARGUMENT_INVALID);
@@ -151,7 +139,8 @@ HWTEST_F(TelephonyStateRegistryStubTest, TelephonyStateRegistryStub_OnUpdateVoIP
     ASSERT_NE(service, nullptr);
     MessageParcel data;
     MessageParcel reply;
-    WriteVoipCallStateParcel(data, static_cast<int32_t>(VoIPCallType::VIDEO_CONFERENCE), INVALID_CALL_STATE_ABOVE, true);
+    WriteVoipCallStateParcel(data,
+        static_cast<int32_t>(VoIPCallType::VIDEO_CONFERENCE), INVALID_CALL_STATE_ABOVE, true);
     auto result = service->OnUpdateVoIPCallState(data, reply);
     EXPECT_EQ(result, TELEPHONY_ERR_ARGUMENT_INVALID);
     EXPECT_EQ(reply.ReadInt32(), TELEPHONY_ERR_ARGUMENT_INVALID);
