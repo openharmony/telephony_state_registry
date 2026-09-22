@@ -52,6 +52,7 @@ const std::map<std::string_view, TelephonyUpdateEventType> eventMap {
     { "callStateChangeEx", TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE },
     { "cCallStateChange", TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE },
     { "simActiveStateChange", TelephonyUpdateEventType::EVENT_SIM_ACTIVE_STATE },
+    { "voipStateChange", TelephonyUpdateEventType::EVENT_VOIP_CALL_STATE_UPDATE },
 };
 
 TelephonyUpdateEventType GetEventType(std::string_view event)
@@ -66,7 +67,8 @@ static inline bool IsValidSlotIdEx(TelephonyUpdateEventType eventType, int32_t s
     int32_t defaultSlotId = DEFAULT_SIM_SLOT_ID;
     if (eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
         eventType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE ||
-        eventType == TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE) {
+        eventType == TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE ||
+        eventType == TelephonyUpdateEventType::EVENT_VOIP_CALL_STATE_UPDATE) {
         defaultSlotId = -1;
     }
     // One more slot for VSim.
@@ -84,7 +86,8 @@ static void NativeOn(napi_env env, void *data)
     ObserverContext *asyncContext = static_cast<ObserverContext *>(data);
     if (SIM_SLOT_COUNT == 0 && (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE) &&
         (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) &&
-        (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE)) {
+        (asyncContext->eventType != TelephonyUpdateEventType::EVENT_CCALL_STATE_UPDATE) &&
+        (asyncContext->eventType != TelephonyUpdateEventType::EVENT_VOIP_CALL_STATE_UPDATE)) {
         TELEPHONY_LOGE("The device is not support sim card.");
         asyncContext->resolved = true;
         return;
@@ -174,7 +177,8 @@ static std::optional<NapiError> MatchParametersWithoutObject(napi_env env, napi_
     if (!errCode.has_value()) {
         TelephonyUpdateEventType registType = GetEventType(eventType.data());
         if (registType == TelephonyUpdateEventType::EVENT_CALL_STATE_UPDATE ||
-            registType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE) {
+            registType == TelephonyUpdateEventType::EVENT_CALL_STATE_EX_UPDATE ||
+            registType == TelephonyUpdateEventType::EVENT_VOIP_CALL_STATE_UPDATE) {
             TELEPHONY_LOGI("state registry observer has no slotId");
             asyncContext->slotId = -1;
         } else if (ENABLE_ON_DEFAULT_DATA_EVENT_SET.find(GetEventType(eventType.data())) !=
@@ -483,6 +487,67 @@ static napi_value OffSimActiveState(napi_env env, napi_callback_info info)
     return NapiUtil::CreateUndefined(env);
 }
 
+static napi_value OnVoIPStateChange(napi_env env, napi_callback_info info)
+{
+    size_t parameterCount = PARAMETER_COUNT_TWO;
+    napi_value parameters[] = { nullptr, nullptr };
+    napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
+    std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
+    if (asyncContext == nullptr) {
+        TELEPHONY_LOGE("onVoIPStateChange asyncContext is nullptr.");
+        NapiUtil::ThrowParameterError(env);
+        return nullptr;
+    }
+    std::optional<NapiError> errCode;
+    if (parameterCount == std::size(parameters)) {
+        errCode = MatchParametersWithObject(env, parameters, parameterCount, asyncContext);
+    } else {
+        errCode = MatchParametersWithoutObject(env, parameters, parameterCount, asyncContext);
+    }
+ 
+    if (errCode.has_value()) {
+        TELEPHONY_LOGE("onVoIPStateChange parameter matching failed.");
+        NapiUtil::ThrowParameterError(env);
+        return nullptr;
+    }
+    ObserverContext *observerContext = asyncContext.release();
+    observerContext->eventType = GetEventType("voipStateChange");
+    NativeOn(env, observerContext);
+    OnCallback(env, observerContext);
+    return NapiUtil::CreateUndefined(env);
+}
+ 
+static napi_value OffVoIPStateChange(napi_env env, napi_callback_info info)
+{
+    size_t parameterCount = PARAMETER_COUNT_ONE;
+    napi_value parameters[] = { nullptr };
+    napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
+ 
+    std::unique_ptr<ObserverContext> asyncContext = std::make_unique<ObserverContext>();
+    if (asyncContext == nullptr) {
+        TELEPHONY_LOGE("asyncContext is nullptr.");
+        NapiUtil::ThrowParameterError(env);
+        return nullptr;
+    }
+    napi_valuetype valueTypeTemp = napi_undefined;
+    napi_typeof(env, parameters[0], &valueTypeTemp);
+    if (valueTypeTemp == napi_undefined || valueTypeTemp == napi_null || valueTypeTemp == napi_function) {
+        ObserverContext *observerContext = asyncContext.release();
+        observerContext->eventType = GetEventType("voipStateChange");
+        if (observerContext->eventType != TelephonyUpdateEventType::NONE_EVENT_TYPE) {
+            NativeOff(env, observerContext);
+        } else {
+            NapiUtil::ThrowParameterError(env);
+        }
+        OffCallback(env, observerContext);
+        return NapiUtil::CreateUndefined(env);
+    } else {
+        TELEPHONY_LOGE("parameter matching failed.");
+        NapiUtil::ThrowParameterError(env);
+        return nullptr;
+    }
+}
+
 napi_status InitEnumLockReason(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
@@ -506,6 +571,39 @@ napi_status InitEnumLockReason(napi_env env, napi_value exports)
     return napi_define_properties(env, exports, arrSize, desc);
 }
 
+napi_status InitEnumVoIPCallType(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("VOICE", GetNapiValue(env, static_cast<int32_t>(VoIPCallType::VOICE))),
+        DECLARE_NAPI_STATIC_PROPERTY("VIDEO", GetNapiValue(env, static_cast<int32_t>(VoIPCallType::VIDEO))),
+    };
+
+    constexpr size_t arrSize = sizeof(desc) / sizeof(desc[0]);
+    NapiUtil::DefineEnumClassByName(env, exports, "VoIPCallType", arrSize, desc);
+    return napi_define_properties(env, exports, arrSize, desc);
+}
+ 
+napi_status InitEnumVoIPCallState(napi_env env, napi_value exports)
+{
+    napi_property_descriptor desc[] = {
+        DECLARE_NAPI_STATIC_PROPERTY("IDLE", GetNapiValue(env, static_cast<int32_t>(VoIPCallState::IDLE))),
+        DECLARE_NAPI_STATIC_PROPERTY("INCOMING", GetNapiValue(env, static_cast<int32_t>(VoIPCallState::INCOMING))),
+        DECLARE_NAPI_STATIC_PROPERTY("OUTGOING", GetNapiValue(env, static_cast<int32_t>(VoIPCallState::OUTGOING))),
+        DECLARE_NAPI_STATIC_PROPERTY("DIALING", GetNapiValue(env, static_cast<int32_t>(VoIPCallState::DIALING))),
+        DECLARE_NAPI_STATIC_PROPERTY("ANSWERED", GetNapiValue(env, static_cast<int32_t>(VoIPCallState::ANSWERED))),
+        DECLARE_NAPI_STATIC_PROPERTY("ACTIVE", GetNapiValue(env, static_cast<int32_t>(VoIPCallState::ACTIVE))),
+        DECLARE_NAPI_STATIC_PROPERTY("HOLDING", GetNapiValue(env, static_cast<int32_t>(VoIPCallState::HOLDING))),
+        DECLARE_NAPI_STATIC_PROPERTY("DISCONNECTING",
+            GetNapiValue(env, static_cast<int32_t>(VoIPCallState::DISCONNECTING))),
+        DECLARE_NAPI_STATIC_PROPERTY("DISCONNECTED",
+            GetNapiValue(env, static_cast<int32_t>(VoIPCallState::DISCONNECTED))),
+    };
+ 
+    constexpr size_t arrSize = sizeof(desc) / sizeof(desc[0]);
+    NapiUtil::DefineEnumClassByName(env, exports, "VoIPCallState", arrSize, desc);
+    return napi_define_properties(env, exports, arrSize, desc);
+}
+
 EXTERN_C_START
 napi_value InitNapiStateRegistry(napi_env env, napi_value exports)
 {
@@ -516,9 +614,13 @@ napi_value InitNapiStateRegistry(napi_env env, napi_value exports)
         DECLARE_NAPI_WRITABLE_FUNCTION("offCCallStateChange", OffCCallStateChange),
         DECLARE_NAPI_WRITABLE_FUNCTION("onGetSimActiveState", OnSimActiveState),
         DECLARE_NAPI_WRITABLE_FUNCTION("offGetSimActiveState", OffSimActiveState),
+        DECLARE_NAPI_WRITABLE_FUNCTION("onVoIPStateChange", OnVoIPStateChange),
+        DECLARE_NAPI_WRITABLE_FUNCTION("offVoIPStateChange", OffVoIPStateChange),
     };
     NAPI_CALL(env, napi_define_properties(env, exports, sizeof(desc) / sizeof(desc[0]), desc));
     NAPI_CALL(env, InitEnumLockReason(env, exports));
+    NAPI_CALL(env, InitEnumVoIPCallType(env, exports));
+    NAPI_CALL(env, InitEnumVoIPCallState(env, exports));
     const char *nativeStr = "InitNapiStateRegistry";
     napi_wrap(
         env, exports, static_cast<void *>(const_cast<char *>(nativeStr)),

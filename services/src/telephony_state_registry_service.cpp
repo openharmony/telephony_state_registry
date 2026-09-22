@@ -528,6 +528,25 @@ int32_t TelephonyStateRegistryService::UpdateSimActiveState(int32_t slotId, bool
     return result;
 }
 
+int32_t TelephonyStateRegistryService::UpdateVoIPCallState(const VoIPCallStateInfo &info)
+{
+    if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
+        TELEPHONY_LOGE("UpdateVoIPCallState##Check permission failed.");
+        return TELEPHONY_STATE_REGISTRY_PERMISSION_DENIED;
+    }
+    std::shared_lock<std::shared_mutex> lock(lock_);
+    int32_t result = TELEPHONY_STATE_REGISTRY_DATA_NOT_EXIST;
+    for (size_t i = 0; i < stateRecords_.size(); i++) {
+        TelephonyStateRegistryRecord record = stateRecords_[i];
+        if (record.IsExistStateListener(TelephonyObserverBroker::OBSERVER_MASK_VOIP_CALL_STATE) &&
+            record.telephonyObserver_ != nullptr && record.CanManageCallForDevices()) {
+            record.telephonyObserver_->OnVoIPStateUpdated(info);
+            result = TELEPHONY_SUCCESS;
+        }
+    }
+    return result;
+}
+
 bool TelephonyStateRegistryService::CheckCallerIsSystemApp(uint32_t mask)
 {
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_CELL_INFO) != 0) {
@@ -665,6 +684,13 @@ bool TelephonyStateRegistryService::CheckPermission(uint32_t mask)
     if ((mask & TelephonyObserverBroker::OBSERVER_MASK_SIM_ACTIVE_STATE) != 0) {
         if (!TelephonyPermission::CheckPermission(Permission::SET_TELEPHONY_STATE)) {
             TELEPHONY_LOGE("Check sim active state permission failed");
+            return false;
+        }
+    }
+    if ((mask & TelephonyObserverBroker::OBSERVER_MASK_VOIP_CALL_STATE) != 0) {
+        if (!TelephonyPermission::CheckPermission(Permission::MANAGE_CALL_FOR_DEVICES)) {
+            TELEPHONY_LOGE("Check permission failed,"
+                "you must declare ohos.permission.MANAGE_CALL_FOR_DEVICES permission for voipStateChange");
             return false;
         }
     }

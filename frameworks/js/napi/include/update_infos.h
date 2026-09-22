@@ -25,6 +25,7 @@
 #include "refbase.h"
 #include "signal_information.h"
 #include "sim_state_type.h"
+#include "voip_call_state_info.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -98,6 +99,19 @@ struct SimActiveStateUpdate : public UpdateInfo {
     bool isSimActive = false;
     SimActiveStateUpdate(int32_t slotId, bool isActive)
         : UpdateInfo(slotId), isSimActive(isActive) {}
+};
+
+struct VoIPCallStateUpdateInfo : public UpdateInfo {
+    std::string appName_ = "";
+    std::string contactName_ = "";
+    VoIPCallType callType_ = VoIPCallType::VOICE;
+    VoIPCallState callState_ = VoIPCallState::IDLE;
+    bool isVoiceAnswerSupported_ = true;
+    VoIPCallStateUpdateInfo(int32_t slotId, const std::string &appName, const std::string &contactName,
+        VoIPCallType callType, VoIPCallState callState, bool isVoiceAnswerSupported)
+        : UpdateInfo(slotId), appName_(appName), contactName_(contactName), callType_(callType), callState_(callState),
+          isVoiceAnswerSupported_(isVoiceAnswerSupported)
+    {}
 };
 } // namespace Telephony
 } // namespace OHOS

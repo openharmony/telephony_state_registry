@@ -17,6 +17,7 @@
 #include "event_listener_manager.h"
 #include "telephony_callback_event_id.h"
 #include "telephony_log_wrapper.h"
+#include "telephony_types.h"
 #include "update_infos.h"
 
 namespace OHOS {
@@ -180,6 +181,21 @@ void NapiTelephonyObserver::OnSimActiveStateUpdated(int32_t slotId, bool enable)
         std::make_unique<SimActiveStateUpdate>(slotId, enable);
     EventListenerManager::SendEvent(
         ToUint32t(TelephonyCallbackEventId::EVENT_ON_SIM_ACTIVE_STATE_UPDATE), simActiveStateUpdateInfo);
+}
+
+void NapiTelephonyObserver::OnVoIPStateUpdated(const VoIPCallStateInfo &info)
+{
+    TELEPHONY_LOGI("OnVoIPStateUpdated callState = %{public}d, callType = %{public}d",
+        static_cast<int32_t>(info.callState), static_cast<int32_t>(info.callType));
+    std::unique_ptr<VoIPCallStateUpdateInfo> voipCallStateUpdateInfo =
+        std::make_unique<VoIPCallStateUpdateInfo>(-1, info.appName, info.contactName,
+            info.callType, info.callState, info.isVoiceAnswerSupported);
+    if (voipCallStateUpdateInfo == nullptr) {
+        TELEPHONY_LOGE("voipCallStateUpdateInfo is nullptr!");
+        return;
+    }
+    EventListenerManager::SendEvent(
+        ToUint32t(TelephonyCallbackEventId::EVENT_ON_VOIP_CALL_STATE_UPDATE), voipCallStateUpdateInfo);
 }
 } // namespace Telephony
 } // namespace OHOS

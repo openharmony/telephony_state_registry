@@ -64,6 +64,7 @@ private:
 private:
     void AddBasicHandlerToMap();
     void AddSimActiveStateHandlerToMap();
+    void AddVoIPStateHandlerToMap();
     void AddNetworkHandlerToMap();
     void AddWorkFuncToMap();
     bool IsCallBackRegister(napi_env env, napi_ref ref, napi_ref registeredRef) const;
@@ -92,6 +93,7 @@ private:
     static void WorkIccAccountUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
     static void WorkCCallStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
     static void WorkSimActiveUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
+    static void WorkVoIPStateUpdated(uv_work_t *work, std::unique_lock<std::mutex> &lock);
 
     template<typename T, typename D, TelephonyUpdateEventType eventType>
     void HandleCallbackInfoUpdate(const AppExecFwk::InnerEvent::Pointer &event);

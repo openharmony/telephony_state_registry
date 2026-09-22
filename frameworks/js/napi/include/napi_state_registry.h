@@ -38,6 +38,7 @@ constexpr int32_t LISTEN_SIGNAL_STRENGTHS = TelephonyObserverBroker::OBSERVER_MA
 constexpr int32_t LISTEN_SIM_STATE = TelephonyObserverBroker::OBSERVER_MASK_SIM_STATE;
 constexpr int32_t LISTEN_DATA_CONNECTION_STATE = TelephonyObserverBroker::OBSERVER_MASK_DATA_CONNECTION_STATE;
 constexpr int32_t LISTEN_CELLULAR_DATA_FLOW = TelephonyObserverBroker::OBSERVER_MASK_DATA_FLOW;
+constexpr int32_t LISTEN_VOIP_CALL_STATE = TelephonyObserverBroker::OBSERVER_MASK_VOIP_CALL_STATE;
 
 enum class CallState : int32_t {
     /**

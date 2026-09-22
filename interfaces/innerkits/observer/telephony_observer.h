@@ -23,6 +23,7 @@
 #include "iremote_stub.h"
 
 #include "telephony_observer_broker.h"
+#include "voip_call_state_info.h"
 
 namespace OHOS {
 namespace Telephony {
@@ -147,6 +148,13 @@ public:
      */
     void OnSimActiveStateUpdated(int32_t slotId, bool enable) override;
 
+    /**
+     * @brief Called when VoIP call state is updated.
+     *
+     * @param info Indicates the VoIP call state information.
+     */
+    void OnVoIPStateUpdated(const VoIPCallStateInfo &info) override;
+
 private:
     using TelephonyObserverFunc = std::function<void(MessageParcel &data, MessageParcel &reply)>;
 
@@ -167,6 +175,7 @@ private:
     void OnCallStateUpdatedExInner(MessageParcel &data, MessageParcel &reply);
     void OnCCallStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
     void OnSimActiveStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
+    void OnVoIPStateUpdatedInner(MessageParcel &data, MessageParcel &reply);
     static constexpr int32_t CELL_NUM_MAX = 100;
     static constexpr int32_t SIGNAL_NUM_MAX = 100;
     std::map<uint32_t, TelephonyObserverFunc> memberFuncMap_;

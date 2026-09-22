@@ -61,6 +61,8 @@ TelephonyStateRegistryStub::TelephonyStateRegistryStub()
         [this](MessageParcel &data, MessageParcel &reply) { return OnIccAccountUpdated(data, reply); };
     memberFuncMap_[StateNotifyInterfaceCode::SIM_ACTIVR_STATE] =
         [this](MessageParcel &data, MessageParcel &reply) { return OnSimActiveStateUpdated(data, reply); };
+    memberFuncMap_[StateNotifyInterfaceCode::VOIP_CALL_STATE] =
+        [this](MessageParcel &data, MessageParcel &reply) { return OnUpdateVoIPCallState(data, reply); };
 }
 
 TelephonyStateRegistryStub::~TelephonyStateRegistryStub()
@@ -458,6 +460,32 @@ int32_t TelephonyStateRegistryStub::UnregisterStateChange(int32_t slotId, uint32
 {
     int32_t tokenId = static_cast<int32_t>(IPCSkeleton::GetCallingTokenID());
     return UnregisterStateChange(slotId, mask, tokenId, IPCSkeleton::GetCallingPid());
+}
+
+int32_t TelephonyStateRegistryStub::OnUpdateVoIPCallState(MessageParcel &data, MessageParcel &reply)
+{
+    VoIPCallStateInfo info;
+    info.appName = data.ReadString();
+    info.contactName = data.ReadString();
+    int32_t callType = data.ReadInt32();
+    int32_t callState = data.ReadInt32();
+    info.isVoiceAnswerSupported = data.ReadBool();
+    constexpr int32_t VOIP_CALL_TYPE_MIN = static_cast<int32_t>(VoIPCallType::VOICE);
+    constexpr int32_t VOIP_CALL_TYPE_MAX = static_cast<int32_t>(VoIPCallType::VIDEO);
+    constexpr int32_t VOIP_CALL_STATE_MIN = static_cast<int32_t>(VoIPCallState::IDLE);
+    constexpr int32_t VOIP_CALL_STATE_MAX = static_cast<int32_t>(VoIPCallState::DISCONNECTED);
+    if (callType < VOIP_CALL_TYPE_MIN || callType > VOIP_CALL_TYPE_MAX ||
+        callState < VOIP_CALL_STATE_MIN || callState > VOIP_CALL_STATE_MAX) {
+        TELEPHONY_LOGE("OnUpdateVoIPCallState invalid callType:%{public}d or callState:%{public}d",
+            callType, callState);
+        reply.WriteInt32(TELEPHONY_ERR_ARGUMENT_INVALID);
+        return TELEPHONY_ERR_ARGUMENT_INVALID;
+    }
+    info.callType = static_cast<VoIPCallType>(callType);
+    info.callState = static_cast<VoIPCallState>(callState);
+    int32_t ret = UpdateVoIPCallState(info);
+    reply.WriteInt32(ret);
+    return NO_ERROR;
 }
 } // namespace Telephony
 } // namespace OHOS
