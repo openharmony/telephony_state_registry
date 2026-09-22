@@ -544,7 +544,6 @@ int32_t TelephonyStateRegistryService::UpdateVoIPCallState(const VoIPCallStateIn
             result = TELEPHONY_SUCCESS;
         }
     }
-    TELEPHONY_LOGI("TelephonyStateRegistryService::UpdateVoIPCallState end##result=%{public}d", result);
     return result;
 }
 
