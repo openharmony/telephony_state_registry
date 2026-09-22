@@ -137,7 +137,7 @@ protected:
         VoIPCallStateInfo info;
         info.appName = "com.example.voip";
         info.contactName = "Bob";
-        info.callType = VoIPCallType::VIDEO_CONFERENCE;
+        info.callType = VoIPCallType::VIDEO;
         info.callState = VoIPCallState::ANSWERED;
         info.isVoiceAnswerSupported = true;
         return info;
@@ -402,7 +402,7 @@ HWTEST_F(TelephonyStateRegistryServiceTest, TelephonyStateRegistryService_Update
     EXPECT_EQ(observer->voipCallbackCount_, 1);
     EXPECT_EQ(observer->lastVoipInfo_.appName, "com.example.voip");
     EXPECT_EQ(observer->lastVoipInfo_.contactName, "Bob");
-    EXPECT_EQ(observer->lastVoipInfo_.callType, VoIPCallType::VIDEO_CONFERENCE);
+    EXPECT_EQ(observer->lastVoipInfo_.callType, VoIPCallType::VIDEO);
     EXPECT_EQ(observer->lastVoipInfo_.callState, VoIPCallState::ANSWERED);
     EXPECT_TRUE(observer->lastVoipInfo_.isVoiceAnswerSupported);
 }
