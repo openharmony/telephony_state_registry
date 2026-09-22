@@ -484,7 +484,6 @@ int32_t TelephonyStateRegistryStub::OnUpdateVoIPCallState(MessageParcel &data, M
     info.callType = static_cast<VoIPCallType>(callType);
     info.callState = static_cast<VoIPCallState>(callState);
     int32_t ret = UpdateVoIPCallState(info);
-    TELEPHONY_LOGI("TelephonyStateRegistryStub::OnUpdateVoIPCallState end##ret=%{public}d", ret);
     reply.WriteInt32(ret);
     return NO_ERROR;
 }
