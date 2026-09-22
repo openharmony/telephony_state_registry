@@ -470,8 +470,8 @@ int32_t TelephonyStateRegistryStub::OnUpdateVoIPCallState(MessageParcel &data, M
     int32_t callType = data.ReadInt32();
     int32_t callState = data.ReadInt32();
     info.isVoiceAnswerSupported = data.ReadBool();
-    constexpr int32_t VOIP_CALL_TYPE_MIN = static_cast<int32_t>(VoIPCallType::VOICE_ONE_TO_ONE);
-    constexpr int32_t VOIP_CALL_TYPE_MAX = static_cast<int32_t>(VoIPCallType::VIDEO_CONFERENCE);
+    constexpr int32_t VOIP_CALL_TYPE_MIN = static_cast<int32_t>(VoIPCallType::VOICE);
+    constexpr int32_t VOIP_CALL_TYPE_MAX = static_cast<int32_t>(VoIPCallType::VIDEO);
     constexpr int32_t VOIP_CALL_STATE_MIN = static_cast<int32_t>(VoIPCallState::IDLE);
     constexpr int32_t VOIP_CALL_STATE_MAX = static_cast<int32_t>(VoIPCallState::DISCONNECTED);
     if (callType < VOIP_CALL_TYPE_MIN || callType > VOIP_CALL_TYPE_MAX ||
