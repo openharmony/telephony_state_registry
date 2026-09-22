@@ -104,7 +104,7 @@ struct SimActiveStateUpdate : public UpdateInfo {
 struct VoIPCallStateUpdateInfo : public UpdateInfo {
     std::string appName_ = "";
     std::string contactName_ = "";
-    VoIPCallType callType_ = VoIPCallType::VOICE_ONE_TO_ONE;
+    VoIPCallType callType_ = VoIPCallType::VOICE;
     VoIPCallState callState_ = VoIPCallState::IDLE;
     bool isVoiceAnswerSupported_ = true;
     VoIPCallStateUpdateInfo(int32_t slotId, const std::string &appName, const std::string &contactName,
