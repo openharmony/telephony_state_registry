@@ -574,16 +574,10 @@ napi_status InitEnumLockReason(napi_env env, napi_value exports)
 napi_status InitEnumVoIPCallType(napi_env env, napi_value exports)
 {
     napi_property_descriptor desc[] = {
-        DECLARE_NAPI_STATIC_PROPERTY("VOICE_ONE_TO_ONE",
-            GetNapiValue(env, static_cast<int32_t>(VoIPCallType::VOICE_ONE_TO_ONE))),
-        DECLARE_NAPI_STATIC_PROPERTY("VIDEO_ONE_TO_ONE",
-            GetNapiValue(env, static_cast<int32_t>(VoIPCallType::VIDEO_ONE_TO_ONE))),
-        DECLARE_NAPI_STATIC_PROPERTY("VOICE_CONFERENCE",
-            GetNapiValue(env, static_cast<int32_t>(VoIPCallType::VOICE_CONFERENCE))),
-        DECLARE_NAPI_STATIC_PROPERTY("VIDEO_CONFERENCE",
-            GetNapiValue(env, static_cast<int32_t>(VoIPCallType::VIDEO_CONFERENCE))),
+        DECLARE_NAPI_STATIC_PROPERTY("VOICE", GetNapiValue(env, static_cast<int32_t>(VoIPCallType::VOICE))),
+        DECLARE_NAPI_STATIC_PROPERTY("VIDEO", GetNapiValue(env, static_cast<int32_t>(VoIPCallType::VIDEO))),
     };
- 
+
     constexpr size_t arrSize = sizeof(desc) / sizeof(desc[0]);
     NapiUtil::DefineEnumClassByName(env, exports, "VoIPCallType", arrSize, desc);
     return napi_define_properties(env, exports, arrSize, desc);
