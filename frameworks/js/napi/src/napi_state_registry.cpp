@@ -489,7 +489,6 @@ static napi_value OffSimActiveState(napi_env env, napi_callback_info info)
 
 static napi_value OnVoIPStateChange(napi_env env, napi_callback_info info)
 {
-    TELEPHONY_LOGI("onVoIPStateChange enter");
     size_t parameterCount = PARAMETER_COUNT_TWO;
     napi_value parameters[] = { nullptr, nullptr };
     napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
@@ -520,7 +519,6 @@ static napi_value OnVoIPStateChange(napi_env env, napi_callback_info info)
  
 static napi_value OffVoIPStateChange(napi_env env, napi_callback_info info)
 {
-    TELEPHONY_LOGI("offVoIPStateChange enter");
     size_t parameterCount = PARAMETER_COUNT_ONE;
     napi_value parameters[] = { nullptr };
     napi_get_cb_info(env, info, &parameterCount, parameters, nullptr, nullptr);
