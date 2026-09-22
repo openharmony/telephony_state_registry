@@ -314,6 +314,7 @@ void TelephonyObserverProxy::OnVoIPStateUpdated(const VoIPCallStateInfo &info)
     dataParcel.WriteBool(info.isVoiceAnswerSupported);
     auto code = SendRequest(
         static_cast<int32_t>(ObserverBrokerCode::ON_VOIP_STATE_UPDATED), dataParcel, replyParcel, option);
+    TELEPHONY_LOGI("TelephonyObserverProxy::OnVoIPStateUpdated##error: %{public}d.", code);
 }
 } // namespace Telephony
 } // namespace OHOS
