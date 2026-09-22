@@ -120,8 +120,7 @@ HWTEST_F(TelephonyStateRegistryStubTest, TelephonyStateRegistryStub_OnUpdateVoIP
     ASSERT_NE(service, nullptr);
     MessageParcel data;
     MessageParcel reply;
-    WriteVoipCallStateParcel(data,
-        static_cast<int32_t>(VoIPCallType::VOICE_ONE_TO_ONE), INVALID_CALL_STATE_BELOW, true);
+    WriteVoipCallStateParcel(data, static_cast<int32_t>(VoIPCallType::VOICE), INVALID_CALL_STATE_BELOW, true);
     auto result = service->OnUpdateVoIPCallState(data, reply);
     EXPECT_EQ(result, TELEPHONY_ERR_ARGUMENT_INVALID);
     EXPECT_EQ(reply.ReadInt32(), TELEPHONY_ERR_ARGUMENT_INVALID);
@@ -139,8 +138,7 @@ HWTEST_F(TelephonyStateRegistryStubTest, TelephonyStateRegistryStub_OnUpdateVoIP
     ASSERT_NE(service, nullptr);
     MessageParcel data;
     MessageParcel reply;
-    WriteVoipCallStateParcel(data,
-        static_cast<int32_t>(VoIPCallType::VIDEO_CONFERENCE), INVALID_CALL_STATE_ABOVE, true);
+    WriteVoipCallStateParcel(data, static_cast<int32_t>(VoIPCallType::VIDEO), INVALID_CALL_STATE_ABOVE, true);
     auto result = service->OnUpdateVoIPCallState(data, reply);
     EXPECT_EQ(result, TELEPHONY_ERR_ARGUMENT_INVALID);
     EXPECT_EQ(reply.ReadInt32(), TELEPHONY_ERR_ARGUMENT_INVALID);
@@ -161,7 +159,7 @@ HWTEST_F(TelephonyStateRegistryStubTest, TelephonyStateRegistryStub_OnUpdateVoIP
     EXPECT_CALL(*permission_, CheckPermission(_)).WillRepeatedly(Return(true));
     MessageParcel data;
     MessageParcel reply;
-    WriteVoipCallStateParcel(data, static_cast<int32_t>(VoIPCallType::VOICE_ONE_TO_ONE),
+    WriteVoipCallStateParcel(data, static_cast<int32_t>(VoIPCallType::VOICE),
         static_cast<int32_t>(VoIPCallState::IDLE), false);
     auto result = service->OnUpdateVoIPCallState(data, reply);
     EXPECT_EQ(result, NO_ERROR);
@@ -183,7 +181,7 @@ HWTEST_F(TelephonyStateRegistryStubTest, TelephonyStateRegistryStub_OnUpdateVoIP
     EXPECT_CALL(*permission_, CheckPermission(Permission::SET_TELEPHONY_STATE)).WillRepeatedly(Return(false));
     MessageParcel data;
     MessageParcel reply;
-    WriteVoipCallStateParcel(data, static_cast<int32_t>(VoIPCallType::VIDEO_CONFERENCE),
+    WriteVoipCallStateParcel(data, static_cast<int32_t>(VoIPCallType::VIDEO),
         static_cast<int32_t>(VoIPCallState::DISCONNECTED), true);
     auto result = service->OnUpdateVoIPCallState(data, reply);
     EXPECT_EQ(result, NO_ERROR);
